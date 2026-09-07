@@ -1,0 +1,30 @@
+NGO Management — Step 1 (Members + Donations)
+==============================================
+
+1) DATABASE
+   - Run SQL: application/db/ngom_modules.sql (phpMyAdmin or CLI)
+   - Or CLI: php application/db/install_ngom.php
+
+2) COMPOSER (PDF)
+   - From project root: composer install
+   - Requires vendor/autoload.php (TCPDF). index.php already loads it.
+
+3) RAZORPAY
+   - Configure keys in: application/views/web/razorpay_config.php
+   - Donation page now calls:
+     - POST index.php/donations/create_order  (JSON { "amount": 500 })
+     - POST index.php/donations/verify_payment (after Razorpay handler; verifies HMAC signature)
+
+4) URLS (examples with index.php)
+   - Admin: index.php/members  |  index.php/donations
+   - Public verify: index.php/member_verify/{public_id}
+   - Receipt verify (QR): index.php/donations/verify_receipt/{receipt_no}
+
+5) UPLOADS
+   - Member photos: uploads/members/ (auto-created)
+
+6) ROLES
+   - CMS role "member" cannot access Members/Donations admin (redirected to blog tab).
+
+7) LEGACY
+   - Old views/web/create_order.php still exists; donation.php uses CI routes above.

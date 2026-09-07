@@ -1,0 +1,40 @@
+RewriteEngine On
+
+# Force HTTPS on production
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTP_HOST} !=localhost
+RewriteCond %{HTTP_HOST} !=127.0.0.1
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Upgrade insecure requests (safety net for mixed content)
+<IfModule mod_headers.c>
+    Header always set Content-Security-Policy "upgrade-insecure-requests"
+</IfModule>
+
+   #Checks to see if the user is attempting to access a valid file,
+   #such as an image or css document, if this isn't true it sends the
+   #request to index.php pull nhi hua ha dekha hmne
+Options -Indexes
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond $1 !^(index\.php|public|robots\.txt|assets|assetsA|assetsW|uploads)
+    RewriteRule ^(.*)$ index.php/$1 [L]
+
+   RewriteCond %{REQUEST_URI} ^system.*
+   RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+   RewriteCond %{REQUEST_URI} ^application.*
+   RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+   RewriteCond %{REQUEST_URI} ^application.*
+   RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+# 1 Month for most static assets
+<filesMatch ".(css|jpg|jpeg|png|gif|js|ico|php)$">
+#Header set Cache-Control "max-age=2592000, public"
+# Header set Access-Control-Allow-Origin "*"
+</filesMatch>
+
+php_value upload_max_filesize 400M
+php_value post_max_size 420M
