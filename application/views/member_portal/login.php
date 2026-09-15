@@ -14,17 +14,23 @@
                     <div class="card-body p-4">
                         <h3 class="mb-3 text-center">Member Login</h3>
                         <?php $ci =& get_instance(); ?>
-                        <?php if ($ci->session->flashdata('error')): ?>
-                            <div class="alert alert-danger"><?php echo $ci->session->flashdata('error'); ?></div>
+                        <?php $err = $ci->session->flashdata('error') ?: $ci->session->flashdata('cms_error'); if ($err): ?>
+                            <div class="alert alert-danger"><?php echo html_escape($err); ?></div>
+                        <?php endif; ?>
+                        <?php $succ = $ci->session->flashdata('success') ?: $ci->session->flashdata('cms_success'); if ($succ): ?>
+                            <div class="alert alert-success"><?php echo html_escape($succ); ?></div>
                         <?php endif; ?>
                         <form method="post" action="<?php echo site_url('member-login/submit'); ?>">
+                            <?php if ($ci->config->item('csrf_protection')): ?>
+                                <input type="hidden" name="<?php echo $ci->security->get_csrf_token_name(); ?>" value="<?php echo $ci->security->get_csrf_hash(); ?>">
+                            <?php endif; ?>
                             <div class="mb-3">
-                                <label class="form-label">User ID</label>
-                                <input type="text" name="user_id" class="form-control" required>
+                                <label class="form-label">Member ID / Email / Mobile</label>
+                                <input type="text" name="username" class="form-control" placeholder="e.g. MBR0001 or email" autocomplete="username" required autofocus>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" required>
+                                <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Login</button>
                         </form>

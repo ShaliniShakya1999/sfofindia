@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /cms/
+Disallow: /index.php/admin/
+Disallow: /index.php/cms/
+Disallow: /activity_logs/
+Disallow: /support_tickets/
+Disallow: /media_manager/
+Disallow: /member-panel/
+Disallow: /member_portal/
+Disallow: /application/
+Disallow: /system/
+Allow: /
+
+Sitemap: https://sfofindia.org/sitemap.xml

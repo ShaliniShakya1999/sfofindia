@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
 if (!class_exists("My_Controller"))
     include_once(APPPATH . 'core/My_Controller.php');
+
 /**
  * @property CI_Upload $member_apply_upload
  */
 class Member_apply extends My_Controller {
+
 
 	public function __construct()
 	{
@@ -14,19 +17,26 @@ class Member_apply extends My_Controller {
 		$this->load->library('session');
 		$this->load->helper(array('form', 'url'));
 		$this->load->model('Member_model', 'members');
+		// Make sure every column the form/submit() relies on actually exists,
+		// even on a freshly restored/older copy of the database.
 		$this->members->ensure_extended_schema();
 	}
 
 	public function index()
 	{
+		// Use loadview() (not a bare load->view) so the public page picks up
+		// the CMS-managed $cms data (site name, contact info, meta tags, etc.)
+		// instead of silently falling back to hardcoded defaults everywhere.
 		$this->loadview('web/member_apply');
 	}
 
 	// =====================================================================
 	// PAYSPRINT AADHAAR API - TEMPORARILY DISABLED
-	// Uncomment below functions when Paysprint API credentials are ready
+	// Uncomment below functions when Paysprint API credentials are ready.
+	// The form already posts aadhar_no / aadhar_verified / aadhar_data
+	// hidden fields, so wiring this back in is just a matter of enabling
+	// the endpoints and pointing the frontend JS at them.
 	// =====================================================================
-
 	/*
 	public function send_aadhaar_otp()
 	{
@@ -97,7 +107,19 @@ class Member_apply extends My_Controller {
 		if (strtoupper((string) $this->input->server('REQUEST_METHOD')) !== 'POST') {
 			show_404();
 		}
+		if (!$this->public_throttle('member_apply', 3, 3600)) {
+			$this->session->set_flashdata('error', 'Too many applications were submitted. Please try again later.');
+			redirect('join-us');
+			return;
+		}
+		if (trim((string) $this->input->post('website', true)) !== '') {
+			redirect('join-us');
+			return;
+		}
 
+		// Field names below match the real `members` table columns
+		// (see Member_model::ensure_extended_schema()) and the input
+		// `name="..."` attributes actually used in web/member_apply.php.
 		$fields = array(
 			'name' => trim((string) $this->input->post('name', true)),
 			'gender' => trim((string) $this->input->post('gender', true)),
@@ -131,7 +153,8 @@ class Member_apply extends My_Controller {
 			redirect('join-us');
 		}
 
-		// Handle uploads
+		// Handle uploads — one field per document type, matching the
+		// dedicated columns the schema provides for each.
 		$upload_fields = array('photo', 'id_document', 'other_document', 'payment_receipt', 'aadhar_front', 'aadhar_back');
 		foreach ($upload_fields as $f) {
 			if (!empty($_FILES[$f]['name'])) {
@@ -141,6 +164,56 @@ class Member_apply extends My_Controller {
 		}
 
 		$ok = $this->members->insert_member($fields);
+
+		/*
+		 * -------------------------------------------------------
+		 * Send notifications only after successful registration.
+		 *
+		 * Email:    registration/welcome email.
+		 * WhatsApp: registration notification.
+		 *
+		 * A notification failure must NOT make the registration
+		 * itself fail — the member record is already saved.
+		 * -------------------------------------------------------
+		 */
+		if ($ok) {
+			$new_id = (int) $this->db->insert_id();
+			$notification_link = $new_id > 0 ? 'members/view/' . $new_id : 'members?status=pending';
+			try {
+				// insert_member() returns a plain bool, so $fields doesn't
+				// carry the auto-generated member_id_code/public_id/
+				// referral_code back. Re-fetch the just-inserted row so the
+				// welcome email can include the member ID code.
+				$new_member = $fields;
+				if ($new_id > 0) {
+					$saved = $this->members->find_by_id($new_id);
+					if (!empty($saved)) {
+						$new_member = (array) $saved;
+					}
+				}
+
+				$this->load->library('Ngom_mailer', array(), 'ngommailer');
+
+				if (!empty($new_member['email'])) {
+					$this->ngommailer->send_registration_welcome($new_member);
+				}
+
+				if (!empty($new_member['mobile'])) {
+					$this->load->library('Ngom_whatsapp', array(), 'ngomwhatsapp');
+					$this->ngomwhatsapp->send_registration_whatsapp($new_member);
+				}
+			} catch (Exception $e) {
+				log_message('error', 'Registration notification error: ' . $e->getMessage());
+			}
+
+			ngom_notify(
+				'New Membership Application',
+				trim((string) ($new_member['name'] ?? $fields['name'])) . ' applied for membership.',
+				'info',
+				$notification_link
+			);
+		}
+
 		$this->session->set_flashdata($ok ? 'success' : 'error', $ok ? 'Application submitted successfully. Admin will review it soon.' : 'Could not submit your application. Please try again.');
 		redirect('join-us');
 	}
@@ -167,6 +240,16 @@ class Member_apply extends My_Controller {
 		}
 
 		$data = $uploader->data();
+		$allowed_mimes = in_array($field_name, array('photo', 'aadhar_front', 'aadhar_back'), true)
+			? array('image/jpeg', 'image/png', 'image/gif', 'image/webp')
+			: array('image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf');
+		$uploaded_path = $config['upload_path'] . $data['file_name'];
+		if (!$this->validate_uploaded_file($uploaded_path, $allowed_mimes)) {
+			@unlink($uploaded_path);
+			$this->session->set_flashdata('error', 'The uploaded file type is not supported.');
+			redirect('join-us');
+			return false;
+		}
 		return 'uploads/members/' . $data['file_name'];
 	}
 }

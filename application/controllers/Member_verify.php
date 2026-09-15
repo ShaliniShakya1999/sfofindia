@@ -6,6 +6,12 @@ class Member_verify extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
+		// Was missing: 'database' isn't autoloaded (see
+		// application/config/autoload.php) and Member_model's constructor
+		// doesn't connect it either, so $this->db below was undefined —
+		// this public verification page (routed from member_verify/(:any),
+		// likely linked from ID-card QR codes) fatal-errored on every visit.
+		$this->load->database();
 		$this->load->model('Member_model', 'member_m');
 	}
 

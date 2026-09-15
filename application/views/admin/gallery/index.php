@@ -97,7 +97,16 @@ function confirmDelete(id) {
         confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = '<?php echo site_url('gallery_manager/delete/'); ?>' + id;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?php echo site_url('gallery_manager/delete/'); ?>' + id;
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '<?php echo $this->security->get_csrf_token_name(); ?>';
+            csrf.value = '<?php echo $this->security->get_csrf_hash(); ?>';
+            form.appendChild(csrf);
+            document.body.appendChild(form);
+            form.submit();
         }
     })
 }

@@ -6,7 +6,11 @@ include 'head.php';
 $razorpay_enabled = false;
 if (file_exists(__DIR__ . '/razorpay_config.php')) {
     include_once __DIR__ . '/razorpay_config.php';
-    $razorpay_enabled = !empty(RAZORPAY_KEY_ID) && RAZORPAY_KEY_ID !== 'rzp_test_xxxxxxxx' && !empty(RAZORPAY_KEY_SECRET);
+    $razorpay_enabled = defined('RAZORPAY_KEY_ID') && RAZORPAY_KEY_ID !== '' && RAZORPAY_KEY_ID !== 'rzp_test_xxxxxxxx' && defined('RAZORPAY_KEY_SECRET') && RAZORPAY_KEY_SECRET !== '';
+}
+if (!$razorpay_enabled && !empty($cms['razorpay_key_id']) && $cms['razorpay_key_id'] !== 'rzp_test_xxxxxxxx') {
+    $razorpay_enabled = true;
+    if (!defined('RAZORPAY_KEY_ID')) define('RAZORPAY_KEY_ID', $cms['razorpay_key_id']);
 }
 ?>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -58,113 +62,113 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
                 </p>
             </div>
 
+            <?php 
+            $campaign_list = !empty($campaigns) ? $campaigns : array(
+                array(
+                    'id' => 2,
+                    'title' => "Support for Martyrs' Families",
+                    'description' => "Your donation provides monthly ration kits, household essentials, and financial assistance to the families of our brave martyrs, ensuring they are never left alone.",
+                    'goal_amount' => 1000000,
+                    'raised_amount' => 0,
+                    'raised_display' => '0',
+                    'image' => 'img/army2.jpg',
+                ),
+                array(
+                    'id' => 3,
+                    'title' => "Medical & Health Assistance",
+                    'description' => "We provide medical treatment, emergency care, medicines, and hospital support to martyrs' families who need immediate and long-term healthcare assistance.",
+                    'goal_amount' => 600000,
+                    'raised_amount' => 0,
+                    'raised_display' => '0',
+                    'image' => 'img/sf/15.jpeg',
+                ),
+                array(
+                    'id' => 1,
+                    'title' => "Education for Martyrs' Children",
+                    'description' => "Your support helps provide school fees, books, uniforms, and quality education to the children of martyrs, helping them build a strong and dignified future.",
+                    'goal_amount' => 500000,
+                    'raised_amount' => 0,
+                    'raised_display' => '0',
+                    'image' => 'img/education-child.webp',
+                ),
+            );
+            ?>
             <div class="row g-4 mt-4">
+                <?php foreach ($campaign_list as $idx => $camp): 
+                    $c_id = (int)($camp['id'] ?? 0);
+                    $c_title = (string)($camp['title'] ?? 'Campaign');
+                    $c_desc = (string)($camp['description'] ?? '');
+                    if (mb_strlen($c_desc) > 150) {
+                        $c_desc = mb_substr($c_desc, 0, 147) . '...';
+                    }
+                    $c_goal = (float)($camp['goal_amount'] ?? 0);
+                    $c_raised = (float)($camp['raised_amount'] ?? 0);
+                    if ($c_raised <= 0 && !empty($camp['raised_display']) && is_numeric($camp['raised_display'])) {
+                        $c_raised = (float)$camp['raised_display'];
+                    }
+                    $c_percent = ($c_goal > 0) ? min(100, round(($c_raised / $c_goal) * 100)) : 0;
+                    
+                    $c_img_raw = trim((string)($camp['image'] ?? ''));
+                    if ($c_img_raw !== '') {
+                        if (preg_match('#^https?://#i', $c_img_raw)) {
+                            $c_img = $c_img_raw;
+                        } elseif (strpos($c_img_raw, 'img/') === 0) {
+                            $c_img = web_asset($c_img_raw);
+                        } elseif (file_exists(FCPATH . $c_img_raw)) {
+                            $c_img = base_url($c_img_raw);
+                        } else {
+                            $c_img = web_asset('img/army2.jpg');
+                        }
+                    } else {
+                        $c_img = web_asset('img/army2.jpg');
+                    }
 
-                <!-- Donation Box 1 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
+                    $c_tag = 'Family Support';
+                    $t_lower = strtolower($c_title);
+                    if (strpos($t_lower, 'education') !== false || strpos($t_lower, 'child') !== false) {
+                        $c_tag = 'Education';
+                    } elseif (strpos($t_lower, 'medic') !== false || strpos($t_lower, 'health') !== false) {
+                        $c_tag = 'Medical Care';
+                    } elseif (strpos($t_lower, 'relief') !== false || strpos($t_lower, 'emergency') !== false) {
+                        $c_tag = 'Emergency Relief';
+                    }
+                    
+                    $delay = number_format(0.1 + ($idx * 0.1), 2);
+                ?>
+                <!-- Dynamic Campaign Box <?php echo $c_id; ?> -->
+                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="<?php echo $delay; ?>s">
                     <div class="donation-item d-flex h-100 p-4">
                         <div class="donation-progress d-flex flex-column flex-shrink-0 text-center me-4">
                             <h6 class="mb-0">Raised</h6>
-                            <span class="mb-2">₹8,00,000</span>
+                            <span class="mb-2">₹<?php echo number_format($c_raised); ?></span>
                             <div class="progress d-flex align-items-end w-100 h-100 mb-2">
-                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="85"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fs-4">85%</span>
+                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="<?php echo $c_percent; ?>"
+                                    aria-valuemin="0" aria-valuemax="100" style="height: <?php echo max(5, $c_percent); ?>%;">
+                                    <span class="fs-4"><?php echo $c_percent; ?>%</span>
                                 </div>
                             </div>
                             <h6 class="mb-0">Goal</h6>
-                            <span>₹10,00,000</span>
+                            <span>₹<?php echo number_format($c_goal); ?></span>
                         </div>
 
                         <div class="donation-detail">
                             <div class="position-relative mb-4">
-                                <img class="img-fluid w-100" src="<?php echo html_escape(web_asset('img/army2.jpg')); ?>" alt="Martyrs Family Support">
-                                <a href="#!" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
-                                    Family Support
+                                <img class="img-fluid w-100" src="<?php echo html_escape($c_img); ?>" alt="<?php echo html_escape($c_title); ?>">
+                                <a href="#donate-section" onclick="selectCampaign(<?php echo $c_id; ?>)" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
+                                    <?php echo html_escape($c_tag); ?>
                                 </a>
                             </div>
-                            <a href="#!" class="h3 d-inline-block">Support for Martyrs’ Families</a>
+                            <a href="#donate-section" onclick="selectCampaign(<?php echo $c_id; ?>)" class="h3 d-inline-block"><?php echo html_escape($c_title); ?></a>
                             <p>
-                                Your donation provides monthly ration kits, household essentials, and financial assistance
-                                to the families of our brave martyrs, ensuring they are never left alone.
+                                <?php echo html_escape($c_desc); ?>
                             </p>
-                            <a href="#donate-section" class="btn btn-primary w-100 py-3">
-                                <i class="fa fa-plus me-2"></i>Donate Now
+                            <a href="#donate-section" onclick="selectCampaign(<?php echo $c_id; ?>)" class="btn btn-primary w-100 py-3">
+                                <i class="fa fa-heart me-2"></i>Donate Now
                             </a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Donation Box 2 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.13s">
-                    <div class="donation-item d-flex h-100 p-4">
-                        <div class="donation-progress d-flex flex-column flex-shrink-0 text-center me-4">
-                            <h6 class="mb-0">Raised</h6>
-                            <span class="mb-2">₹5,20,000</span>
-                            <div class="progress d-flex align-items-end w-100 h-100 mb-2">
-                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="95"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fs-4">95%</span>
-                                </div>
-                            </div>
-                            <h6 class="mb-0">Goal</h6>
-                            <span>₹6,00,000</span>
-                        </div>
-
-                        <div class="donation-detail">
-                            <div class="position-relative mb-4">
-                                <img class="img-fluid w-100" src="<?php echo html_escape(web_asset('img/volunteer.jpg')); ?>" alt="Medical Support">
-                                <a href="#!" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
-                                    Medical Care
-                                </a>
-                            </div>
-                            <a href="#!" class="h3 d-inline-block">Medical & Health Assistance</a>
-                            <p>
-                                We provide medical treatment, emergency care, medicines, and hospital support to martyrs’
-                                families who need immediate and long-term healthcare assistance.
-                            </p>
-                            <a href="#donate-section" class="btn btn-primary w-100 py-3">
-                                <i class="fa fa-plus me-2"></i>Donate Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Donation Box 3 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="donation-item d-flex h-100 p-4">
-                        <div class="donation-progress d-flex flex-column flex-shrink-0 text-center me-4">
-                            <h6 class="mb-0">Raised</h6>
-                            <span class="mb-2">₹3,75,000</span>
-                            <div class="progress d-flex align-items-end w-100 h-100 mb-2">
-                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="75"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fs-4">75%</span>
-                                </div>
-                            </div>
-                            <h6 class="mb-0">Goal</h6>
-                            <span>₹5,00,000</span>
-                        </div>
-
-                        <div class="donation-detail">
-                            <div class="position-relative mb-4">
-                                <img class="img-fluid w-100" src="<?php echo html_escape(web_asset('img/education-child.webp')); ?>" alt="Education Support">
-                                <a href="#!" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
-                                    Education
-                                </a>
-                            </div>
-                            <a href="#!" class="h3 d-inline-block">Education for Martyrs’ Children</a>
-                            <p>
-                                Your support helps provide school fees, books, uniforms, and quality education to the children
-                                of martyrs, helping them build a strong and dignified future.
-                            </p>
-                            <a href="#donate-section" class="btn btn-primary w-100 py-3">
-                                <i class="fa fa-plus me-2"></i>Donate Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
+                <?php endforeach; ?>
             </div>
 
             <!-- Emotional Line -->
@@ -177,6 +181,49 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
     </div>
 
     <!-- Donation End -->
+    <style>
+      .donation-item {
+          align-items: stretch;
+          min-height: 402px;
+      }
+      .donation-item .donation-progress {
+          flex: 0 0 64px;
+          width: 64px;
+          min-height: 354px;
+      }
+      .donation-item .donation-detail {
+          min-width: 0;
+          display: flex;
+          flex: 1 1 auto;
+          flex-direction: column;
+      }
+      .donation-item .donation-detail .position-relative {
+          flex: 0 0 100px;
+          margin-bottom: 1rem !important;
+      }
+      .donation-item .donation-detail .position-relative img {
+          display: block;
+          height: 100px;
+          object-fit: cover;
+      }
+      .donation-item .donation-detail > p {
+          flex: 1 1 auto;
+      }
+      .donation-item .donation-detail > .h3 {
+          line-height: 1.2;
+          min-height: 58px;
+          margin-bottom: .6rem;
+      }
+      @media (max-width: 767.98px) {
+          .donation-item {
+              min-height: 0;
+          }
+          .donation-item .donation-progress {
+              flex-basis: 56px;
+              width: 56px;
+          }
+      }
+    </style>
 
 
   <!-- Donate Start -->
@@ -213,6 +260,17 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
                         <form id="donation-form">
                             <div class="row g-3 text-start">
 
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="campaign_id" name="campaign_id" aria-label="Select Campaign">
+                                            <option value="">General Donation (Where Needed Most)</option>
+                                            <?php foreach ($campaign_list as $c_opt): ?>
+                                                <option value="<?php echo (int)$c_opt['id']; ?>"><?php echo html_escape($c_opt['title']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <label for="campaign_id">Choose Cause / Campaign</label>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <div class="form-floating">
                                         <input type="text" class="form-control" id="name" placeholder="Your Name" required>
@@ -305,35 +363,52 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
                                 <li>Use the details below in your bank app or UPI app</li>
                             </ol>
                             <button type="button" class="btn btn-primary btn-sm mb-3" onclick="copyAllBankDetails()"><i class="fa fa-copy me-1"></i> Copy All Details</button>
+                            <?php 
+                            $bank_account_name = cms_val($cms, 'bank_account_name', 'SHAHEED FOUNDATION');
+                            $bank_name = cms_val($cms, 'bank_name', 'AXIS BANK');
+                            $bank_account_no = cms_val($cms, 'bank_account_no', '925010034361992');
+                            $bank_ifsc = cms_val($cms, 'bank_ifsc', 'UTIB0001970');
+                            $bank_branch = cms_val($cms, 'bank_branch', 'Sector 29, Gurgaon, Haryana 122001');
+                            $bank_upi_id = cms_val($cms, 'bank_upi_id', 'shaheedfoundation@axisbank');
+                            ?>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-sm mb-0 bg-light rounded">
                                     <tbody class="text-dark">
                                         <tr>
                                             <td class="text-muted fw-medium" style="width:140px;">Account Name</td>
-                                            <td><strong class="text-dark">SHAHEED FOUNDATION</strong></td>
+                                            <td><strong class="text-dark"><?php echo html_escape($bank_account_name); ?></strong></td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted fw-medium">Bank</td>
-                                            <td><strong class="text-dark">AXIS BANK</strong></td>
+                                            <td><strong class="text-dark"><?php echo html_escape($bank_name); ?></strong></td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted fw-medium">Account No.</td>
                                             <td class="align-middle">
-                                                <strong class="text-dark" id="copy-account">925010034361992</strong>
-                                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" onclick="copyToClipboard('925010034361992', this)" title="Copy Account No."><i class="fa fa-copy"></i></button>
+                                                <strong class="text-dark" id="copy-account"><?php echo html_escape($bank_account_no); ?></strong>
+                                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" onclick="copyToClipboard(<?php echo json_encode($bank_account_no); ?>, this)" title="Copy Account No."><i class="fa fa-copy"></i></button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted fw-medium">IFSC Code</td>
                                             <td class="align-middle">
-                                                <strong class="text-dark" id="copy-ifsc">UTIB0001970</strong>
-                                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" onclick="copyToClipboard('UTIB0001970', this)" title="Copy IFSC"><i class="fa fa-copy"></i></button>
+                                                <strong class="text-dark" id="copy-ifsc"><?php echo html_escape($bank_ifsc); ?></strong>
+                                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" onclick="copyToClipboard(<?php echo json_encode($bank_ifsc); ?>, this)" title="Copy IFSC"><i class="fa fa-copy"></i></button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted fw-medium">Branch</td>
-                                            <td><strong class="text-dark">Sector 29, Gurgaon, Haryana 122001</strong></td>
+                                            <td><strong class="text-dark"><?php echo html_escape($bank_branch); ?></strong></td>
                                         </tr>
+                                        <?php if ($bank_upi_id !== ''): ?>
+                                        <tr>
+                                            <td class="text-muted fw-medium">UPI ID</td>
+                                            <td class="align-middle">
+                                                <strong class="text-dark" id="copy-upi"><?php echo html_escape($bank_upi_id); ?></strong>
+                                                <button type="button" class="btn btn-outline-primary btn-sm ms-2" onclick="copyToClipboard(<?php echo json_encode($bank_upi_id); ?>, this)" title="Copy UPI ID"><i class="fa fa-copy"></i></button>
+                                            </td>
+                                        </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -355,6 +430,7 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
             var name = document.getElementById('name').value.trim();
             var email = document.getElementById('email').value.trim();
             var mobile = document.getElementById('mobile') ? document.getElementById('mobile').value.trim() : '';
+            var campaignId = document.getElementById('campaign_id') ? document.getElementById('campaign_id').value : '';
             var amount = 0;
             if (document.getElementById('donate5').checked) {
                 amount = parseFloat(document.getElementById('custom-amount').value) || 0;
@@ -380,7 +456,13 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
             fetch(createOrderUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amount })
+                body: JSON.stringify({
+                    amount: amount,
+                    name: name,
+                    email: email,
+                    mobile: mobile,
+                    campaign_id: campaignId
+                })
             }).then(function(r) { return r.json(); }).then(function(res) {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa fa-credit-card me-2"></i>Pay Securely (Card / UPI / Net Banking)';
@@ -410,7 +492,8 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
                                 name: name,
                                 email: email,
                                 mobile: mobile,
-                                amount: amount
+                                amount: amount,
+                                campaign_id: campaignId
                             })
                         }).then(function(r) { return r.json(); }).then(function(v) {
                             if (!v.ok) {
@@ -451,7 +534,7 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
             });
         }
         function copyAllBankDetails() {
-            var text = 'SHAHEED FOUNDATION\nAXIS BANK\nAccount No: 925010034361992\nIFSC: UTIB0001970\nBranch: Sector 29, Gurgaon, Haryana 122001';
+            var text = <?php echo json_encode($bank_account_name . "\n" . $bank_name . "\nAccount No: " . $bank_account_no . "\nIFSC: " . $bank_ifsc . "\nBranch: " . $bank_branch . ($bank_upi_id ? "\nUPI ID: " . $bank_upi_id : '')); ?>;
             navigator.clipboard.writeText(text).then(function() {
                 var btn = document.querySelector('[onclick="copyAllBankDetails()"]');
                 if (btn) { var html = btn.innerHTML; btn.innerHTML = '<i class="fa fa-check me-1"></i> Copied!'; setTimeout(function() { btn.innerHTML = html; }, 2000); }
@@ -463,6 +546,20 @@ if (file_exists(__DIR__ . '/razorpay_config.php')) {
                 wrap.classList.toggle('d-none', this.id !== 'donate5');
             });
         });
+
+        function selectCampaign(id) {
+            var sel = document.getElementById('campaign_id');
+            if (sel && id) {
+                sel.value = id;
+            }
+        }
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var cId = params.get('campaign_id');
+            if (cId) {
+                selectCampaign(cId);
+            }
+        })();
     </script>
 <?php endif; ?>
   <?php include 'footer.php'; ?>

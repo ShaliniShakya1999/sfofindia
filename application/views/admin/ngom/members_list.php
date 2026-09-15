@@ -9,7 +9,17 @@ $manager_users = isset($manager_users) ? $manager_users : array();
 $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 ?>
 <style>
-	.members-action-btn { min-width: 32px; padding: 0.35rem 0.45rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+	.members-action-menu { position: relative; display: inline-block; }
+	.members-action-menu summary { list-style: none; cursor: pointer; }
+	.members-action-menu summary::-webkit-details-marker { display: none; }
+	.members-action-menu[open] summary { background-color: #344767; color: #fff; }
+	.members-action-dropdown { position: absolute; right: 0; top: calc(100% + 0.35rem); z-index: 10; min-width: 190px; padding: 0.4rem; background: #fff; border-radius: 0.65rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14); text-align: left; }
+	.members-action-dropdown a { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.65rem; color: #344767; border-radius: 0.4rem; font-size: 0.8rem; text-decoration: none; white-space: nowrap; }
+	.members-action-dropdown a:hover { background: #f1f3f5; }
+	.members-action-dropdown a.text-danger:hover { background: #fff1f2; }
+	.members-action-dropdown i { font-size: 16px; }
+	.member-row-link { cursor: pointer; }
+	.member-row-link:hover { background-color: rgba(79, 70, 229, 0.04); }
 </style>
 <div class="container-fluid py-4">
 	<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
@@ -120,6 +130,7 @@ $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 					<table class="table align-items-center mb-0">
 					<thead>
 						<tr>
+							<th class="text-uppercase text-xxs font-weight-bolder">PHOTO</th>
 							<th class="text-uppercase text-xxs font-weight-bolder">USER ID</th>
 							<th class="text-uppercase text-xxs font-weight-bolder">NAME</th>
 							<th class="text-uppercase text-xxs font-weight-bolder">MOBILE NO.</th>
@@ -134,13 +145,34 @@ $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 					</thead>
 					<tbody>
 						<?php foreach ($members as $m): ?>
-							<tr>
-								<td><?php echo html_escape(!empty($m['member_user_id']) ? $m['member_user_id'] : str_pad((string) $m['id'], 4, '0', STR_PAD_LEFT)); ?></td>
+							<tr class="member-row-link" role="link" tabindex="0" data-member-url="<?php echo html_escape(site_url('members/view/' . (int) $m['id'])); ?>">
 								<td>
-									<strong><?php echo html_escape($m['name']); ?></strong>
+									<?php
+									$name_parts = preg_split('/\s+/', trim((string) $m['name']));
+									$initials = !empty($name_parts[0]) ? substr($name_parts[0], 0, 1) : '?';
+									if (count($name_parts) > 1) {
+										$initials .= substr($name_parts[count($name_parts) - 1], 0, 1);
+									}
+									$initials = strtoupper($initials);
+									?>
+									<?php if (!empty($m['photo'])): ?>
+										<img src="<?php echo html_escape(site_url('members/photo/' . (int) $m['id'])); ?>" alt="<?php echo html_escape($m['name']); ?>" data-initials="<?php echo html_escape($initials); ?>" class="member-photo rounded-circle shadow-sm" style="width:42px;height:42px;object-fit:cover;">
+									<?php else: ?>
+										<span class="member-initials rounded-circle bg-gradient-secondary text-white d-inline-flex align-items-center justify-content-center" style="width:42px;height:42px;font-size:14px;font-weight:700;"><?php echo html_escape($initials); ?></span>
+									<?php endif; ?>
+								</td>
+								<td>
+									<a class="text-decoration-none text-dark" href="<?php echo site_url('members/view/' . (int) $m['id']); ?>">
+										<?php echo html_escape(!empty($m['member_user_id']) ? $m['member_user_id'] : str_pad((string) $m['id'], 4, '0', STR_PAD_LEFT)); ?>
+									</a>
+								</td>
+								<td>
+									<a class="text-decoration-none text-dark" href="<?php echo site_url('members/view/' . (int) $m['id']); ?>">
+										<strong><?php echo html_escape($m['name']); ?></strong>
 									<?php if (!empty($m['email'])): ?>
 										<br><small class="text-muted"><?php echo html_escape($m['email']); ?></small>
 									<?php endif; ?>
+									</a>
 								</td>
 								<td><?php echo html_escape($m['mobile']); ?></td>
 								<td><?php echo html_escape(isset($m['district']) ? $m['district'] : ''); ?></td>
@@ -149,26 +181,37 @@ $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 								<?php else: ?>
 									<td><?php echo html_escape(isset($m['created_at']) ? date('j M Y \a\t g:i A', strtotime($m['created_at'])) : ''); ?></td>
 								<?php endif; ?>
-								<td class="text-end">
-									<div class="d-flex gap-1 justify-content-end flex-wrap">
-										<?php if ($m['status'] !== 'active'): ?>
-											<a class="btn btn-sm btn-success members-action-btn" title="Verify" href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">verified</i></a>
-											<a class="btn btn-sm btn-primary members-action-btn" title="Edit" href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">edit</i></a>
-										<?php else: ?>
-											<a class="btn btn-sm btn-warning members-action-btn" title="ID" target="_blank" href="<?php echo site_url('members/pdf_id_card/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">badge</i></a>
-											<a class="btn btn-sm btn-info members-action-btn" title="Letter" target="_blank" href="<?php echo site_url('members/pdf_appointment/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">description</i></a>
-											<a class="btn btn-sm btn-secondary members-action-btn" title="Certificate" target="_blank" href="<?php echo site_url('members/pdf_certificate/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">workspace_premium</i></a>
-											<a class="btn btn-sm btn-dark members-action-btn" title="Print" target="_blank" href="<?php echo site_url('members/pdf_id_card/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">print</i></a>
-											<a class="btn btn-sm btn-primary members-action-btn" title="Edit" href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded" style="font-size:14px;">edit</i></a>
-											<a class="btn btn-sm btn-success members-action-btn" title="WhatsApp" target="_blank" href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $m['mobile']); ?>"><i class="fab fa-whatsapp" style="font-size:14px;"></i></a>
-										<?php endif; ?>
-										<a href="<?php echo site_url('members/delete/' . (int) $m['id']); ?>" class="btn btn-sm btn-danger members-action-btn" title="Delete" onclick="return confirm('Delete permanently?');"><i class="material-symbols-rounded" style="font-size:14px;">delete</i></a>
+								<td class="text-end" onclick="event.stopPropagation();">
+									<div class="d-flex gap-2 justify-content-end align-items-center">
+										<a class="btn btn-sm btn-outline-primary mb-0" href="<?php echo site_url('members/view/' . (int) $m['id']); ?>">
+											<i class="material-symbols-rounded align-middle me-1" style="font-size:15px;">visibility</i> View
+										</a>
+										<details class="members-action-menu" onclick="event.stopPropagation();">
+											<summary class="btn btn-sm btn-outline-secondary mb-0">Actions <i class="material-symbols-rounded align-middle ms-1" style="font-size:15px;">expand_more</i></summary>
+											<div class="members-action-dropdown">
+												<?php if ($m['status'] !== 'active'): ?>
+													<a href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-success">verified</i> Review / verify</a>
+													<a href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-primary">edit</i> Edit member</a>
+												<?php else: ?>
+													<a href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/id-card'); ?>"><i class="material-symbols-rounded text-warning">badge</i> ID card</a>
+													<a href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/appointment-letter'); ?>"><i class="material-symbols-rounded text-info">description</i> Appointment letter</a>
+													<a href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/certificate'); ?>"><i class="material-symbols-rounded text-secondary">workspace_premium</i> Certificate</a>
+													<a href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-primary">edit</i> Edit member</a>
+													<?php if (!empty($m['mobile'])): ?>
+														<a target="_blank" href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $m['mobile']); ?>"><i class="fab fa-whatsapp text-success"></i> WhatsApp member</a>
+													<?php endif; ?>
+												<?php endif; ?>
+												<form method="post" action="<?php echo site_url('members/delete/' . (int) $m['id']); ?>" onsubmit="return confirm('Delete permanently?');">
+													<button type="submit" class="dropdown-item text-danger"><i class="material-symbols-rounded">delete</i> Delete member</button>
+												</form>
+											</div>
+										</details>
 									</div>
 								</td>
 							</tr>
 						<?php endforeach; ?>
 						<?php if (empty($members)): ?>
-							<tr><td colspan="6" class="text-center text-muted">No members found.</td></tr>
+							<tr><td colspan="7" class="text-center text-muted">No members found.</td></tr>
 						<?php endif; ?>
 					</tbody>
 				</table>
@@ -176,3 +219,43 @@ $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 		</div>
 	<?php endif; ?>
 </div>
+<script>
+document.querySelectorAll('.member-photo').forEach(function (photo) {
+	photo.addEventListener('error', function () {
+		var fallback = document.createElement('span');
+		fallback.className = 'member-initials rounded-circle bg-gradient-secondary text-white d-inline-flex align-items-center justify-content-center';
+		fallback.style.cssText = 'width:42px;height:42px;font-size:14px;font-weight:700;';
+		fallback.textContent = photo.getAttribute('data-initials') || '?';
+		photo.replaceWith(fallback);
+	}, { once: true });
+});
+document.querySelectorAll('.member-row-link').forEach(function (row) {
+	row.addEventListener('click', function (event) {
+		if (event.target.closest('a, button, input, select, textarea, form, summary, .members-action-menu')) {
+			return;
+		}
+		window.location.href = row.getAttribute('data-member-url');
+	});
+	row.addEventListener('keydown', function (event) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			window.location.href = row.getAttribute('data-member-url');
+		}
+	});
+});
+document.querySelectorAll('.members-action-menu').forEach(function (menu) {
+	menu.addEventListener('click', function (event) {
+		event.stopPropagation();
+	});
+	menu.addEventListener('toggle', function () {
+		if (!menu.open) {
+			return;
+		}
+		document.querySelectorAll('.members-action-menu[open]').forEach(function (otherMenu) {
+			if (otherMenu !== menu) {
+				otherMenu.removeAttribute('open');
+			}
+		});
+	});
+});
+</script>

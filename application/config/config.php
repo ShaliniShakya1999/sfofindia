@@ -25,14 +25,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 // If running via PHP built-in server (e.g. `php -S 127.0.0.1:8000 router.php`),
 // keep base_url aligned with the bound host/port so links work correctly.
-if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'sfofindia.org') !== false) {
+$configured_base_url = trim((string) getenv('SFOF_BASE_URL'));
+if ($configured_base_url !== '') {
+    $config['base_url'] = rtrim($configured_base_url, '/') . '/';
+} elseif (isset($_SERVER['HTTP_HOST']) && in_array(strtolower((string) $_SERVER['HTTP_HOST']), array('sfofindia.org', 'www.sfofindia.org'), true)) {
     // Production: always HTTPS
     $config['base_url'] = 'https://sfofindia.org/';
-} elseif (PHP_SAPI === 'cli-server' && !empty($_SERVER['HTTP_HOST'])) {
+} elseif (!empty($_SERVER['HTTP_HOST'])) {
+	// Any local server (PHP built-in `php -S`, XAMPP/Apache, etc.) - auto-detect
+	// from the actual request instead of relying on PHP_SAPI, and include the
+	// request URI's base folder so it works no matter what the project folder
+	// is named or how deep it's nested inside htdocs.
 	$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-	$config['base_url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/';
+	$scriptDir = isset($_SERVER['SCRIPT_NAME']) ? str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])) : '';
+	$scriptDir = trim($scriptDir, '/');
+	$config['base_url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/' . ($scriptDir !== '' ? $scriptDir . '/' : '');
 } else {
-    $config['base_url'] = 'http://localhost/pro/peyug_project/NGO_project/ngoweb/';
+    $config['base_url'] = 'https://sfofindia.org/';
 }
 
 /*
@@ -112,7 +121,7 @@ $config['charset'] = 'UTF-8';
 | setting this variable to TRUE (boolean).  See the user guide for details.
 |
 */
-$config['enable_hooks'] = FALSE;
+$config['enable_hooks'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -235,7 +244,10 @@ $config['allow_get_array'] = TRUE;
 | your log files will fill up very fast.
 |
 */
-$config['log_threshold'] = 0;
+$configured_log_threshold = getenv('SFOF_LOG_THRESHOLD');
+$config['log_threshold'] = ($configured_log_threshold !== false && $configured_log_threshold !== '')
+	? (int) $configured_log_threshold
+	: (ENVIRONMENT === 'production' ? 1 : 4);
 
 /*
 |--------------------------------------------------------------------------
@@ -336,7 +348,7 @@ $config['cache_query_string'] = FALSE;
 | https://codeigniter.com/userguide3/libraries/encryption.html
 |
 */
-$config['encryption_key'] = 'n6W7vY2k9mP4rT8bV1cX5zQ0jL3fH9s2';
+$config['encryption_key'] = (string) getenv('SFOF_ENCRYPTION_KEY');
 
 /*
 |--------------------------------------------------------------------------
@@ -397,12 +409,10 @@ $config['sess_driver'] = 'files';
 $config['sess_cookie_name'] = 'ci_session';
 $config['sess_samesite'] = 'Lax';
 $config['sess_expiration'] = 7200;
-$config['sess_save_path'] = DIRECTORY_SEPARATOR === '/'
-    ? sys_get_temp_dir()  // Linux production server
-    : 'd:/project/ngoweb/application/cache/sessions'; // Windows local dev
+$config['sess_save_path'] = APPPATH . 'cache/sessions';
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
-$config['sess_regenerate_destroy'] = FALSE;
+$config['sess_regenerate_destroy'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -423,8 +433,8 @@ $config['sess_regenerate_destroy'] = FALSE;
 $config['cookie_prefix']	= '';
 $config['cookie_domain']	= '';
 $config['cookie_path']		= '/';
-$config['cookie_secure']	= FALSE;
-$config['cookie_httponly'] 	= FALSE;
+$config['cookie_secure']	= (ENVIRONMENT === 'production');
+$config['cookie_httponly'] 	= TRUE;
 $config['cookie_samesite'] 	= 'Lax';
 
 /*
@@ -478,12 +488,22 @@ $config['global_xss_filtering'] = FALSE;
 | 'csrf_regenerate' = Regenerate token on every submission
 | 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
 */
-$config['csrf_protection'] = FALSE;
+$config['csrf_protection'] = TRUE;
 $config['csrf_token_name'] = 'csrf_test_name';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array();
+$config['csrf_exclude_uris'] = array(
+	'donations/create_order',
+	'donations/verify_payment',
+	'donations/webhook',
+	'admin/renew_create_order',
+	'admin/renew_verify_payment',
+	'cms/upload_image',
+	'gallery_manager/upload',
+	'automation/daily',
+	'admin/send_profile_otp',
+);
 
 /*
 |--------------------------------------------------------------------------

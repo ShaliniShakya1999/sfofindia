@@ -16,16 +16,6 @@
     new WOW().init();
 
 
-    // Sticky Navbar
-    $(window).scroll(function () {
-        if ($(this).scrollTop() > 90) {
-            $('.nav-bar').addClass('fixed-top').css('padding', '0');
-        } else {
-            $('.nav-bar').removeClass('fixed-top').css('padding', '0px 90px');
-        }
-    });
-    
-    
     // Back to top button
     $(window).scroll(function () {
         if ($(this).scrollTop() > 300) {
@@ -108,4 +98,3 @@
 
     
 })(jQuery);
-

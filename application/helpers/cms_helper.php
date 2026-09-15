@@ -65,28 +65,7 @@ if (!function_exists('ngom_send_email')) {
 	function ngom_send_email($to, $subject, $message)
 	{
 		$CI =& get_instance();
-		$CI->load->model('Site_model');
-		$cms = $CI->Site_model->get_all_flat();
-		
-		$config = array(
-			'protocol' => 'smtp',
-			'smtp_host' => cms_val($cms, 'smtp_host', 'localhost'),
-			'smtp_port' => cms_val($cms, 'smtp_port', '25'),
-			'smtp_user' => cms_val($cms, 'smtp_user', ''),
-			'smtp_pass' => cms_val($cms, 'smtp_pass', ''),
-			'smtp_crypto' => cms_val($cms, 'smtp_crypto', ''),
-			'mailtype' => 'html',
-			'charset' => 'utf-8',
-			'newline' => "\r\n"
-		);
-		
-		$CI->load->library('email');
-		$CI->email->initialize($config);
-		$CI->email->from(cms_val($cms, 'contact_email', 'noreply@ngo.org'), cms_val($cms, 'site_name', 'NGO'));
-		$CI->email->to($to);
-		$CI->email->subject($subject);
-		$CI->email->message($message);
-		
-		return $CI->email->send();
+		$CI->load->library('Ngom_mailer', array(), 'ngommailer');
+		return $CI->ngommailer->send_html($to, $subject, $message);
 	}
 }

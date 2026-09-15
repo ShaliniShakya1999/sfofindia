@@ -12,6 +12,7 @@ class Blog_manager extends My_Controller {
         parent::__construct();
         $this->load->database();
         $this->require_login();
+        $this->require_admin_role();
         $this->load->model('Common_model', 'c_model');
         $this->load->library('form_validation');
         $this->load->helper('cms');
@@ -44,6 +45,9 @@ class Blog_manager extends My_Controller {
     }
 
     public function save() {
+        if (!$this->require_post()) {
+            return;
+        }
         $id = $this->input->post('id');
         $pdata = $this->input->post();
         
@@ -74,6 +78,13 @@ class Blog_manager extends My_Controller {
             
             if ($this->upload->do_upload('image')) {
                 $uploadData = $this->upload->data();
+                $image_path = FCPATH . 'uploads/' . $uploadData['file_name'];
+                if (!$this->validate_uploaded_file($image_path, array('image/jpeg', 'image/png', 'image/gif', 'image/webp'))) {
+                    @unlink($image_path);
+                    $this->session->set_flashdata('cms_error', 'The uploaded image is not valid.');
+                    redirect('blog_manager');
+                    return;
+                }
                 $saveData['image'] = $uploadData['file_name'];
                 
                 // Cleanup old image
@@ -98,6 +109,8 @@ class Blog_manager extends My_Controller {
     }
 
     public function delete($id) {
+        $this->require_post();
+        $this->require_admin_role();
         $existing = $this->c_model->getSingle('blog', ['md5(id)' => $id]);
         if ($existing && !empty($existing['image'])) {
             $path = FCPATH . 'uploads/' . $existing['image'];
@@ -109,6 +122,8 @@ class Blog_manager extends My_Controller {
     }
 
     public function toggle_status($id) {
+        $this->require_post();
+        $this->require_admin_role();
         $existing = $this->c_model->getSingle('blog', ['md5(id)' => $id]);
         $new_status = ($existing['status'] == 'Active') ? 'Inactive' : 'Active';
         $this->c_model->saveupdate('blog', ['status' => $new_status], null, ['md5(id)' => $id]);

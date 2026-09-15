@@ -7,6 +7,7 @@ class Support_tickets extends My_Controller {
     public function __construct() {
         parent::__construct();
         $this->require_login();
+        $this->require_admin_role();
         $this->load->database();
     }
 
@@ -25,6 +26,8 @@ class Support_tickets extends My_Controller {
     }
 
     public function delete($id) {
+        $this->require_post();
+        $this->require_admin_role();
         $this->db->where('id', (int)$id);
         $this->db->delete('contact');
         $this->session->set_flashdata('cms_success', 'Message deleted.');

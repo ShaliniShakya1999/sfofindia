@@ -35,9 +35,12 @@ class Cms extends My_Controller {
 			return;
 		}
 		$row = $this->admin_user->find_by_id($id);
-		if ($row) {
-			$this->session->set_userdata('cms_admin_role', $row['role']);
+		if (!$row || (isset($row['status']) && (int) $row['status'] === 0)) {
+			$this->session->sess_destroy();
+			redirect('admin/login');
+			return;
 		}
+		$this->session->set_userdata('cms_admin_role', $row['role']);
 	}
 
 	/** @return string */
@@ -265,21 +268,9 @@ class Cms extends My_Controller {
 
 	public function do_login()
 	{
-		$u = $this->input->post('username');
-		$p = $this->input->post('password');
-		if (!$u || !$p) {
-			$this->session->set_flashdata('cms_error', 'Username and password required.');
-			redirect('admin/login');
-		}
-		$row = $this->admin_user->find_by_username($u);
-		if (!$row || !password_verify($p, $row['password_hash'])) {
-			$this->session->set_flashdata('cms_error', 'Invalid login.');
-			redirect('admin/login');
-		}
-		$this->session->set_userdata('cms_admin_id', (int) $row['id']);
-		$this->session->set_userdata('cms_admin_name', $row['username']);
-		$this->session->set_userdata('cms_admin_role', isset($row['role']) ? $row['role'] : 'admin');
-		redirect('admin');
+		require_once APPPATH . 'controllers/Admin.php';
+		$admin = new Admin();
+		$admin->do_login();
 	}
 
 	public function logout()
@@ -295,6 +286,9 @@ class Cms extends My_Controller {
 
 	public function save_settings()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$this->cms_require_site_editor();
 		$keys = array(
 			'site_name', 'meta_title', 'meta_description', 'meta_keywords',
@@ -308,6 +302,10 @@ class Cms extends My_Controller {
 		$save = array();
 		foreach ($keys as $k) {
 			$save[$k] = $this->input->post($k, true);
+		}
+		if (trim((string) $save['smtp_pass']) === '') {
+			$current_settings = $this->Site_model->get_all_flat();
+			$save['smtp_pass'] = $current_settings['smtp_pass'] ?? '';
 		}
 		$save['pwa_enabled'] = $this->input->post('pwa_enabled') ? '1' : '0';
 		$this->Site_model->save_batch($save);
@@ -323,6 +321,9 @@ class Cms extends My_Controller {
 	 */
 	public function ngom_save()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$this->cms_require_ngom_manage();
 		$this->load->helper('url');
 		$this->load->model('Ngom_table_model', 'ngom_t');
@@ -356,6 +357,13 @@ class Cms extends My_Controller {
 				));
 				if ($this->upload->do_upload('image')) {
 					$data = $this->upload->data();
+					$image_path = $dir . $data['file_name'];
+					if (!$this->validate_uploaded_file($image_path, array('image/jpeg', 'image/png', 'image/gif', 'image/webp'))) {
+						@unlink($image_path);
+						$this->session->set_flashdata('cms_error', 'The uploaded image is not valid.');
+						redirect('cms/dashboard?tab=' . rawurlencode($tab));
+						return;
+					}
 					$row['image'] = rtrim($this->upload_dir, '/\\') . '/' . $data['file_name'];
 				}
 			}
@@ -380,6 +388,13 @@ class Cms extends My_Controller {
 				));
 				if ($this->upload->do_upload('gallery_image')) {
 					$data = $this->upload->data();
+					$image_path = $dir . $data['file_name'];
+					if (!$this->validate_uploaded_file($image_path, array('image/jpeg', 'image/png', 'image/gif', 'image/webp'))) {
+						@unlink($image_path);
+						$this->session->set_flashdata('cms_error', 'The uploaded image is not valid.');
+						redirect('cms/dashboard?tab=' . rawurlencode($tab));
+						return;
+					}
 					$row['image_path'] = rtrim($this->upload_dir, '/\\') . '/' . $data['file_name'];
 				} else {
 					$this->session->set_flashdata('cms_error', 'Image upload failed: ' . strip_tags($this->upload->display_errors()));
@@ -415,13 +430,26 @@ class Cms extends My_Controller {
 		$ok = $this->ngom_t->insert_row($table, $row);
 		if ($ok) {
 			ngom_log_activity('ngom_insert', $table);
+			if ($table === 'ngom_events' && ($row['status'] ?? '') === 'published' && $this->db->table_exists('members')) {
+				$this->load->library('Ngom_mailer', array(), 'ngommailer');
+				$members = $this->db
+					->select('name, email')
+					->where('status', 'active')
+					->where('email IS NOT NULL', null, false)
+					->where('email <>', '')
+					->get('members')
+					->result_array();
+				foreach ($members as $member) {
+					$this->ngommailer->send_event_announcement($member, $row);
+				}
+			}
 			$this->session->set_flashdata('cms_success', 'Saved.');
 		} else {
 			$this->session->set_flashdata('cms_error', 'Could not save (check required fields / DB).');
 		}
 
 		$custom_redirect = (string) $this->input->post('redirect_custom');
-		if ($custom_redirect !== '') {
+		if ($custom_redirect !== '' && $this->is_safe_local_redirect($custom_redirect)) {
 			redirect($custom_redirect);
 		} else {
 			redirect('cms/dashboard?tab=' . rawurlencode($tab));
@@ -430,11 +458,12 @@ class Cms extends My_Controller {
 
 	public function ngom_delete()
 	{
+		$this->require_post();
 		$this->cms_require_ngom_manage();
 		$this->load->model('Ngom_table_model', 'ngom_t');
-		$table = (string) $this->input->get('table');
-		$id = (int) $this->input->get('id');
-		$tab = (string) $this->input->get('tab');
+		$table = (string) $this->input->post('table');
+		$id = (int) $this->input->post('id');
+		$tab = (string) $this->input->post('tab');
 		if ($tab === '') {
 			$tab = 'events';
 		}
@@ -449,8 +478,8 @@ class Cms extends My_Controller {
 			$this->session->set_flashdata('cms_error', 'Could not delete.');
 		}
 
-		$custom_redirect = (string) $this->input->get('redirect_custom');
-		if ($custom_redirect !== '') {
+		$custom_redirect = (string) $this->input->post('redirect_custom');
+		if ($custom_redirect !== '' && $this->is_safe_local_redirect($custom_redirect)) {
 			redirect($custom_redirect);
 		} else {
 			redirect('cms/dashboard?tab=' . rawurlencode($tab));
@@ -521,6 +550,16 @@ class Cms extends My_Controller {
 		}
 	}
 
+	private function is_safe_local_redirect($target)
+	{
+		$target = trim((string) $target);
+		return $target !== ''
+			&& strpos($target, '//') !== 0
+			&& !preg_match('/^[a-z][a-z0-9+.-]*:/i', $target)
+			&& strpos($target, "\r") === false
+			&& strpos($target, "\n") === false;
+	}
+
 	public function homepage()
 	{
 		redirect(site_url('cms/dashboard') . '?tab=homepage');
@@ -528,6 +567,9 @@ class Cms extends My_Controller {
 
 	public function save_homepage()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$this->cms_require_site_editor();
 		$keys = array(
 			'slide1_title', 'slide1_text', 'slide1_btn1', 'slide1_btn2', 'slide1_img',
@@ -553,6 +595,10 @@ class Cms extends My_Controller {
 	 */
 	public function upload_image()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
+		$this->cms_require_site_editor();
 		$this->load->helper('file');
 		$dir = FCPATH . trim($this->upload_dir, '/\\') . DIRECTORY_SEPARATOR;
 		if (!is_dir($dir)) {
@@ -577,6 +623,15 @@ class Cms extends My_Controller {
 		}
 
 		$data = $this->upload->data();
+		$image_path = $dir . $data['file_name'];
+		if (!$this->validate_uploaded_file($image_path, array('image/jpeg', 'image/png', 'image/gif', 'image/webp'))) {
+			@unlink($image_path);
+			$this->output
+				->set_content_type('application/json')
+				->set_status_header(400)
+				->set_output(json_encode(array('ok' => false, 'error' => 'The uploaded file is not a valid image.')));
+			return;
+		}
 		$rel = rtrim($this->upload_dir, '/\\') . '/' . $data['file_name'];
 		$this->output
 			->set_content_type('application/json')
@@ -618,6 +673,9 @@ class Cms extends My_Controller {
 
 	public function save_pages()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$this->cms_require_site_editor();
 		$save = array();
 		foreach (array_keys($this->page_html_field_map()) as $k) {
@@ -630,6 +688,9 @@ class Cms extends My_Controller {
 
 	public function save_user()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$this->cms_require_super_admin();
 		$username = trim((string) $this->input->post('username'));
 		$password = (string) $this->input->post('password');
@@ -638,8 +699,8 @@ class Cms extends My_Controller {
 			$this->session->set_flashdata('cms_error', 'Username and password required.');
 			redirect('cms/dashboard?tab=users');
 		}
-		if (strlen($password) < 6) {
-			$this->session->set_flashdata('cms_error', 'Password must be at least 6 characters.');
+		if (strlen($password) < 12) {
+			$this->session->set_flashdata('cms_error', 'Password must be at least 12 characters.');
 			redirect('cms/dashboard?tab=users');
 		}
 		$exists = $this->admin_user->find_by_username($username);
@@ -659,6 +720,9 @@ class Cms extends My_Controller {
 
 	public function update_user()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$this->cms_require_super_admin();
 		$id = (int) $this->input->post('user_id');
 		$role = $this->input->post('role');
@@ -670,8 +734,8 @@ class Cms extends My_Controller {
 			$this->admin_user->update_role($id, $role);
 		}
 		if ($newpass !== '') {
-			if (strlen($newpass) < 6) {
-				$this->session->set_flashdata('cms_error', 'Password must be at least 6 characters.');
+			if (strlen($newpass) < 12) {
+				$this->session->set_flashdata('cms_error', 'Password must be at least 12 characters.');
 				redirect('cms/dashboard?tab=users');
 			}
 			$this->admin_user->update_password($id, password_hash($newpass, PASSWORD_DEFAULT));
@@ -682,8 +746,9 @@ class Cms extends My_Controller {
 
 	public function delete_user()
 	{
+		$this->require_post();
 		$this->cms_require_super_admin();
-		$id = (int) $this->input->get('id');
+		$id = (int) $this->input->post('id');
 		$self = (int) $this->session->userdata('cms_admin_id');
 		if ($id < 1 || $id === $self) {
 			$this->session->set_flashdata('cms_error', 'Cannot delete this user.');

@@ -62,7 +62,7 @@
                                 </div>
                                 <h4 class="mb-3"><?php echo html_escape($b['title']); ?></h4>
                                 <p><?php echo strip_tags(substr((string)$b['description'], 0, 120)); ?>...</p>
-                                <a class="text-uppercase fw-bold" href="<?php echo site_url('welcome/blog_article/' . $b['slug']); ?>">Read More <i class="fa fa-arrow-right ms-2"></i></a>
+                                <a class="text-uppercase fw-bold" href="<?php echo site_url('blog/' . $b['slug']); ?>">Read More <i class="fa fa-arrow-right ms-2"></i></a>
                             </div>
                         </div>
                     </div>

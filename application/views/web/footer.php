@@ -14,11 +14,14 @@ if (!isset($cms) || !is_array($cms)) { $cms = array(); }
                 <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i><?php echo html_escape(cms_val($cms, 'contact_address', 'SCO-88 Second Floor, Opp. Sector 12 A Gurgaon')); ?></p>
                 <p class="mb-2"><i class="fa fa-phone-alt me-3"></i><?php echo html_escape(cms_val($cms, 'contact_phone', '+012 345 67890')); ?></p>
                 <p class="mb-2"><i class="fa fa-envelope me-3"></i> <?php echo html_escape(cms_val($cms, 'contact_email', 'info@sfofindia.com')); ?></p>
-                <div class="d-flex pt-3">
-                    <a class="btn btn-square btn-primary me-2" href="#!"><i class="fab fa-x-twitter"></i></a>
-                    <a class="btn btn-square btn-primary me-2" href="#!"><i class="fab fa-facebook-f"></i></a>
-                    <a class="btn btn-square btn-primary me-2" href="#!"><i class="fab fa-youtube"></i></a>
-                    <a class="btn btn-square btn-primary me-2" href="#!"><i class="fab fa-linkedin-in"></i></a>
+                <div class="footer-social d-flex pt-3" aria-label="Social media links">
+                    <a class="footer-social-link footer-youtube me-2" href="<?php echo html_escape(cms_val($cms, 'social_youtube', 'https://youtube.com/@sfofindia')); ?>" target="_blank" rel="noopener" aria-label="SFOI on YouTube"><i class="fab fa-youtube"></i></a>
+                    <a class="footer-social-link footer-facebook me-2" href="<?php echo html_escape(cms_val($cms, 'social_facebook', '#')); ?>" target="_blank" rel="noopener" aria-label="SFOI on Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a class="footer-social-link footer-instagram me-2" href="<?php echo html_escape(cms_val($cms, 'social_instagram', '#')); ?>" target="_blank" rel="noopener" aria-label="SFOI on Instagram"><i class="fab fa-instagram"></i></a>
+                    <a class="footer-social-link footer-linkedin me-2" href="<?php echo html_escape(cms_val($cms, 'social_linkedin', '#')); ?>" target="_blank" rel="noopener" aria-label="SFOI on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <?php if (cms_val($cms, 'social_twitter', '') !== ''): ?>
+                    <a class="footer-social-link footer-twitter me-2" href="<?php echo html_escape(cms_val($cms, 'social_twitter', '#')); ?>" target="_blank" rel="noopener" aria-label="SFOI on Twitter"><i class="fab fa-twitter"></i></a>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -36,12 +39,16 @@ if (!isset($cms) || !is_array($cms)) { $cms = array(); }
             </div>
             <div class="col-lg-3 col-md-6">
                 <h4 class="text-light mb-4">Business Hours</h4>
-                <p class="mb-1">Monday - Friday</p>
-                <h6 class="text-light">09:00 am - 07:00 pm</h6>
-                <p class="mb-1">Saturday</p>
-                <h6 class="text-light">09:00 am - 12:00 pm</h6>
-                <p class="mb-1">Sunday</p>
-                <h6 class="text-light">Closed</h6>
+                <?php if (cms_val($cms, 'office_hours', '') !== ''): ?>
+                    <p class="text-light mb-2"><?php echo html_escape(cms_val($cms, 'office_hours', '')); ?></p>
+                <?php else: ?>
+                    <p class="mb-1">Monday - Friday</p>
+                    <h6 class="text-light">09:00 am - 07:00 pm</h6>
+                    <p class="mb-1">Saturday</p>
+                    <h6 class="text-light">09:00 am - 12:00 pm</h6>
+                    <p class="mb-1">Sunday</p>
+                    <h6 class="text-light">Closed</h6>
+                <?php endif; ?>
             </div>
             <style>
                 .gallery-img {
@@ -111,6 +118,29 @@ if (!isset($cms) || !is_array($cms)) { $cms = array(); }
     </div>
 </div>
 <!-- Footer End -->
+<style>
+.footer-social-link {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    transition: transform .2s ease, border-color .2s ease, background-color .2s ease;
+}
+.footer-social-link:hover {
+    color: #fff;
+    border-color: transparent;
+    transform: translateY(-3px);
+}
+.footer-youtube:hover { background: #d32f2f; }
+.footer-facebook:hover { background: #3568b8; }
+.footer-instagram:hover { background: linear-gradient(135deg, #f9ce34, #ee2a7b 52%, #6228d7); }
+.footer-linkedin:hover { background: #1769aa; }
+</style>
 
 
 <!-- Back to Top -->

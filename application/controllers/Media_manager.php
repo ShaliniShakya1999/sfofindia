@@ -7,6 +7,7 @@ class Media_manager extends My_Controller {
     public function __construct() {
         parent::__construct();
         $this->require_login();
+        $this->require_admin_role();
         $this->load->helper('directory');
         $this->load->helper('file');
     }
@@ -14,13 +15,19 @@ class Media_manager extends My_Controller {
     public function index() {
         $requested_path = (string) $this->input->get('path');
         // Security: Prevent directory traversal
-        $requested_path = str_replace(['..', './'], '', $requested_path);
+        $requested_path = str_replace(['..', './', '.\\'], '', $requested_path);
         $requested_path = trim($requested_path, '/');
 
         $base_upload_path = FCPATH . 'uploads/';
         $current_system_path = $base_upload_path;
         if ($requested_path !== '') {
             $current_system_path .= $requested_path . '/';
+        }
+        $base_real_path = realpath($base_upload_path);
+        $current_real_path = realpath($current_system_path);
+        if ($base_real_path === false || ($current_real_path !== false && strpos($current_real_path, $base_real_path) !== 0)) {
+            $current_system_path = $base_upload_path;
+            $requested_path = '';
         }
 
         if (!is_dir($current_system_path)) {
@@ -73,8 +80,10 @@ class Media_manager extends My_Controller {
 
         $file_rel = $this->input->post('file_path');
         // Basic security check
-        if (strpos($file_rel, 'uploads/') === 0 && !str_contains($file_rel, '..')) {
-            $full_path = FCPATH . $file_rel;
+        $base_real_path = realpath(FCPATH . 'uploads');
+        $full_path = FCPATH . ltrim(str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, (string) $file_rel), DIRECTORY_SEPARATOR);
+        $file_real_path = is_file($full_path) ? realpath($full_path) : false;
+        if (strpos((string) $file_rel, 'uploads/') === 0 && strpos((string) $file_rel, '..') === false && $base_real_path !== false && $file_real_path !== false && strpos($file_real_path, $base_real_path . DIRECTORY_SEPARATOR) === 0) {
             if (is_file($full_path)) {
                 unlink($full_path);
                 $this->session->set_flashdata('cms_success', 'File deleted successfully.');

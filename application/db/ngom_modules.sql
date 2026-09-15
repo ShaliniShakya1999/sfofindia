@@ -39,7 +39,20 @@ CREATE TABLE IF NOT EXISTS `donations` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_payment_id` (`payment_id`),
+  UNIQUE KEY `uniq_receipt_no` (`receipt_no`),
   KEY `idx_order` (`razorpay_order_id`),
   KEY `idx_created` (`created_at`),
   KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `razorpay_webhook_events` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `event_id` VARCHAR(128) NOT NULL,
+  `payment_id` VARCHAR(64) NULL,
+  `status` VARCHAR(32) NOT NULL DEFAULT 'received',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_webhook_event_id` (`event_id`),
+  KEY `idx_webhook_payment_id` (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

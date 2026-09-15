@@ -41,6 +41,7 @@ class Activity_logs extends My_Controller {
 
 	public function clear()
 	{
+		$this->require_post();
 		$role = (string) $this->session->userdata('cms_admin_role');
 		if ($role !== 'super_admin') {
 			$this->session->set_flashdata('cms_error', 'Only Super Admins can clear logs.');

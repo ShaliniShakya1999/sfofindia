@@ -89,7 +89,7 @@ $autoload['drivers'] = array();
 |
 |	$autoload['helper'] = array('url', 'file');
 */
-$autoload['helper'] = array("url", "web", "admin", "cms", "ngom_permissions");
+$autoload['helper'] = array("url", "web", "admin", "cms", "ngom_permissions", "form");
 
 /*
 | -------------------------------------------------------------------

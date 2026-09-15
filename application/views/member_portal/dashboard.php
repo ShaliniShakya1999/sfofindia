@@ -21,8 +21,8 @@
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body">
                         <h5>ID Card</h5>
-                        <p class="text-muted">Download your member ID card.</p>
-                        <a target="_blank" href="<?php echo site_url('member-panel/document/id-card'); ?>" class="btn btn-primary">Open ID Card</a>
+                        <p class="text-muted">View and download your official member ID card.</p>
+                        <a href="<?php echo site_url('admin/member_document/id-card'); ?>" class="btn btn-primary">View &amp; Download ID Card</a>
                     </div>
                 </div>
             </div>
@@ -30,8 +30,8 @@
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body">
                         <h5>Appointment Letter</h5>
-                        <p class="text-muted">Open your appointment / joining letter.</p>
-                        <a target="_blank" href="<?php echo site_url('member-panel/document/appointment-letter'); ?>" class="btn btn-primary">Open Letter</a>
+                        <p class="text-muted">View and download your official joining letter.</p>
+                        <a href="<?php echo site_url('admin/member_document/appointment-letter'); ?>" class="btn btn-primary">View &amp; Download Letter</a>
                     </div>
                 </div>
             </div>
@@ -39,8 +39,8 @@
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body">
                         <h5>Certificate</h5>
-                        <p class="text-muted">Open your generated certificate.</p>
-                        <a target="_blank" href="<?php echo site_url('member-panel/document/certificate'); ?>" class="btn btn-primary">Open Certificate</a>
+                        <p class="text-muted">View and download your membership certificate.</p>
+                        <a href="<?php echo site_url('admin/member_document/certificate'); ?>" class="btn btn-primary">View &amp; Download Certificate</a>
                     </div>
                 </div>
             </div>

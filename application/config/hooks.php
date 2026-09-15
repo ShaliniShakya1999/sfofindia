@@ -1,6 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+$hook['display_override'][] = array(
+	'class'    => 'Security_hooks',
+	'function' => 'inject_csrf_fields',
+	'filename' => 'Security_hooks.php',
+	'filepath' => 'hooks',
+);
+
 /*
 | -------------------------------------------------------------------------
 | Hooks

@@ -13,6 +13,7 @@ class Automation extends CI_Controller {
         $this->load->database();
         $this->load->model('Member_model', 'members');
         $this->load->library('Ngom_mailer', [], 'ngommailer');
+        $this->load->library('Ngom_whatsapp', [], 'ngomwhatsapp');
     }
 
     /**
@@ -21,11 +22,13 @@ class Automation extends CI_Controller {
      */
     public function daily()
     {
-        // Simple security: Check for a secret key if provided in URL (optional but recommended)
-        $key = $this->input->get('key');
-        if ($key !== 'ngo_auto_trigger_2026') {
-             // log_message('error', 'Unauthorized automation attempt.');
-             // die('Unauthorized');
+        $configured_key = (string) getenv('SFOF_AUTOMATION_KEY');
+        $provided_key = (string) $this->input->get_request_header('X-SFOF-Automation-Key', true);
+        $authorized_cli = (PHP_SAPI === 'cli');
+        if (!$authorized_cli && ($configured_key === '' || !hash_equals($configured_key, $provided_key))) {
+            $this->output->set_status_header(403);
+            $this->output->set_content_type('text/plain')->set_output('Forbidden');
+            return;
         }
 
         $results = [];
@@ -61,7 +64,15 @@ class Automation extends CI_Controller {
         $count = 0;
 
         foreach ($members as $m) {
+            $sent = false;
             if ($this->ngommailer->send_birthday_wish($m)) {
+                $sent = true;
+            }
+            if (!empty($m['mobile'])) {
+                $this->ngomwhatsapp->send_birthday_wish_whatsapp($m);
+                $sent = true;
+            }
+            if ($sent) {
                 $this->db->where('id', $m['id']);
                 $this->db->update('members', ['last_birthday_wish_year' => $current_year]);
                 $count++;
@@ -95,7 +106,15 @@ class Automation extends CI_Controller {
         $expiring_soon = $this->db->get('members')->result_array();
 
         foreach ($expiring_soon as $m) {
+             $sent = false;
              if ($this->ngommailer->send_renewal_reminder($m)) {
+                 $sent = true;
+             }
+             if (!empty($m['mobile'])) {
+                 $this->ngomwhatsapp->send_renewal_reminder_whatsapp($m);
+                 $sent = true;
+             }
+             if ($sent) {
                  $this->db->where('id', $m['id']);
                  $this->db->update('members', ['last_renewal_reminder_date' => $today]);
                  $count++;
@@ -114,7 +133,7 @@ class Automation extends CI_Controller {
              $log = "Automation summary: Birthdays[{$results['birthdays']}], Renewals[{$results['renewals']}]";
              $this->db->insert('ngom_admin_activity', [
                  'action' => 'automation_run',
-                 'details' => $log,
+                 'detail' => $log,
                  'created_at' => date('Y-m-d H:i:s'),
                  'admin_user_id' => 0 // System user
              ]);

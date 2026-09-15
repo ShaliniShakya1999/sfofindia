@@ -25,6 +25,37 @@ class Ngom_documents {
 	}
 
 	/**
+	 * Shrinks the current font (family/style already set on $pdf) down to the
+	 * largest size between $min_size and $max_size whose rendered width of
+	 * $text fits within $max_width (mm). Prevents text from running off the
+	 * edge of small layouts like ID cards, e.g. long org names or names.
+	 * Truncates with an ellipsis as a last resort if even $min_size overflows.
+	 *
+	 * @return string possibly-truncated text to render at the now-set font size
+	 */
+	private function fitTextToWidth(\TCPDF $pdf, $text, $max_width, $max_size, $min_size = 4.5)
+	{
+		$text = (string) $text;
+		$size = $max_size;
+		while ($size > $min_size) {
+			$pdf->SetFontSize($size);
+			if ($pdf->GetStringWidth($text) <= $max_width) {
+				return $text;
+			}
+			$size -= 0.5;
+		}
+		$pdf->SetFontSize($min_size);
+		// Still too wide at the minimum readable size: truncate with an ellipsis.
+		while (mb_strlen($text) > 1 && $pdf->GetStringWidth($text . '...') > $max_width) {
+			$text = mb_substr($text, 0, -1);
+		}
+		if ($pdf->GetStringWidth($text) > $max_width) {
+			return $text; // single char still too wide; nothing more we can do
+		}
+		return $text . '...';
+	}
+
+	/**
 	 * @return string binary PDF
 	 */
 	public function id_card_pdf(array $member, $org_name = 'NGO')
@@ -74,12 +105,38 @@ class Ngom_documents {
 		}
 		
 		$pdf->SetTextColor(33, 33, 33);
-		$pdf->SetFont('helvetica', 'B', 11); 
-		$pdf->SetXY(20, 5);
-		$pdf->MultiCell(32, 10, strtoupper((string)$org_name), 0, 'L', false, 1, 20, 5, true, 0, false, true, 10, 'T');
-		
+		$org_label = strtoupper((string) $org_name);
+		$header_x = 20;
+		$header_y = 5;
+		$header_w = 32;
+
+		// Shrink the font so the org name wraps to at most 2 lines instead of
+		// silently truncating (old MultiCell) or overflowing (old fixed size).
+		// Then measure the *actual* wrapped height and place the website line
+		// right after it, so long org names never collide with "www...".
+		$font_size = 11;
+		$pdf->SetFont('helvetica', 'B', $font_size);
+		while ($font_size > 7 && $pdf->getNumLines($org_label, $header_w) > 2) {
+			$font_size -= 0.5;
+			$pdf->SetFont('helvetica', 'B', $font_size);
+		}
+		if ($pdf->getNumLines($org_label, $header_w) > 2) {
+			// Even at the smallest readable size it needs 3+ lines: a cramped
+			// wrap would run past the photo section, so fit it on one line instead.
+			$org_label = $this->fitTextToWidth($pdf, $org_label, $header_w, $font_size, 6);
+			$line_h = $font_size * 0.42;
+			$pdf->SetXY($header_x, $header_y + 1);
+			$pdf->Cell($header_w, $line_h, $org_label, 0, 1, 'L');
+			$url_y = $header_y + 1 + $line_h + 1;
+		} else {
+			$block_h = $pdf->getStringHeight($header_w, $org_label);
+			$pdf->SetXY($header_x, $header_y);
+			$pdf->MultiCell($header_w, $block_h, $org_label, 0, 'L', false, 1, $header_x, $header_y, true);
+			$url_y = $header_y + $block_h + 1;
+		}
+
 		$pdf->SetFont('helvetica', '', 6);
-		$pdf->SetXY(20, 14); 
+		$pdf->SetXY($header_x, $url_y);
 		$pdf->Cell(30, 3, 'www.sfofindia.org', 0, 1, 'L');
 
 		// Photo Section
@@ -112,12 +169,16 @@ class Ngom_documents {
 			'ID No.' => !empty($member['member_id_code']) ? $member['member_id_code'] : $member['id']
 		);
 
+		// Available width for the value column: card is 53.98mm wide, value
+		// column starts at x=20 (8 + 12 label width), leave a small right margin.
+		$value_max_width = 53.98 - 20 - 2;
 		foreach ($fields as $label => $val) {
 			$pdf->SetXY(8, $y);
 			$pdf->SetFont('helvetica', 'B', 7);
 			$pdf->Cell(12, 4, $label . ' :', 0, 0, 'L');
 			$pdf->SetFont('helvetica', '', 7);
-			$pdf->Cell(32, 4, $val, 0, 1, 'L');
+			$fitted_val = $this->fitTextToWidth($pdf, (string) $val, $value_max_width, 7);
+			$pdf->Cell(32, 4, $fitted_val, 0, 1, 'L');
 			$y += 4.5;
 		}
 
@@ -257,12 +318,17 @@ class Ngom_documents {
 		$date_raw = $member['verified_at'] ?? 'now';
 		$ref_no = 'SFOI/' . date('Y/m', strtotime($date_raw)) . '/' . str_pad($member['id'], 3, '0', STR_PAD_LEFT);
 		$date_str = date('d F, Y', strtotime($date_raw));
-		
+		$member_identifier = !empty($member['member_id_code'])
+			? $member['member_id_code']
+			: (!empty($member['member_user_id']) ? $member['member_user_id'] : $member['id']);
+
 		$pdf->SetXY(15, 48);
 		$pdf->SetFont('helvetica', 'B', 10);
 		$pdf->Cell(100, 5, 'Ref. No.: ' . $ref_no, 0, 0, 'L');
 		$pdf->SetFont('helvetica', '', 10);
 		$pdf->Cell(80, 5, 'Date: ' . $date_str, 0, 1, 'R');
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->Cell(0, 6, 'Member ID: ' . $member_identifier, 0, 1, 'L');
 
 		// 4. Body Content
 		$pdf->Ln(12);
@@ -422,31 +488,135 @@ class Ngom_documents {
 		$pdf->setPrintHeader(false);
 		$pdf->setPrintFooter(false);
 		$pdf->AddPage();
-		$pdf->SetFont('helvetica', 'B', 16);
-		$pdf->Cell(0, 10, 'Donation Receipt', 0, 1, 'C');
-		$pdf->SetFont('helvetica', '', 11);
-		$pdf->Ln(6);
-		$pdf->Cell(0, 6, 'Receipt No: ' . ($donation['receipt_no'] ?? '—'), 0, 1);
-		$pdf->Cell(0, 6, 'Date: ' . date('d M Y, H:i', strtotime($donation['created_at'])), 0, 1);
-		$pdf->Ln(4);
-		$pdf->Cell(0, 6, 'Donor: ' . $donation['name'], 0, 1);
-		$pdf->Cell(0, 6, 'Email: ' . $donation['email'], 0, 1);
-		$pdf->Cell(0, 6, 'Mobile: ' . ($donation['mobile'] ?? ''), 0, 1);
-		$pdf->Ln(4);
-		$pdf->SetFont('helvetica', 'B', 12);
-		$pdf->Cell(0, 8, 'Amount: INR ' . number_format((float) $donation['amount'], 2), 0, 1);
-		$pdf->SetFont('helvetica', '', 10);
-		if (!empty($donation['payment_id'])) {
-			$pdf->Cell(0, 6, 'Payment ID: ' . $donation['payment_id'], 0, 1);
+
+		$logo_path = '';
+		foreach (array(
+			FCPATH . 'assetsA/img/ngo-logo.png',
+			FCPATH . 'assetsA/img/logo-ct-dark.png'
+		) as $possible_logo) {
+			if (is_file($possible_logo)) {
+				$logo_path = $possible_logo;
+				break;
+			}
 		}
+
+		$blue = array(24, 74, 128);
+		$light_blue = array(235, 243, 252);
+		$muted = array(90, 100, 110);
+		$receipt_no = (string) ($donation['receipt_no'] ?? '—');
+		$created_at = !empty($donation['created_at']) ? strtotime($donation['created_at']) : time();
+		$donor_name = (string) ($donation['name'] ?? 'Donor');
+		$email = (string) ($donation['email'] ?? '—');
+		$mobile = (string) ($donation['mobile'] ?? '—');
+		$payment_id = (string) ($donation['payment_id'] ?? '—');
+
+		$pdf->SetFillColorArray($blue);
+		$pdf->Rect(0, 0, 210, 38, 'F');
+		if ($logo_path !== '') {
+			$pdf->Image($logo_path, 18, 8, 22, 22, '', '', '', false, 300, '', false, false, 0, false, false, false);
+		}
+		$pdf->SetTextColor(255, 255, 255);
+		$pdf->SetXY(45, 9);
+		$pdf->SetFont('helvetica', 'B', 17);
+		$pdf->Cell(145, 8, $org_name, 0, 1, 'L');
+		$pdf->SetX(45);
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->Cell(145, 6, 'Donation Receipt', 0, 1, 'L');
+		$pdf->SetTextColor(0, 0, 0);
+
+		$pdf->SetY(50);
+		$pdf->SetFont('helvetica', 'B', 16);
+		$pdf->SetTextColorArray($blue);
+		$pdf->Cell(0, 9, 'Thank You for Your Generous Support', 0, 1, 'C');
+		$pdf->SetTextColor(0, 0, 0);
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->SetTextColorArray($muted);
+		$pdf->Cell(0, 6, 'This receipt acknowledges your contribution to our charitable mission.', 0, 1, 'C');
+		$pdf->SetTextColor(0, 0, 0);
 		$pdf->Ln(8);
-		$pdf->MultiCell(0, 5, 'Thank you for supporting ' . $org_name . '. This receipt is computer-generated.', 0, 'L');
+
+		$pdf->SetFillColorArray($light_blue);
+		$pdf->SetDrawColorArray(array(200, 215, 232));
+		$pdf->RoundedRect(18, 78, 174, 27, 2, '1111', 'DF');
+		$pdf->SetXY(25, 84);
+		$pdf->SetFont('helvetica', 'B', 10);
+		$pdf->Cell(30, 6, 'Receipt No.', 0, 0);
+		$pdf->SetFont('helvetica', '', 8);
+		$pdf->Cell(72, 6, $receipt_no, 0, 0);
+		$pdf->SetFont('helvetica', 'B', 10);
+		$pdf->Cell(18, 6, 'Date', 0, 0);
+		$pdf->SetFont('helvetica', '', 9);
+		$pdf->Cell(47, 6, date('d M Y, H:i', $created_at), 0, 1);
+		$pdf->SetXY(25, 92);
+		$pdf->SetFont('helvetica', 'B', 10);
+		$pdf->Cell(30, 6, 'Status', 0, 0);
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->SetTextColor(25, 120, 70);
+		$pdf->Cell(72, 6, 'PAID', 0, 0);
+		$pdf->SetTextColor(0, 0, 0);
+		$pdf->SetFont('helvetica', 'B', 10);
+		$pdf->Cell(18, 6, 'Currency', 0, 0);
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->Cell(47, 6, 'INR', 0, 1);
+
+		$pdf->SetY(117);
+		$pdf->SetFont('helvetica', 'B', 12);
+		$pdf->SetTextColorArray($blue);
+		$pdf->Cell(0, 8, 'Donor Details', 0, 1);
+		$pdf->SetTextColor(0, 0, 0);
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->SetDrawColor(220, 225, 230);
+		$pdf->Line(18, 126, 192, 126);
+		$pdf->SetY(130);
+		$pdf->Cell(32, 6, 'Full Name', 0, 0);
+		$pdf->Cell(65, 6, $donor_name, 0, 0);
+		$pdf->Cell(25, 6, 'Email', 0, 0);
+		$pdf->Cell(52, 6, $email, 0, 1);
+		$pdf->Cell(32, 6, 'Mobile', 0, 0);
+		$pdf->Cell(65, 6, $mobile !== '' ? $mobile : '—', 0, 1);
+
+		$pdf->SetY(153);
+		$pdf->SetFont('helvetica', 'B', 12);
+		$pdf->SetTextColorArray($blue);
+		$pdf->Cell(0, 8, 'Payment Details', 0, 1);
+		$pdf->SetTextColor(0, 0, 0);
+		$pdf->SetDrawColor(220, 225, 230);
+		$pdf->Line(18, 162, 192, 162);
+		$pdf->SetY(166);
+		$pdf->SetFont('helvetica', 'B', 13);
+		$pdf->Cell(42, 9, 'Amount Paid', 0, 0);
+		$pdf->SetTextColorArray($blue);
+		$pdf->Cell(132, 9, 'INR ' . number_format((float) ($donation['amount'] ?? 0), 2), 0, 1, 'R');
+		$pdf->SetTextColor(0, 0, 0);
+		$pdf->SetFont('helvetica', '', 9);
+		$pdf->Cell(42, 6, 'Payment ID', 0, 0);
+		$pdf->Cell(132, 6, $payment_id, 0, 1, 'R');
+
+		$pdf->SetFillColorArray(array(248, 250, 252));
+		$pdf->RoundedRect(18, 190, 174, 24, 2, '1111', 'F');
+		$pdf->SetXY(25, 196);
+		$pdf->SetFont('helvetica', '', 10);
+		$pdf->MultiCell(125, 5, 'Thank you, ' . $donor_name . ', for standing with ' . $org_name . '. Your generosity helps us serve families and communities with dignity.', 0, 'L');
+
 		$verify = site_url('donations/verify_receipt/' . rawurlencode((string) $donation['receipt_no']));
-		$style = array('border' => 0, 'vpadding' => 'auto', 'hpadding' => 'auto', 'fgcolor' => array(0, 0, 0), 'bgcolor' => false, 'module_width' => 1, 'module_height' => 1);
-		$pdf->write2DBarcode($verify, 'QRCODE,H', 150, 220, 40, 40, $style, 'N');
-		$pdf->SetFont('helvetica', '', 7);
-		$pdf->SetXY(18, 265);
-		$pdf->Cell(0, 4, 'Verify: ' . $verify, 0, 1, 'L');
+		$style = array('border' => 0, 'vpadding' => 'auto', 'hpadding' => 'auto', 'fgcolor' => array(24, 74, 128), 'bgcolor' => false, 'module_width' => 1, 'module_height' => 1);
+		$pdf->SetFont('helvetica', 'B', 10);
+		$pdf->SetTextColorArray($blue);
+		$pdf->SetXY(25, 225);
+		$pdf->Cell(105, 6, 'Verify this receipt', 0, 1);
+		$pdf->SetFont('helvetica', '', 9);
+		$pdf->SetTextColor(80, 80, 80);
+		$pdf->SetX(25);
+		$pdf->MultiCell(105, 5, 'Scan the QR code or use the verification link to confirm this donation receipt.', 0, 'L');
+		$pdf->write2DBarcode($verify, 'QRCODE,H', 155, 220, 30, 30, $style, 'N');
+		$pdf->SetFont('helvetica', 'I', 9);
+		$pdf->SetTextColorArray($blue);
+		$pdf->SetXY(18, 260);
+		$pdf->Cell(174, 6, 'Want to make a bigger difference? Become a member and join our mission.', 0, 1, 'C');
+		$pdf->SetFont('helvetica', '', 8);
+		$pdf->SetTextColor(100, 100, 100);
+		$pdf->SetXY(18, 270);
+		$pdf->Cell(174, 5, 'Computer-generated receipt • No signature required', 0, 1, 'C');
 		return $pdf->Output('receipt.pdf', 'S');
 	}
 }

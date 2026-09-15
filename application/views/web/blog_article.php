@@ -29,7 +29,7 @@
             <nav aria-label="breadcrumb animated slideInDown">
                 <ol class="breadcrumb justify-content-center mb-0">
                     <li class="breadcrumb-item"><a href="<?php echo web_link('index.php'); ?>">Home</a></li>
-                    <li class="breadcrumb-item"><a href="<?php echo site_url('welcome/blog'); ?>">Blog</a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo site_url('blog'); ?>">Blog</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Post Details</li>
                 </ol>
             </nav>
@@ -87,7 +87,7 @@
                             <div class="d-flex rounded overflow-hidden mb-3 bg-light p-2">
                                 <img class="img-fluid" src="<?php echo base_url(html_escape($rb['image'])); ?>" style="width: 100px; height: 80px; object-fit: cover;" alt="recent" onerror="this.src='<?php echo base_url('assetsA/img/no-image.png'); ?>';">
                                 <div class="ps-3">
-                                    <a href="<?php echo site_url('welcome/blog_article/' . $rb['slug']); ?>" class="h6 d-block mb-2"><?php echo html_escape($rb['title']); ?></a>
+                                    <a href="<?php echo site_url('blog/' . $rb['slug']); ?>" class="h6 d-block mb-2"><?php echo html_escape($rb['title']); ?></a>
                                     <small class="text-uppercase"><?php echo date('M d, Y', strtotime($rb['postedDate'])); ?></small>
                                 </div>
                             </div>

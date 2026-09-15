@@ -39,7 +39,16 @@
         }
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = url;
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = url;
+          const csrf = document.createElement('input');
+          csrf.type = 'hidden';
+          csrf.name = '<?php echo $this->security->get_csrf_token_name(); ?>';
+          csrf.value = '<?php echo $this->security->get_csrf_hash(); ?>';
+          form.appendChild(csrf);
+          document.body.appendChild(form);
+          form.submit();
         }
       });
       return false;
@@ -81,6 +90,7 @@
 
     body {
       background-color: #f8fafc !important;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       scroll-behavior: smooth;
@@ -109,7 +119,39 @@
     #sidenav-main .navbar-nav .nav-link {
       transition: all 0.2s ease;
       margin: 4px 12px !important;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.65rem 0.85rem !important;
       border-radius: 12px !important;
+      font-family: "Segoe UI", Arial, sans-serif !important;
+      font-size: 0.95rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0;
+      line-height: 1.4 !important;
+      color: #334155 !important;
+    }
+
+    #sidenav-main .navbar-nav .nav-link .nav-link-text {
+      font-size: inherit !important;
+      font-weight: 700 !important;
+      letter-spacing: inherit;
+      white-space: nowrap;
+    }
+
+    #sidenav-main .sidenav-header .navbar-brand {
+      font-family: "Segoe UI", Arial, sans-serif !important;
+      font-size: 0.88rem !important;
+      font-weight: 600 !important;
+    }
+
+    #sidenav-main .navbar-nav h6 {
+      font-family: "Segoe UI", Arial, sans-serif !important;
+      font-size: 0.74rem !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em;
+      color: #334155 !important;
     }
 
     #sidenav-main .nav-link.active {
@@ -166,18 +208,280 @@
     .navbar-brand-img {
       filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
     }
-  </style>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Apply staggered animation to sidebar links
-        const navLinks = document.querySelectorAll('#sidenav-main .nav-item');
-        navLinks.forEach((link, index) => {
-            link.classList.add('stagger-item');
-            link.style.animationDelay = (index * 0.04) + 's';
-        });
-    });
-  </script>
+    /* --- Scrollbar Customization --- */
+    .sidenav,
+    #sidenav-main {
+      overflow: hidden !important;
+      overflow-y: hidden !important;
+    }
+
+    #sidenav-collapse-main,
+    .navbar-vertical.navbar-expand-xs .navbar-collapse {
+      height: calc(100vh - 100px) !important;
+      max-height: calc(100vh - 100px) !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    }
+
+    #sidenav-collapse-main::-webkit-scrollbar,
+    .navbar-vertical.navbar-expand-xs .navbar-collapse::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    #sidenav-collapse-main::-webkit-scrollbar-track,
+    .navbar-vertical.navbar-expand-xs .navbar-collapse::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #sidenav-collapse-main::-webkit-scrollbar-thumb,
+    .navbar-vertical.navbar-expand-xs .navbar-collapse::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      transition: background 0.2s ease;
+    }
+
+    #sidenav-main:hover #sidenav-collapse-main::-webkit-scrollbar-thumb,
+    #sidenav-collapse-main:hover::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    #sidenav-collapse-main::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    /* Floating PerfectScrollbar rail overrides if PS active */
+    .ps__rail-y {
+      width: 6px !important;
+      background: transparent !important;
+      opacity: 0;
+      transition: opacity 0.2s linear;
+      right: 2px !important;
+    }
+    .ps:hover > .ps__rail-y,
+    .ps--scrolling-y > .ps__rail-y {
+      opacity: 0.8 !important;
+    }
+    .ps__thumb-y {
+      width: 5px !important;
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      border-radius: 10px !important;
+      right: 0 !important;
+    }
+    .ps__rail-y:hover > .ps__thumb-y {
+      background-color: rgba(0, 0, 0, 0.4) !important;
+    }
+
+    /* Global sleek scrollbars for the rest of admin tables & page */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.16);
+      border-radius: 8px;
+    }
+    /* Refined, uncluttered sidebar dimensions for all desktop & laptop screens */
+    #sidenav-main.navbar-vertical {
+      max-width: 17rem !important; /* 272px width */
+      width: 17rem !important;
+    }
+    @media (min-width: 992px) {
+      .g-sidenav-show .sidenav.fixed-start + .main-content {
+        margin-left: 17.75rem !important; /* 284px margin */
+      }
+    }
+
+    /* Refined typography and spacing for primary nav links and accordion toggles */
+    #sidenav-main .navbar-nav > .nav-item > .nav-link,
+    #sidenav-main .sidebar-toggle {
+      display: flex !important;
+      align-items: center !important;
+      padding: 0.42rem 0.7rem !important;
+      margin: 2px 0.5rem !important;
+      border-radius: 0.45rem !important;
+      font-size: 0.8125rem !important; /* 13px */
+      font-weight: 500 !important;
+      letter-spacing: 0.005em;
+      color: #334155 !important;
+      user-select: none;
+      transition: all 0.15s ease-in-out;
+      box-sizing: border-box;
+    }
+
+    #sidenav-main .navbar-nav > .nav-item > .nav-link .nav-link-text,
+    #sidenav-main .sidebar-toggle .nav-link-text {
+      font-size: 0.8125rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.005em;
+    }
+
+    #sidenav-main .navbar-nav > .nav-item > .nav-link:hover,
+    #sidenav-main .sidebar-toggle:hover {
+      background-color: rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+
+    /* Svelte, proportionate primary icon sizing */
+    #sidenav-main .navbar-nav > .nav-item > .nav-link i,
+    #sidenav-main .navbar-nav > .nav-item > .nav-link .material-symbols-rounded,
+    #sidenav-main .sidebar-toggle i,
+    #sidenav-main .sidebar-toggle .material-symbols-rounded {
+      font-size: 1.15rem !important;
+      width: 20px !important;
+      min-width: 20px !important;
+      height: 20px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-right: 0.65rem !important;
+      color: #64748b !important;
+      flex-shrink: 0;
+    }
+
+    /* Chevron arrow styling */
+    .sidebar-arrow {
+      width: 13px;
+      height: 13px;
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0.45;
+      flex-shrink: 0;
+    }
+    .sidebar-toggle[aria-expanded="true"] .sidebar-arrow {
+      transform: rotate(180deg);
+      opacity: 0.8;
+    }
+
+    /* Submenu tree indentation and layout */
+    .sidebar-submenu {
+      list-style: none;
+      margin: 0.15rem 0.5rem 0.35rem 1.35rem !important;
+      padding: 0.12rem 0 0.12rem 0.6rem !important;
+      border-left: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+    }
+    .sidebar-submenu .nav-item {
+      width: 100%;
+      margin: 1px 0;
+    }
+    .sidebar-submenu .nav-link {
+      display: flex !important;
+      align-items: center !important;
+      padding: 0.34rem 0.55rem !important;
+      font-size: 0.775rem !important; /* 12.4px */
+      font-weight: 400 !important;
+      letter-spacing: 0.005em;
+      margin: 0 !important;
+      width: 100% !important;
+      border-radius: 0.375rem !important;
+      color: #475569 !important;
+      transition: all 0.15s ease-in-out;
+      box-sizing: border-box;
+    }
+    .sidebar-submenu .nav-link .nav-link-text {
+      font-size: 0.775rem !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.005em;
+    }
+    .sidebar-submenu .nav-link:hover {
+      background-color: rgba(0, 0, 0, 0.035) !important;
+      color: #0f172a !important;
+    }
+
+    /* Submenu icons */
+    .sidebar-submenu .nav-link i,
+    .sidebar-submenu .nav-link .material-symbols-rounded {
+      font-size: 1.05rem !important;
+      width: 18px !important;
+      min-width: 18px !important;
+      height: 18px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-right: 0.55rem !important;
+      color: #64748b !important;
+      flex-shrink: 0;
+    }
+
+    /* Modern active link style */
+    #sidenav-main .nav-link.active {
+      background-image: linear-gradient(195deg, #374151 0%, #111827 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18) !important;
+    }
+    #sidenav-main .nav-link.active .nav-link-text,
+    #sidenav-main .nav-link.active i,
+    #sidenav-main .nav-link.active .material-symbols-rounded {
+      color: #ffffff !important;
+      opacity: 1 !important;
+      font-weight: 500 !important;
+    }
+    #sidenav-main .nav-link.active .badge {
+      background-color: rgba(255, 255, 255, 0.22) !important;
+      color: #ffffff !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Prevent rogue bold utility classes inside sidebar */
+    #sidenav-main .font-weight-bold,
+    #sidenav-main .fw-bold {
+      font-weight: 500 !important;
+    }
+
+    /* Dainty, refined badge pills */
+    #sidenav-main .badge {
+      font-size: 0.625rem !important;
+      font-weight: 500 !important;
+      padding: 1.5px 6px !important;
+      border-radius: 50rem !important;
+      line-height: 1.2 !important;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+    #sidenav-main .sidebar-submenu .nav-link .badge,
+    #sidenav-main .navbar-nav > .nav-item > .nav-link .badge {
+      margin-left: auto !important;
+    }
+
+    /* Suppress Material Dashboard default ::after chevron */
+    .navbar-vertical .navbar-nav .nav-link.sidebar-toggle:after,
+    .navbar-vertical .navbar-nav .nav-link[data-sidebar-toggle]:after,
+    .navbar-vertical .navbar-nav .nav-link[data-bs-toggle=collapse]:after {
+      display: none !important;
+      content: none !important;
+    }
+
+    /* Strict collapse show/hide display enforcement */
+    #sidenav-collapse-main .collapse {
+      transition: none !important;
+    }
+    #sidenav-collapse-main .collapse:not(.show) {
+      display: none !important;
+      height: 0 !important;
+    }
+    #sidenav-collapse-main .collapse.show {
+      display: block !important;
+      height: auto !important;
+      opacity: 1 !important;
+    }
+    #sidenav-main .sidebar-submenu,
+    #sidenav-main .sidebar-submenu .nav-item,
+    #sidenav-main .sidebar-submenu .nav-link {
+      opacity: 1 !important;
+      animation: none !important;
+      transform: none !important;
+    }
+  </style>
 
 
 
@@ -187,7 +491,6 @@
 
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   <script src="<?= base_url(); ?>assetsA/js/admin-image-upload.js?v=1"></script>
 </head>
 <script>
@@ -217,13 +520,75 @@
         $panel_user_type = 'admin';
       }
       $is_member_panel = ($panel_user_type === 'member');
+
+      $CI->load->database();
+
+      // Dynamic real-time metrics for navigation badges
+      $unread_notifications_count = 0;
+      if ($CI->db->table_exists('ngom_notifications')) {
+          $CI->db->where('is_read', 0);
+          $unread_notifications_count = (int) $CI->db->count_all_results('ngom_notifications');
+      }
+
+      $pending_members_count = 0;
+      $active_members_count = 0;
+      $inactive_members_count = 0;
+      if ($CI->db->table_exists('members')) {
+          $pending_members_count = (int) $CI->db->where('status', 'pending')->count_all_results('members');
+          $active_members_count = (int) $CI->db->where('status', 'active')->count_all_results('members');
+          $inactive_members_count = (int) $CI->db->where('status', 'inactive')->count_all_results('members');
+      }
+      $people_pending_total = $pending_members_count + $inactive_members_count;
+
+      $donations_count = 0;
+      if ($CI->db->table_exists('donations')) {
+          $donations_count = (int) $CI->db->count_all_results('donations');
+      }
+
+      $campaigns_count = 0;
+      if ($CI->db->table_exists('ngom_campaigns')) {
+          $campaigns_count = (int) $CI->db->where('status', 'active')->count_all_results('ngom_campaigns');
+      }
+
+      $support_count = 0;
+      if ($CI->db->table_exists('contact')) {
+          $support_count = (int) $CI->db->count_all_results('contact');
+      }
+
+      $activity_count = 0;
+      if ($CI->db->table_exists('ngom_admin_activity')) {
+          $activity_count = (int) $CI->db->count_all_results('ngom_admin_activity');
+      }
+
+      $admin_users_count = 0;
+      if ($CI->db->table_exists('admin_users')) {
+          $admin_users_count = (int) $CI->db->count_all_results('admin_users');
+      }
+
+      $admin_role = (string) $CI->session->userdata('cms_admin_role');
+      $is_super_admin = ($admin_role === 'super_admin');
       $admin_method = strtolower((string) $CI->router->fetch_method());
       $c_dashboard = ($cc === 'admin' && $admin_method === 'index') ? $act : $nav;
       $c_member_profile = ($cc === 'admin' && $admin_method === 'profile') ? $act : $nav;
+      $c_member_renew = ($cc === 'admin' && $admin_method === 'renew') ? $act : $nav;
+      $member_renew_status = '';
+      if ($is_member_panel) {
+          $mid = (int) $CI->session->userdata('cms_member_id');
+          if ($mid > 0 && $CI->db->table_exists('members')) {
+              $row = $CI->db->get_where('members', array('id' => $mid), 1)->row_array();
+              $member_renew_status = $row['status'] ?? '';
+          }
+      }
       $current_member_doc = ($cc === 'admin' && $admin_method === 'member_document') ? strtolower((string) $CI->uri->segment(3)) : '';
       $c_member_id_card = ($current_member_doc === 'id-card') ? $act : $nav;
       $c_member_appointment = ($current_member_doc === 'appointment-letter') ? $act : $nav;
       $c_member_certificate = ($current_member_doc === 'certificate') ? $act : $nav;
+      $c_member_donation = ($cc === 'admin' && in_array($admin_method, array('donation', 'donation_history'))) ? $act : $nav;
+      $c_member_campaigns = ($cc === 'admin' && $admin_method === 'campaigns') ? $act : $nav;
+      $c_member_events = ($cc === 'admin' && $admin_method === 'events') ? $act : $nav;
+      $c_member_notifications = ($cc === 'admin' && $admin_method === 'notifications') ? $act : $nav;
+      $c_member_activity = ($cc === 'admin' && $admin_method === 'activity') ? $act : $nav;
+      $c_member_support = ($cc === 'admin' && $admin_method === 'support') ? $act : $nav;
       $c_cms_settings = ($cc === 'cms') ? $act : $nav;
       $c_members = ($cc === 'members') ? $act : $nav;
       $c_cms_dashboard = ($cc === 'cms' && $admin_method === 'dashboard') ? $act : $nav;
@@ -248,30 +613,22 @@
       $c_testimonials = ($cc === 'cms' && $current_tab === 'pages') ? $act : $nav;
       $c_audit_report = ($cc === 'cms' && $current_tab === 'audit') ? $act : $nav;
       $c_objective_list = ($cc === 'cms' && $CI->router->fetch_method() === 'objectives') ? $act : $nav;
-      $c_projects_list = ($cc === 'cms' && $CI->router->fetch_method() === 'projects_list') ? $act : $nav;
       $c_admin_blog = ($cc === 'blog_manager') ? $act : $nav;
       $c_admin_gallery = ($cc === 'gallery_manager') ? $act : $nav;
-      $c_admin_events = ($cc === 'cms' && $current_tab === 'events') ? $act : $nav;
       $c_admin_campaigns = ($cc === 'cms' && $CI->router->fetch_method() === 'campaigns_manage') ? $act : $nav;
       $c_admin_certificates = ($cc === 'certificates') ? $act : $nav;
-      $c_admin_reports = ($cc === 'reports') ? $act : $nav;
       $c_admin_notifications = ($cc === 'notifications') ? $act : $nav;
       $c_admin_media = ($cc === 'media_manager') ? $act : $nav;
       $c_admin_support = ($cc === 'support_tickets') ? $act : $nav;
-      $c_admin_settings = ($cc === 'system_settings') ? $act : $nav;
       $c_admin_activity = ($cc === 'activity_logs') ? $act : $nav;
       $c_admin_users = ($cc === 'admin_users') ? $act : $nav;
       $c_birthday_list = ($cc === 'members' && $CI->router->fetch_method() === 'birthdays') ? $act : $nav;
-      $c_admin_campaigns = ($cc === 'cms' && $CI->router->fetch_method() === 'campaigns_manage') ? $act : $nav;
-      $c_admin_events = ($cc === 'cms' && $current_tab === 'events') ? $act : $nav;
-      $c_admin_certificates = ($cc === 'certificates') ? $act : $nav;
-      $c_admin_reports = ($cc === 'cms' && $current_tab === 'reports') ? $act : $nav;
-      $c_admin_notifications = ($cc === 'notifications') ? $act : $nav;
-      $c_admin_media = ($cc === 'media_manager') ? $act : $nav;
-      $c_admin_support = ($cc === 'support_tickets') ? $act : $nav;
-      $c_admin_settings = ($cc === 'cms' && $current_tab === 'settings') ? $act : $nav;
-      $c_admin_users = ($cc === 'cms' && $current_tab === 'users') ? $act : $nav;
-      $c_admin_activity = ($cc === 'activity_logs') ? $act : $nav;
+
+      // Group active indicators for auto-expanding toggles:
+      $is_people_active = ($c_unverified === $act || $c_verified === $act || $c_pending_renewals === $act || $c_cms_dashboard === $act || $cc === 'members');
+      $is_operations_active = ($c_donations === $act || $c_admin_campaigns === $act || $c_admin_blog === $act || $c_admin_gallery === $act || $c_admin_certificates === $act);
+      $is_analytics_active = ($c_admin_media === $act || $c_admin_support === $act);
+      $is_system_active = ($c_admin_activity === $act || ($is_super_admin && $c_admin_users === $act));
       ?>
       <ul class="navbar-nav">
         <!-- Dashboard (Shared) -->
@@ -282,12 +639,34 @@
           </a>
         </li>
 
+        <?php if (!$is_member_panel): ?>
+        <!-- Notifications (Promoted Upper Element) -->
+        <li class="nav-item">
+          <a class="<?= $c_admin_notifications; ?>" href="<?= site_url('notifications'); ?>">
+            <i class="material-symbols-rounded opacity-5">notifications</i>
+            <span class="nav-link-text ms-1">Notifications</span>
+            <span class="badge rounded-pill ms-auto notif-badge <?= ($unread_notifications_count > 0) ? '' : 'd-none'; ?>" style="font-size:0.625rem; font-weight:600; padding:1.5px 6px; background:#fee2e2; color:#b91c1c; border:1px solid rgba(185,28,28,0.2);">
+              <?= (int) $unread_notifications_count; ?>
+            </span>
+          </a>
+        </li>
+        <?php endif; ?>
+
         <?php if ($is_member_panel): ?>
           <!-- --- MEMBER PANEL --- -->
           <li class="nav-item">
             <a class="<?= $c_member_profile; ?>" href="<?= site_url('admin/profile'); ?>">
               <i class="material-symbols-rounded opacity-5">person</i>
               <span class="nav-link-text ms-1">My Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="<?= $c_member_renew; ?>" href="<?= site_url('admin/renew'); ?>">
+              <i class="material-symbols-rounded opacity-5">autorenew</i>
+              <span class="nav-link-text ms-1">Renew Membership</span>
+              <?php if ($member_renew_status === 'inactive'): ?>
+                <span class="badge badge-sm bg-gradient-danger ms-1">Expired</span>
+              <?php endif; ?>
             </a>
           </li>
 
@@ -319,21 +698,21 @@
             <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">NGO Contributions</h6>
           </li>
           <li class="nav-item">
-            <a class="<?= $nav; ?>" href="<?= site_url('admin/donation'); ?>">
+            <a class="<?= $c_member_donation; ?>" href="<?= site_url('admin/donation_history'); ?>">
               <i class="material-symbols-rounded opacity-5">payments</i>
-              <span class="nav-link-text ms-1">Donations 💰</span>
+              <span class="nav-link-text ms-1">Donations</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="<?= $nav; ?>" href="<?= site_url('admin/campaigns'); ?>">
+            <a class="<?= $c_member_campaigns; ?>" href="<?= site_url('admin/campaigns'); ?>">
               <i class="material-symbols-rounded opacity-5">campaign</i>
-              <span class="nav-link-text ms-1">Campaigns 🎯</span>
+              <span class="nav-link-text ms-1">Campaigns</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="<?= $nav; ?>" href="<?= site_url('admin/events'); ?>">
+            <a class="<?= $c_member_events; ?>" href="<?= site_url('admin/events'); ?>">
               <i class="material-symbols-rounded opacity-5">event</i>
-              <span class="nav-link-text ms-1">Events 📅</span>
+              <span class="nav-link-text ms-1">Events</span>
             </a>
           </li>
 
@@ -342,21 +721,21 @@
             <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Account</h6>
           </li>
           <li class="nav-item">
-            <a class="<?= $nav; ?>" href="<?= site_url('admin/notifications'); ?>">
+            <a class="<?= $c_member_notifications; ?>" href="<?= site_url('admin/notifications'); ?>">
               <i class="material-symbols-rounded opacity-5">notifications</i>
-              <span class="nav-link-text ms-1">Notifications 🔔</span>
+              <span class="nav-link-text ms-1">Notifications</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="<?= $nav; ?>" href="<?= site_url('admin/activity'); ?>">
+            <a class="<?= $c_member_activity; ?>" href="<?= site_url('admin/activity'); ?>">
               <i class="material-symbols-rounded opacity-5">history</i>
-              <span class="nav-link-text ms-1">My Activity 📊</span>
+              <span class="nav-link-text ms-1">My Activity</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="<?= $nav; ?>" href="<?= site_url('admin/support'); ?>">
+            <a class="<?= $c_member_support; ?>" href="<?= site_url('admin/support'); ?>">
               <i class="material-symbols-rounded opacity-5">support_agent</i>
-              <span class="nav-link-text ms-1">Support 💬</span>
+              <span class="nav-link-text ms-1">Support</span>
             </a>
           </li>
 
@@ -367,138 +746,247 @@
                id="member-logout-btn"
                style="border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.06); transition: all 0.3s; cursor:pointer;">
               <i class="material-symbols-rounded" style="font-size:20px; color:#dc3545;">logout</i>
-              <span class="nav-link-text ms-1 font-weight-bold" style="color:#dc3545;">Logout</span>
+              <span class="nav-link-text ms-1" style="color:#dc3545; font-size: 0.8rem; font-weight: 500;">Logout</span>
             </a>
           </li>
 
         <?php else: ?>
-          <!-- --- ADMIN PANEL --- -->
-          <li class="nav-item mt-3">
-            <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">People</h6>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_unverified; ?>" href="<?= site_url('members'); ?>?status=pending">
-              <i class="material-symbols-rounded opacity-5">person_add</i>
-              <span class="nav-link-text ms-1">Unverified Members</span>
+          <!-- --- ADMIN PANEL COLLAPSIBLE MODULES --- -->
+
+          <!-- 1. PEOPLE MODULE -->
+          <li class="nav-item mt-2">
+            <a class="nav-link text-dark d-flex align-items-center justify-content-between sidebar-toggle <?= $is_people_active ? 'active-parent' : ''; ?>"
+               data-sidebar-toggle="collapse"
+               data-target="#collapseSectionPeople"
+               href="#collapseSectionPeople"
+               role="button"
+               aria-expanded="<?= $is_people_active ? 'true' : 'false'; ?>">
+              <div class="d-flex align-items-center">
+                <i class="material-symbols-rounded opacity-5">group</i>
+                <span class="nav-link-text ms-2">People</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill people-toggle-badge <?= ($people_pending_total > 0 && !$is_people_active) ? '' : 'd-none'; ?>" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#fee2e2; color:#b91c1c; border:1px solid rgba(185,28,28,0.2);">
+                  <?= (int) $people_pending_total; ?>
+                </span>
+                <svg class="sidebar-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_verified; ?>" href="<?= site_url('members'); ?>?status=active">
-              <i class="material-symbols-rounded opacity-5">verified_user</i>
-              <span class="nav-link-text ms-1">Verified Members</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_pending_renewals; ?>" href="<?= site_url('members'); ?>?status=inactive">
-              <i class="material-symbols-rounded opacity-5">history_toggle_off</i>
-              <span class="nav-link-text ms-1">Renewals</span>
-            </a>
+            <div class="collapse <?= $is_people_active ? 'show' : ''; ?>" id="collapseSectionPeople">
+              <ul class="nav flex-column sidebar-submenu">
+                <li class="nav-item">
+                  <a class="<?= $c_unverified; ?>" href="<?= site_url('members'); ?>?status=pending">
+                    <i class="material-symbols-rounded opacity-5">person_add</i>
+                    <span class="nav-link-text ms-1">Unverified Members</span>
+                    <?php if ($pending_members_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:600; padding:1.5px 6px; background:#fee2e2; color:#b91c1c; border:1px solid rgba(185,28,28,0.2);">
+                        <?= (int) $pending_members_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_verified; ?>" href="<?= site_url('members'); ?>?status=active">
+                    <i class="material-symbols-rounded opacity-5">verified_user</i>
+                    <span class="nav-link-text ms-1">Verified Members</span>
+                    <?php if ($active_members_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;">
+                        <?= (int) $active_members_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_pending_renewals; ?>" href="<?= site_url('members'); ?>?status=inactive">
+                    <i class="material-symbols-rounded opacity-5">history_toggle_off</i>
+                    <span class="nav-link-text ms-1">Renewals</span>
+                    <?php if ($inactive_members_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#fef3c7; color:#92400e; border:1px solid rgba(146,64,14,0.2);">
+                        <?= (int) $inactive_members_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_cms_dashboard; ?>" href="<?= site_url('cms/dashboard'); ?>">
+                    <i class="material-symbols-rounded opacity-5">space_dashboard</i>
+                    <span class="nav-link-text ms-1">CMS Dashboard Hub</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
 
-          <li class="nav-item">
-            <a class="<?= $c_cms_dashboard; ?>" href="<?= site_url('cms/dashboard'); ?>">
-              <i class="material-symbols-rounded opacity-5">space_dashboard</i>
-              <span class="nav-link-text ms-1 text-primary font-weight-bold">CMS Dashboard Hub 🚀</span>
+          <!-- 2. OPERATIONS MODULE -->
+          <li class="nav-item mt-1">
+            <a class="nav-link text-dark d-flex align-items-center justify-content-between sidebar-toggle <?= $is_operations_active ? 'active-parent' : ''; ?>"
+               data-sidebar-toggle="collapse"
+               data-target="#collapseSectionOperations"
+               href="#collapseSectionOperations"
+               role="button"
+               aria-expanded="<?= $is_operations_active ? 'true' : 'false'; ?>">
+              <div class="d-flex align-items-center">
+                <i class="material-symbols-rounded opacity-5">hub</i>
+                <span class="nav-link-text ms-2">Operations</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <?php if ($campaigns_count > 0 && !$is_operations_active): ?>
+                  <span class="badge rounded-pill" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#ecfdf5; color:#047857; border:1px solid rgba(4,120,87,0.2);">
+                    <?= (int) $campaigns_count; ?> active
+                  </span>
+                <?php endif; ?>
+                <svg class="sidebar-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
             </a>
+            <div class="collapse <?= $is_operations_active ? 'show' : ''; ?>" id="collapseSectionOperations">
+              <ul class="nav flex-column sidebar-submenu">
+                <li class="nav-item">
+                  <a class="<?= $c_donations; ?>" href="<?= site_url('donations'); ?>">
+                    <i class="material-symbols-rounded opacity-5">payments</i>
+                    <span class="nav-link-text ms-1">Donations</span>
+                    <?php if ($donations_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;">
+                        <?= (int) $donations_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_campaigns; ?>" href="<?= site_url('cms/campaigns_manage'); ?>">
+                    <i class="material-symbols-rounded opacity-5">campaign</i>
+                    <span class="nav-link-text ms-1">Campaigns</span>
+                    <?php if ($campaigns_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#ecfdf5; color:#047857; border:1px solid rgba(4,120,87,0.2);">
+                        <?= (int) $campaigns_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_blog; ?>" href="<?= site_url('blog_manager'); ?>">
+                    <i class="material-symbols-rounded opacity-5">edit_note</i>
+                    <span class="nav-link-text ms-1">Manage Blog</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_gallery; ?>" href="<?= site_url('gallery_manager'); ?>">
+                    <i class="material-symbols-rounded opacity-5">image</i>
+                    <span class="nav-link-text ms-1">Photo Gallery</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_certificates; ?>" href="<?= site_url('certificates'); ?>">
+                    <i class="material-symbols-rounded opacity-5">workspace_premium</i>
+                    <span class="nav-link-text ms-1">Certificates</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
 
-          <li class="nav-item mt-3">
-            <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Operations</h6>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_donations; ?>" href="<?= site_url('donations'); ?>">
-              <i class="material-symbols-rounded opacity-5">payments</i>
-              <span class="nav-link-text ms-1">Donations 💰</span>
+          <!-- 3. ANALYTICS & COMMS MODULE -->
+          <li class="nav-item mt-1">
+            <a class="nav-link text-dark d-flex align-items-center justify-content-between sidebar-toggle <?= $is_analytics_active ? 'active-parent' : ''; ?>"
+               data-sidebar-toggle="collapse"
+               data-target="#collapseSectionAnalytics"
+               href="#collapseSectionAnalytics"
+               role="button"
+               aria-expanded="<?= $is_analytics_active ? 'true' : 'false'; ?>">
+              <div class="d-flex align-items-center">
+                <i class="material-symbols-rounded opacity-5">analytics</i>
+                <span class="nav-link-text ms-2">Analytics & Comms</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <?php if ($support_count > 0 && !$is_analytics_active): ?>
+                  <span class="badge rounded-pill" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#e0f2fe; color:#0369a1; border:1px solid rgba(3,105,161,0.2);">
+                    <?= (int) $support_count; ?>
+                  </span>
+                <?php endif; ?>
+                <svg class="sidebar-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_campaigns; ?>" href="<?= site_url('cms/campaigns_manage'); ?>">
-              <i class="material-symbols-rounded opacity-5">campaign</i>
-              <span class="nav-link-text ms-1">Campaigns 🎯</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_projects_list; ?>" href="<?= site_url('cms/projects_list'); ?>">
-              <i class="material-symbols-rounded opacity-5">work</i>
-              <span class="nav-link-text ms-1">Projects 🏗️</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_events; ?>" href="<?= site_url('cms/dashboard'); ?>?tab=events">
-              <i class="material-symbols-rounded opacity-5">event</i>
-              <span class="nav-link-text ms-1">Events 📅</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_blog; ?>" href="<?= site_url('blog_manager'); ?>">
-              <i class="material-symbols-rounded opacity-5">edit_note</i>
-              <span class="nav-link-text ms-1">Manage Blog 📝</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_gallery; ?>" href="<?= site_url('gallery_manager'); ?>">
-              <i class="material-symbols-rounded opacity-5">image</i>
-              <span class="nav-link-text ms-1">Photo Gallery 🖼️</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_certificates; ?>" href="<?= site_url('certificates'); ?>">
-              <i class="material-symbols-rounded opacity-5">workspace_premium</i>
-              <span class="nav-link-text ms-1">Certificates 📜</span>
-            </a>
+            <div class="collapse <?= $is_analytics_active ? 'show' : ''; ?>" id="collapseSectionAnalytics">
+              <ul class="nav flex-column sidebar-submenu">
+                <li class="nav-item">
+                  <a class="<?= $c_admin_media; ?>" href="<?= site_url('media_manager'); ?>">
+                    <i class="material-symbols-rounded opacity-5">folder</i>
+                    <span class="nav-link-text ms-1">Media Manager</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_support; ?>" href="<?= site_url('support_tickets'); ?>">
+                    <i class="material-symbols-rounded opacity-5">forum</i>
+                    <span class="nav-link-text ms-1">Support</span>
+                    <?php if ($support_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#e0f2fe; color:#0369a1; border:1px solid rgba(3,105,161,0.2);">
+                        <?= (int) $support_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
 
-          <li class="nav-item mt-3">
-            <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Analytics & Comms</h6>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_reports; ?>" href="<?= site_url('reports'); ?>">
-              <i class="material-symbols-rounded opacity-5">bar_chart</i>
-              <span class="nav-link-text ms-1">Reports 📊</span>
+          <!-- 4. SYSTEM MODULE -->
+          <li class="nav-item mt-1">
+            <a class="nav-link text-dark d-flex align-items-center justify-content-between sidebar-toggle <?= $is_system_active ? 'active-parent' : ''; ?>"
+               data-sidebar-toggle="collapse"
+               data-target="#collapseSectionSystem"
+               href="#collapseSectionSystem"
+               role="button"
+               aria-expanded="<?= $is_system_active ? 'true' : 'false'; ?>">
+              <div class="d-flex align-items-center">
+                <i class="material-symbols-rounded opacity-5">settings</i>
+                <span class="nav-link-text ms-2">System</span>
+              </div>
+              <svg class="sidebar-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_notifications; ?>" href="<?= site_url('notifications'); ?>">
-              <i class="material-symbols-rounded opacity-5">notifications</i>
-              <span class="nav-link-text ms-1">Notifications 🔔 <span class="badge bg-danger rounded-pill ms-auto" style="float:right; margin-top:2px; font-size:9px;">3</span></span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_media; ?>" href="<?= site_url('media_manager'); ?>">
-              <i class="material-symbols-rounded opacity-5">folder</i>
-              <span class="nav-link-text ms-1">Media Manager 📁</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_support; ?>" href="<?= site_url('support_tickets'); ?>">
-              <i class="material-symbols-rounded opacity-5">forum</i>
-              <span class="nav-link-text ms-1">Support 💬</span>
-            </a>
+            <div class="collapse <?= $is_system_active ? 'show' : ''; ?>" id="collapseSectionSystem">
+              <ul class="nav flex-column sidebar-submenu">
+                <?php if ($is_super_admin): ?>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_users; ?>" href="<?= site_url('admin_users'); ?>">
+                    <i class="material-symbols-rounded opacity-5">manage_accounts</i>
+                    <span class="nav-link-text ms-1">Staff / Admins</span>
+                    <?php if ($admin_users_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;">
+                        <?= (int) $admin_users_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+                <?php endif; ?>
+                <li class="nav-item">
+                  <a class="<?= $c_admin_activity; ?>" href="<?= site_url('activity_logs'); ?>">
+                    <i class="material-symbols-rounded opacity-5">history</i>
+                    <span class="nav-link-text ms-1">Activity Logs</span>
+                    <?php if ($activity_count > 0): ?>
+                      <span class="badge rounded-pill ms-auto" style="font-size:0.625rem; font-weight:500; padding:1.5px 6px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;">
+                        <?= (int) $activity_count; ?>
+                      </span>
+                    <?php endif; ?>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </li>
 
-          <li class="nav-item mt-3">
-            <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">System</h6>
-          </li>
-          <li class="nav-item">
-            <a class="<?= $c_admin_settings; ?>" href="<?= site_url('system_settings'); ?>">
-              <i class="material-symbols-rounded opacity-5">settings</i>
-              <span class="nav-link-text ms-1">Website Settings ⚙️</span>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="<?= $c_admin_activity; ?>" href="<?= site_url('activity_logs'); ?>">
-              <i class="material-symbols-rounded opacity-5">history</i>
-              <span class="nav-link-text ms-1">Activity Logs 🧠</span>
-            </a>
-          </li>
-
-          <li class="nav-item mt-3">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded-lg"
+          <!-- Logout -->
+          <li class="nav-item mt-3 mb-2 px-2">
+            <a class="nav-link d-flex align-items-center justify-content-center gap-2 py-2 rounded-3"
                href="<?= site_url('admin/logout'); ?>"
-               style="border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.06); transition: all 0.3s; cursor:pointer;">
-              <i class="material-symbols-rounded" style="font-size:20px; color:#dc3545;">logout</i>
-              <span class="nav-link-text ms-1 font-weight-bold" style="color:#dc3545;">Logout</span>
+               style="border: 1px solid rgba(220,53,69,0.25); background: rgba(220,53,69,0.04); font-size: 0.8rem; font-weight: 500; color: #dc3545 !important; transition: all 0.2s;">
+              <i class="material-symbols-rounded" style="font-size: 1.1rem; color: #dc3545; margin: 0 !important; width: auto !important;">logout</i>
+              <span>Logout</span>
             </a>
           </li>
         <?php endif; ?>
@@ -549,19 +1037,28 @@
     var el1 = document.getElementById("chart-bars");
     if (!el1) return;
     var ctx = el1.getContext("2d");
+    var labels1 = ["M", "T", "W", "T", "F", "S", "S"];
+    var data1 = [0, 0, 0, 0, 0, 0, 0];
+    try {
+      if (el1.dataset.labels) labels1 = JSON.parse(el1.dataset.labels);
+      if (el1.dataset.values) data1 = JSON.parse(el1.dataset.values);
+    } catch(e) {}
+
+    var maxVal = Math.max.apply(null, data1);
+    var suggestedMax = maxVal > 10 ? Math.ceil(maxVal * 1.25) : 10;
 
     new Chart(ctx, {
       type: "bar",
       data: {
-        labels: ["M", "T", "W", "T", "F", "S", "S"],
+        labels: labels1,
         datasets: [{
-          label: "Views",
+          label: "Members",
           tension: 0.4,
           borderWidth: 0,
           borderRadius: 4,
           borderSkipped: false,
           backgroundColor: "#43A047",
-          data: [50, 45, 22, 28, 50, 60, 76],
+          data: data1,
           barThickness: 'flex'
         }, ],
       },
@@ -589,11 +1086,12 @@
             },
             ticks: {
               suggestedMin: 0,
-              suggestedMax: 500,
+              suggestedMax: suggestedMax,
               beginAtZero: true,
+              stepSize: 1,
               padding: 10,
               font: {
-                size: 14,
+                size: 13,
                 lineHeight: 2
               },
               color: "#737373"
@@ -612,7 +1110,7 @@
               color: '#737373',
               padding: 10,
               font: {
-                size: 14,
+                size: 12,
                 lineHeight: 2
               },
             }
@@ -626,24 +1124,32 @@
     var el2 = document.getElementById("chart-line");
     if (!el2) return;
     var ctx2 = el2.getContext("2d");
+    var labels2 = ["Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+    var data2 = [0, 0, 0, 0, 0, 0];
+    try {
+      if (el2.dataset.labels) labels2 = JSON.parse(el2.dataset.labels);
+      if (el2.dataset.values) data2 = JSON.parse(el2.dataset.values);
+    } catch(e) {}
+
+    var maxVal2 = Math.max.apply(null, data2);
+    var suggestedMax2 = maxVal2 > 1000 ? Math.ceil(maxVal2 * 1.2) : 5000;
 
     new Chart(ctx2, {
       type: "line",
       data: {
-        labels: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+        labels: labels2,
         datasets: [{
-          label: "Sales",
-          tension: 0,
+          label: "Donations (₹)",
+          tension: 0.3,
           borderWidth: 2,
-          pointRadius: 3,
-          pointBackgroundColor: "#43A047",
-          pointBorderColor: "transparent",
-          borderColor: "#43A047",
-          backgroundColor: "transparent",
+          pointRadius: 4,
+          pointBackgroundColor: "#0d6efd",
+          pointBorderColor: "#ffffff",
+          borderColor: "#0d6efd",
+          backgroundColor: "rgba(13, 110, 253, 0.08)",
           fill: true,
-          data: [120, 230, 130, 440, 250, 360, 270, 180, 90, 300, 310, 220],
+          data: data2,
           maxBarThickness: 6
-
         }],
       },
       options: {
@@ -655,9 +1161,8 @@
           },
           tooltip: {
             callbacks: {
-              title: function(context) {
-                const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                return fullMonths[context[0].dataIndex];
+              label: function(context) {
+                return "Donations: ₹" + Number(context.raw).toLocaleString('en-IN');
               }
             }
           }
@@ -679,7 +1184,12 @@
             ticks: {
               display: true,
               color: '#737373',
+              suggestedMin: 0,
+              suggestedMax: suggestedMax2,
               padding: 10,
+              callback: function(value) {
+                return '₹' + (value >= 1000 ? (value / 1000) + 'k' : value);
+              },
               font: {
                 size: 12,
                 lineHeight: 2
@@ -713,24 +1223,29 @@
     var el3 = document.getElementById("chart-line-tasks");
     if (!el3) return;
     var ctx3 = el3.getContext("2d");
+    var labels3 = ["Support", "Medical", "Education"];
+    var data3 = [0, 0, 0];
+    try {
+      if (el3.dataset.labels) labels3 = JSON.parse(el3.dataset.labels);
+      if (el3.dataset.values) data3 = JSON.parse(el3.dataset.values);
+    } catch(e) {}
+
+    var maxVal3 = Math.max.apply(null, data3);
+    var suggestedMax3 = maxVal3 > 1000 ? Math.ceil(maxVal3 * 1.2) : 10000;
 
     new Chart(ctx3, {
-      type: "line",
+      type: "bar",
       data: {
-        labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: labels3,
         datasets: [{
-          label: "Tasks",
+          label: "Raised (₹)",
           tension: 0,
-          borderWidth: 2,
-          pointRadius: 3,
-          pointBackgroundColor: "#43A047",
-          pointBorderColor: "transparent",
-          borderColor: "#43A047",
-          backgroundColor: "transparent",
-          fill: true,
-          data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
-          maxBarThickness: 6
-
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "#e91e63",
+          data: data3,
+          barThickness: 'flex'
         }],
       },
       options: {
@@ -739,6 +1254,13 @@
         plugins: {
           legend: {
             display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return "Raised: ₹" + Number(context.raw).toLocaleString('en-IN');
+              }
+            }
           }
         },
         interaction: {
@@ -757,10 +1279,15 @@
             },
             ticks: {
               display: true,
-              padding: 10,
               color: '#737373',
+              suggestedMin: 0,
+              suggestedMax: suggestedMax3,
+              padding: 10,
+              callback: function(value) {
+                return '₹' + (value >= 1000 ? (value / 1000) + 'k' : value);
+              },
               font: {
-                size: 14,
+                size: 12,
                 lineHeight: 2
               },
             }
@@ -771,14 +1298,14 @@
               display: false,
               drawOnChartArea: false,
               drawTicks: false,
-              borderDash: [4, 4]
+              borderDash: [5, 5]
             },
             ticks: {
               display: true,
               color: '#737373',
               padding: 10,
               font: {
-                size: 14,
+                size: 11,
                 lineHeight: 2
               },
             }
@@ -789,13 +1316,155 @@
   })();
   </script>
   <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
+    document.addEventListener('DOMContentLoaded', function() {
+      var sideNavCollapse = document.querySelector('#sidenav-collapse-main');
+      var ps = null;
+      if (sideNavCollapse && typeof PerfectScrollbar !== 'undefined') {
+        try {
+          ps = new PerfectScrollbar(sideNavCollapse, {
+            wheelSpeed: 1,
+            wheelPropagation: true,
+            suppressScrollX: true
+          });
+        } catch(e) {}
       }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
+
+      // Dynamic sidebar accordion state persistence with localStorage
+      var STORAGE_KEY = 'sf_admin_sidebar_state_v1';
+      var savedStates = {};
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) savedStates = JSON.parse(raw);
+      } catch(e) {}
+
+      // Step 1: Initialize states on page load
+      document.querySelectorAll('.sidebar-toggle').forEach(function(btn) {
+        var targetSelector = btn.getAttribute('data-target') || btn.getAttribute('href');
+        if (!targetSelector || !targetSelector.startsWith('#')) return;
+
+        var target = document.querySelector(targetSelector);
+        if (!target) return;
+
+        var hasActiveChild = target.querySelector('.nav-link.active') !== null;
+        var toggleBadge = btn.querySelector('.people-toggle-badge');
+
+        if (hasActiveChild) {
+          // Rule: Currently active route module must ALWAYS remain open
+          target.classList.add('show');
+          btn.setAttribute('aria-expanded', 'true');
+          btn.classList.add('active-parent');
+          if (toggleBadge) toggleBadge.classList.add('d-none');
+        } else if (savedStates[targetSelector] !== undefined) {
+          // Restore user's previous preference for non-active modules
+          if (savedStates[targetSelector] === true) {
+            target.classList.add('show');
+            btn.setAttribute('aria-expanded', 'true');
+            btn.classList.add('active-parent');
+            if (toggleBadge) toggleBadge.classList.add('d-none');
+          } else {
+            target.classList.remove('show');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.classList.remove('active-parent');
+            if (toggleBadge && toggleBadge.textContent.trim() !== '0' && toggleBadge.textContent.trim() !== '') {
+              toggleBadge.classList.remove('d-none');
+            }
+          }
+        }
+      });
+
+      // Step 2: Instant click handler that persists state
+      document.querySelectorAll('.sidebar-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          var targetSelector = btn.getAttribute('data-target') || btn.getAttribute('href');
+          if (!targetSelector || !targetSelector.startsWith('#')) return;
+
+          var target = document.querySelector(targetSelector);
+          if (!target) return;
+
+          var isCurrentlyShown = target.classList.contains('show');
+          var toggleBadge = btn.querySelector('.people-toggle-badge');
+
+          if (isCurrentlyShown) {
+            // Hide / Collapse
+            target.classList.remove('show');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.classList.remove('active-parent');
+            if (toggleBadge && toggleBadge.textContent.trim() !== '0' && toggleBadge.textContent.trim() !== '') {
+              toggleBadge.classList.remove('d-none');
+            }
+            savedStates[targetSelector] = false;
+          } else {
+            // Show / Expand
+            target.classList.add('show');
+            btn.setAttribute('aria-expanded', 'true');
+            btn.classList.add('active-parent');
+            if (toggleBadge) {
+              toggleBadge.classList.add('d-none');
+            }
+            savedStates[targetSelector] = true;
+          }
+
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedStates));
+          } catch(err) {}
+
+          // Update scrollbar height dynamically
+          if (ps) {
+            try { ps.update(); } catch(err) {}
+          }
+        });
+      });
+
+      // Step 3: Background live unread poller (updates badges dynamically)
+      function syncLiveSidebarBadges() {
+        if (typeof base_url === 'undefined') return;
+        fetch(base_url + 'notifications/unread_count', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data || data.status !== 'ok') return;
+
+          // Upper Notifications badge
+          var notifBadge = document.querySelector('.notif-badge');
+          if (notifBadge) {
+            var count = parseInt(data.unread_notifications, 10) || 0;
+            if (count > 0) {
+              notifBadge.textContent = count;
+              notifBadge.classList.remove('d-none');
+            } else {
+              notifBadge.classList.add('d-none');
+            }
+          }
+
+          // People header badge
+          var peopleBadge = document.querySelector('.people-toggle-badge');
+          var peopleCollapse = document.querySelector('#collapseSectionPeople');
+          if (peopleBadge) {
+            var pCount = parseInt(data.people_pending_total, 10) || 0;
+            peopleBadge.textContent = pCount;
+            if (pCount > 0 && (!peopleCollapse || !peopleCollapse.classList.contains('show'))) {
+              peopleBadge.classList.remove('d-none');
+            } else {
+              peopleBadge.classList.add('d-none');
+            }
+          }
+        })
+        .catch(function() {});
+      }
+
+      // Check after 8s, then poll every 30s
+      setTimeout(syncLiveSidebarBadges, 8000);
+      setInterval(syncLiveSidebarBadges, 30000);
+
+      var win = navigator.platform.indexOf('Win') > -1;
+      if (win && document.querySelector('#sidenav-scrollbar') && typeof Scrollbar !== 'undefined') {
+        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), { damping: '0.5' });
+      }
+    });
   </script>
   <!-- Control Center for Material Dashboard -->
   <script src="<?= base_url(); ?>assetsA/js/material-dashboard.min.js?v=3.2.0"></script>

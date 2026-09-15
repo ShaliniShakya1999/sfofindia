@@ -16,5 +16,13 @@
  * ============================================================
  */
 
-define('RAZORPAY_KEY_ID', 'rzp_test_xxxxxxxx');    // YAHAN APNA KEY ID DALO (Razorpay dashboard se copy karke)
-define('RAZORPAY_KEY_SECRET', 'your_secret_key');   // YAHAN APNA KEY SECRET DALO (Razorpay dashboard se copy karke)
+$razorpay_key_id = trim((string) getenv('SFOF_RAZORPAY_KEY_ID'));
+$razorpay_key_secret = trim((string) getenv('SFOF_RAZORPAY_KEY_SECRET'));
+
+if ($razorpay_key_id !== '') {
+    defined('RAZORPAY_KEY_ID') or define('RAZORPAY_KEY_ID', $razorpay_key_id);
+}
+if ($razorpay_key_secret !== '') {
+    defined('RAZORPAY_KEY_SECRET') or define('RAZORPAY_KEY_SECRET', $razorpay_key_secret);
+}
+

@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<?php include 'head.php'; ?>
+<?php 
+include 'head.php'; 
+$razorpay_enabled = false;
+if (file_exists(__DIR__ . '/razorpay_config.php')) {
+    include_once __DIR__ . '/razorpay_config.php';
+    $razorpay_enabled = defined('RAZORPAY_KEY_ID') && RAZORPAY_KEY_ID !== '' && RAZORPAY_KEY_ID !== 'rzp_test_xxxxxxxx' && defined('RAZORPAY_KEY_SECRET') && RAZORPAY_KEY_SECRET !== '';
+}
+if (!$razorpay_enabled && !empty($cms['razorpay_key_id']) && $cms['razorpay_key_id'] !== 'rzp_test_xxxxxxxx') {
+    $razorpay_enabled = true;
+    if (!defined('RAZORPAY_KEY_ID')) define('RAZORPAY_KEY_ID', $cms['razorpay_key_id']);
+}
+?>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <body>
     <!-- Spinner Start -->
@@ -385,8 +397,50 @@
 
 
 
+    <style>
+        .home-donation-cards .donation-item {
+            align-items: stretch;
+            min-height: 402px;
+        }
+        .home-donation-cards .donation-progress {
+            flex: 0 0 64px;
+            width: 64px;
+            min-height: 354px;
+        }
+        .home-donation-cards .donation-detail {
+            min-width: 0;
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+        }
+        .home-donation-cards .donation-detail .position-relative {
+            flex: 0 0 100px;
+            margin-bottom: 1rem !important;
+        }
+        .home-donation-cards .donation-detail .position-relative img {
+            display: block;
+            height: 100px;
+            object-fit: cover;
+        }
+        .home-donation-cards .donation-detail > .h3 {
+            line-height: 1.2;
+            min-height: 58px;
+            margin-bottom: .6rem;
+        }
+        .home-donation-cards .donation-detail > p {
+            flex: 1 1 auto;
+        }
+        .home-donation-cards .donation-detail > .btn {
+            margin-top: auto;
+        }
+        @media (max-width: 767.98px) {
+            .home-donation-cards .donation-item {
+                min-height: 0;
+            }
+        }
+    </style>
     <!-- Donation Start -->
-    <div class="container-fluid py-5">
+    <div class="container-fluid py-5 home-donation-cards">
         <div class="container">
             <div class="text-center mx-auto wow fadeIn" data-wow-delay="0.1s" style="max-width: 600px;">
                 <p class="section-title bg-white text-center text-primary px-3">Donation</p>
@@ -396,113 +450,114 @@
                 </p>
             </div>
 
+            <?php 
+            $campaign_list = !empty($campaigns) ? $campaigns : array(
+                array(
+                    'id' => 2,
+                    'title' => "Support for Martyrs' Families",
+                    'description' => "Your donation provides monthly ration kits, household essentials, and financial assistance to the families of our brave martyrs, ensuring they are never left alone.",
+                    'goal_amount' => 1000000,
+                    'raised_amount' => 0,
+                    'raised_display' => '0',
+                    'image' => 'img/army2.jpg',
+                ),
+                array(
+                    'id' => 3,
+                    'title' => "Medical & Health Assistance",
+                    'description' => "We provide medical treatment, emergency care, medicines, and hospital support to martyrs' families who need immediate and long-term healthcare assistance.",
+                    'goal_amount' => 600000,
+                    'raised_amount' => 0,
+                    'raised_display' => '0',
+                    'image' => 'img/sf/15.jpeg',
+                ),
+                array(
+                    'id' => 1,
+                    'title' => "Education for Martyrs' Children",
+                    'description' => "Your support helps provide school fees, books, uniforms, and quality education to the children of martyrs, helping them build a strong and dignified future.",
+                    'goal_amount' => 500000,
+                    'raised_amount' => 0,
+                    'raised_display' => '0',
+                    'image' => 'img/education-child.webp',
+                ),
+            );
+            ?>
             <div class="row g-4 mt-4">
+                <?php foreach ($campaign_list as $idx => $camp): 
+                    $c_id = (int)($camp['id'] ?? 0);
+                    $c_title = (string)($camp['title'] ?? 'Campaign');
+                    $c_desc = (string)($camp['description'] ?? '');
+                    if (mb_strlen($c_desc) > 150) {
+                        $c_desc = mb_substr($c_desc, 0, 147) . '...';
+                    }
+                    $c_goal = (float)($camp['goal_amount'] ?? 0);
+                    $c_raised = (float)($camp['raised_amount'] ?? 0);
+                    if ($c_raised <= 0 && !empty($camp['raised_display']) && is_numeric($camp['raised_display'])) {
+                        $c_raised = (float)$camp['raised_display'];
+                    }
+                    $c_percent = ($c_goal > 0) ? min(100, round(($c_raised / $c_goal) * 100)) : 0;
+                    
+                    $c_img_raw = trim((string)($camp['image'] ?? ''));
+                    if ($c_img_raw !== '') {
+                        if (preg_match('#^https?://#i', $c_img_raw)) {
+                            $c_img = $c_img_raw;
+                        } elseif (strpos($c_img_raw, 'img/') === 0) {
+                            $c_img = web_asset($c_img_raw);
+                        } elseif (file_exists(FCPATH . $c_img_raw)) {
+                            $c_img = base_url($c_img_raw);
+                        } else {
+                            $c_img = web_asset('img/army2.jpg');
+                        }
+                    } else {
+                        $c_img = web_asset('img/army2.jpg');
+                    }
 
-                <!-- Donation Box 1 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
+                    $c_tag = 'Family Support';
+                    $t_lower = strtolower($c_title);
+                    if (strpos($t_lower, 'education') !== false || strpos($t_lower, 'child') !== false) {
+                        $c_tag = 'Education';
+                    } elseif (strpos($t_lower, 'medic') !== false || strpos($t_lower, 'health') !== false) {
+                        $c_tag = 'Medical Care';
+                    } elseif (strpos($t_lower, 'relief') !== false || strpos($t_lower, 'emergency') !== false) {
+                        $c_tag = 'Emergency Relief';
+                    }
+                    
+                    $donate_url = web_link('donation.php') . ($c_id > 0 ? ('?campaign_id=' . $c_id . '#donate-section') : '#donate-section');
+                    $delay = number_format(0.1 + ($idx * 0.1), 2);
+                ?>
+                <!-- Dynamic Campaign Box <?php echo $c_id; ?> -->
+                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="<?php echo $delay; ?>s">
                     <div class="donation-item d-flex h-100 p-4">
                         <div class="donation-progress d-flex flex-column flex-shrink-0 text-center me-4">
                             <h6 class="mb-0">Raised</h6>
-                            <span class="mb-2">₹8,00,000</span>
+                            <span class="mb-2">₹<?php echo number_format($c_raised); ?></span>
                             <div class="progress d-flex align-items-end w-100 h-100 mb-2">
-                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="85"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fs-4">85%</span>
+                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="<?php echo $c_percent; ?>"
+                                    aria-valuemin="0" aria-valuemax="100" style="height: <?php echo max(5, $c_percent); ?>%;">
+                                    <span class="fs-4"><?php echo $c_percent; ?>%</span>
                                 </div>
                             </div>
                             <h6 class="mb-0">Goal</h6>
-                            <span>₹10,00,000</span>
+                            <span>₹<?php echo number_format($c_goal); ?></span>
                         </div>
 
                         <div class="donation-detail">
                             <div class="position-relative mb-4">
-                                <img class="img-fluid w-100" src="<?php echo html_escape(web_asset('img/army2.jpg')); ?>" alt="Martyrs Family Support">
-                                <a href="#!" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
-                                    Family Support
+                                <img class="img-fluid w-100" src="<?php echo html_escape($c_img); ?>" alt="<?php echo html_escape($c_title); ?>">
+                                <a href="<?php echo $donate_url; ?>" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
+                                    <?php echo html_escape($c_tag); ?>
                                 </a>
                             </div>
-                            <a href="#!" class="h3 d-inline-block">Support for Martyrs’ Families</a>
+                            <a href="<?php echo $donate_url; ?>" class="h3 d-inline-block"><?php echo html_escape($c_title); ?></a>
                             <p>
-                                Your donation provides monthly ration kits, household essentials, and financial assistance
-                                to the families of our brave martyrs, ensuring they are never left alone.
+                                <?php echo html_escape($c_desc); ?>
                             </p>
-                            <a href="<?php echo web_link('donation.php'); ?>" class="btn btn-primary w-100 py-3">
-                                <i class="fa fa-plus me-2"></i>Donate Now
+                            <a href="<?php echo $donate_url; ?>" class="btn btn-primary w-100 py-3">
+                                <i class="fa fa-heart me-2"></i>Donate Now
                             </a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Donation Box 2 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.13s">
-                    <div class="donation-item d-flex h-100 p-4">
-                        <div class="donation-progress d-flex flex-column flex-shrink-0 text-center me-4">
-                            <h6 class="mb-0">Raised</h6>
-                            <span class="mb-2">₹5,20,000</span>
-                            <div class="progress d-flex align-items-end w-100 h-100 mb-2">
-                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="95"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fs-4">95%</span>
-                                </div>
-                            </div>
-                            <h6 class="mb-0">Goal</h6>
-                            <span>₹6,00,000</span>
-                        </div>
-
-                        <div class="donation-detail">
-                            <div class="position-relative mb-4">
-                                <img class="img-fluid w-100" src="<?php echo html_escape(web_asset('img/sf/15.jpeg')); ?>" alt="Medical Support">
-                                <a href="#!" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
-                                    Medical Care
-                                </a>
-                            </div>
-                            <a href="#!" class="h3 d-inline-block">Medical & Health Assistance</a>
-                            <p>
-                                We provide medical treatment, emergency care, medicines, and hospital support to martyrs’
-                                families who need immediate and long-term healthcare assistance.
-                            </p>
-                            <a href="<?php echo web_link('donation.php'); ?>" class="btn btn-primary w-100 py-3">
-                                <i class="fa fa-plus me-2"></i>Donate Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Donation Box 3 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="donation-item d-flex h-100 p-4">
-                        <div class="donation-progress d-flex flex-column flex-shrink-0 text-center me-4">
-                            <h6 class="mb-0">Raised</h6>
-                            <span class="mb-2">₹3,75,000</span>
-                            <div class="progress d-flex align-items-end w-100 h-100 mb-2">
-                                <div class="progress-bar w-100 bg-secondary" role="progressbar" aria-valuenow="75"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <span class="fs-4">75%</span>
-                                </div>
-                            </div>
-                            <h6 class="mb-0">Goal</h6>
-                            <span>₹5,00,000</span>
-                        </div>
-
-                        <div class="donation-detail">
-                            <div class="position-relative mb-4">
-                                <img class="img-fluid w-100" src="<?php echo html_escape(web_asset('img/education-child.webp')); ?>" alt="Education Support">
-                                <a href="#!" class="btn btn-sm btn-secondary px-3 position-absolute top-0 end-0">
-                                    Education
-                                </a>
-                            </div>
-                            <a href="#!" class="h3 d-inline-block">Education for Martyrs’ Children</a>
-                            <p>
-                                Your support helps provide school fees, books, uniforms, and quality education to the children
-                                of martyrs, helping them build a strong and dignified future.
-                            </p>
-                            <a href="<?php echo web_link('donation.php'); ?>" class="btn btn-primary w-100 py-3">
-                                <i class="fa fa-plus me-2"></i>Donate Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
+                <?php endforeach; ?>
             </div>
 
             <!-- Emotional Line -->
@@ -584,44 +639,61 @@
             </div>
 
             <div class="row g-4">
-
-                <!-- Event 1 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/puduchery.jpg')); ?>" alt="Martyrs Education Support">
-                        <a href="#!" class="h3 d-inline-block">Education Support Drive</a>
-                        <p>
-                            This program ensures quality education for the children of martyrs by providing
-                            school fees, books, uniforms, and academic support—helping them build a secure future
-                            with dignity.
-                        </p>
+                <?php
+                $fallback_events = array(
+                    array(
+                        'title' => 'Education Support Drive',
+                        'image' => 'img/puduchery.jpg',
+                        'body' => 'This program ensures quality education for the children of martyrs by providing school fees, books, uniforms, and academic support—helping them build a secure future with dignity.',
+                        'event_date' => '2026-10-15',
+                    ),
+                    array(
+                        'title' => 'Martyrs Remembrance & Awareness Program',
+                        'image' => 'img/TNIE.avif',
+                        'body' => 'Through remembrance ceremonies and awareness campaigns, we honor the supreme sacrifice of our martyrs and remind the nation of its responsibility toward their families.',
+                        'event_date' => '2026-11-20',
+                    ),
+                    array(
+                        'title' => 'Medical & Health Care Camp',
+                        'image' => 'img/sf/16.jpeg',
+                        'body' => 'We organize medical camps and provide healthcare assistance to martyrs’ families, ensuring access to treatment, medicines, and emergency health support when they need it most.',
+                        'event_date' => '2026-12-05',
+                    ),
+                );
+                $display_events = !empty($ngom_events) ? $ngom_events : $fallback_events;
+                ?>
+                <?php foreach (array_slice($display_events, 0, 3) as $index => $event): ?>
+                    <?php
+                    $delay = ($index % 3 === 0) ? '0.1s' : (($index % 3 === 1) ? '0.3s' : '0.5s');
+                    $raw_img = !empty($event['image']) ? $event['image'] : '';
+                    if ($raw_img === '') {
+                        $img_src = base_url('assetsA/img/no-image.png');
+                    } elseif (strpos($raw_img, 'http://') === 0 || strpos($raw_img, 'https://') === 0) {
+                        $img_src = $raw_img;
+                    } elseif (strpos($raw_img, 'assets') === 0 || strpos($raw_img, 'uploads') === 0) {
+                        $img_src = base_url($raw_img);
+                    } else {
+                        $img_src = web_asset($raw_img);
+                    }
+                    ?>
+                    <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="<?php echo $delay; ?>">
+                        <div class="event-item h-100 p-4">
+                            <img class="img-fluid w-100 mb-4" style="height: 225px; object-fit: cover;" src="<?php echo html_escape($img_src); ?>" alt="<?php echo html_escape($event['title']); ?>" onerror="this.src='<?php echo base_url('assetsA/img/no-image.png'); ?>';">
+                            <a href="<?php echo web_link('event.php'); ?>" class="h3 d-inline-block"><?php echo html_escape($event['title']); ?></a>
+                            <p class="mb-0">
+                                <?php 
+                                    $body = strip_tags((string)$event['body']);
+                                    echo (strlen($body) > 150) ? substr($body, 0, 150) . '...' : $body;
+                                ?>
+                            </p>
+                            <?php if (!empty($event['event_date'])): ?>
+                                <div class="bg-light p-3 mt-3 border-radius-lg">
+                                    <p class="mb-0 text-sm"><i class="fa fa-calendar-alt text-primary me-2"></i><?php echo date('d M, Y', strtotime($event['event_date'])); ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Event 2 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/TNIE.avif')); ?>" alt="Martyrs Remembrance Program">
-                        <a href="#!" class="h3 d-inline-block">Martyrs Remembrance & Awareness Program</a>
-                        <p>
-                            Through remembrance ceremonies and awareness campaigns, we honor the supreme sacrifice
-                            of our martyrs and remind the nation of its responsibility toward their families.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Event 3 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" style="height: 225px;" src="<?php echo html_escape(web_asset('img/sf/16.jpeg')); ?>" alt="Health Care Support for Martyrs Families">
-                        <a href="#!" class="h3 d-inline-block">Medical & Health Care Camp</a>
-                        <p>
-                            We organize medical camps and provide healthcare assistance to martyrs’ families,
-                            ensuring access to treatment, medicines, and emergency health support when they need it most.
-                        </p>
-                    </div>
-                </div>
-
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -659,53 +731,93 @@
                             Make a Meaningful Contribution
                         </h3>
 
-                        <form>
-                            <div class="row g-3">
+                        <form id="quick-donation-form" onsubmit="return false;">
+                            <div class="row g-3 text-start">
 
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="name" placeholder="Your Name">
-                                        <label for="name">Full Name</label>
+                                        <select class="form-select" id="quick-campaign" aria-label="Select Campaign">
+                                            <option value="">General Fund (Martyrs' Families Care)</option>
+                                            <?php foreach ($campaign_list as $c_opt): ?>
+                                                <option value="<?php echo (int)$c_opt['id']; ?>"><?php echo html_escape($c_opt['title']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <label for="quick-campaign">Choose Cause / Campaign</label>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <input type="email" class="form-control" id="email" placeholder="Your Email">
-                                        <label for="email">Email Address</label>
+                                        <input type="text" class="form-control" id="quick-name" placeholder="Your Name" required>
+                                        <label for="quick-name">Full Name</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input type="email" class="form-control" id="quick-email" placeholder="Your Email" required>
+                                        <label for="quick-email">Email Address</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <input type="tel" class="form-control" id="quick-mobile" placeholder="Mobile" maxlength="15">
+                                        <label for="quick-mobile">Mobile Number (optional)</label>
                                     </div>
                                 </div>
 
                                 <!-- Donation Amount -->
                                 <div class="col-12">
                                     <p class="text-white mb-2">Choose Donation Amount</p>
-                                    <div class="btn-group flex-wrap" role="group">
+                                    <div class="btn-group flex-wrap w-100 justify-content-center" role="group">
+                                        <input type="radio" class="btn-check" name="quick_donation" id="quick-donate1" value="500" checked>
+                                        <label class="btn btn-light m-1 px-3" for="quick-donate1">₹500</label>
 
-                                        <input type="radio" class="btn-check" name="donation" id="donate1" checked>
-                                        <label class="btn btn-light m-1" for="donate1">₹500</label>
+                                        <input type="radio" class="btn-check" name="quick_donation" id="quick-donate2" value="1000">
+                                        <label class="btn btn-light m-1 px-3" for="quick-donate2">₹1,000</label>
 
-                                        <input type="radio" class="btn-check" name="donation" id="donate2">
-                                        <label class="btn btn-light m-1" for="donate2">₹1,000</label>
+                                        <input type="radio" class="btn-check" name="quick_donation" id="quick-donate3" value="2000">
+                                        <label class="btn btn-light m-1 px-3" for="quick-donate3">₹2,000</label>
 
-                                        <input type="radio" class="btn-check" name="donation" id="donate3">
-                                        <label class="btn btn-light m-1" for="donate3">₹2,000</label>
+                                        <input type="radio" class="btn-check" name="quick_donation" id="quick-donate4" value="5000">
+                                        <label class="btn btn-light m-1 px-3" for="quick-donate4">₹5,000</label>
 
-                                        <input type="radio" class="btn-check" name="donation" id="donate4">
-                                        <label class="btn btn-light m-1" for="donate4">₹5,000</label>
-
-                                        <input type="radio" class="btn-check" name="donation" id="donate5">
-                                        <label class="btn btn-light m-1" for="donate5">Custom Amount</label>
+                                        <input type="radio" class="btn-check" name="quick_donation" id="quick-donate5" value="custom">
+                                        <label class="btn btn-light m-1 px-3" for="quick-donate5">Custom</label>
+                                    </div>
+                                    <div id="quick-custom-wrap" class="mt-2 d-none">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">₹</span>
+                                            <input type="number" class="form-control" id="quick-custom-amount" placeholder="Enter amount" min="1" step="1">
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <button class="btn btn-secondary py-3 w-100" type="submit">
-                                        Donate with Respect
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="quick-consent" checked>
+                                        <label class="form-check-label text-white small" for="quick-consent">
+                                            I donate voluntarily to Shaheed Foundation (80G tax benefit applicable).
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12" id="quick-pay-wrap">
+                                    <button class="btn btn-secondary py-3 w-100 fw-bold" type="button" id="btn-quick-donate-pay">
+                                        <i class="fa fa-credit-card me-2"></i>Donate with Respect
                                     </button>
                                 </div>
 
+                                <div class="col-12 d-none" id="quick-donation-success">
+                                    <div class="alert alert-success mb-0 text-start">
+                                        <i class="fa fa-check-circle me-2"></i><strong>Thank you!</strong> Your donation has been recorded.
+                                        <div id="quick-receipt-link" class="mt-2"></div>
+                                    </div>
+                                </div>
+
                                 <div class="col-12">
-                                    <p class="text-white small mt-3">
+                                    <p class="text-white small mt-2 mb-0">
                                         100% transparency • Secure payment • Direct support to martyrs’ families
                                     </p>
                                 </div>
@@ -723,63 +835,7 @@
     <!-- Donate End -->
 
 
-    <!-- Team Start -->
-    <!-- <div class="container-fluid py-5">
-        <div class="container">
-            <div class="text-center mx-auto wow fadeIn" data-wow-delay="0.1s" style="max-width: 500px;">
-                <p class="section-title bg-white text-center text-primary px-3">Our Team</p>
-                <h1 class="display-6 mb-4">Meet Our Dedicated Team Members</h1>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="team-item d-flex h-100 p-4">
-                        <div class="team-detail pe-4">
-                            <img class="img-fluid mb-4" src="<?php echo html_escape(web_asset('img/team-1.jpg')); ?>" alt="">
-                            <h3>Boris Johnson</h3>
-                            <span>Founder & CEO</span>
-                        </div>
-                        <div class="team-social bg-light d-flex flex-column justify-content-center flex-shrink-0 p-4">
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-x-twitter"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-instagram"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-youtube"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                    <div class="team-item d-flex h-100 p-4">
-                        <div class="team-detail pe-4">
-                            <img class="img-fluid mb-4" src="<?php echo html_escape(web_asset('img/team-2.jpg')); ?>" alt="">
-                            <h3>Donald Pakura</h3>
-                            <span>Project Manager</span>
-                        </div>
-                        <div class="team-social bg-light d-flex flex-column justify-content-center flex-shrink-0 p-4">
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-x-twitter"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-instagram"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-youtube"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="team-item d-flex h-100 p-4">
-                        <div class="team-detail pe-4">
-                            <img class="img-fluid mb-4" src="<?php echo html_escape(web_asset('img/team-3.jpg')); ?>" alt="">
-                            <h3>Alexander Bell</h3>
-                            <span>Volunteer</span>
-                        </div>
-                        <div class="team-social bg-light d-flex flex-column justify-content-center flex-shrink-0 p-4">
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-x-twitter"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-instagram"></i></a>
-                            <a class="btn btn-square btn-primary my-2" href="#!"><i class="fab fa-youtube"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <!-- Team End -->
+
 
 
     <!-- Testimonial Start -->
@@ -896,6 +952,132 @@
         </div>
     </div> -->
     <!-- Testimonial End -->
+
+    <script>
+        (function() {
+            var razorpayKeyId = <?php echo $razorpay_enabled ? json_encode(RAZORPAY_KEY_ID) : '""'; ?>;
+            var createOrderUrl = <?php echo json_encode(site_url('donations/create_order')); ?>;
+            var verifyPaymentUrl = <?php echo json_encode(site_url('donations/verify_payment')); ?>;
+            var donationPageUrl = <?php echo json_encode(web_link('donation.php')); ?>;
+
+            document.querySelectorAll('input[name="quick_donation"]').forEach(function(r) {
+                r.addEventListener('change', function() {
+                    var wrap = document.getElementById('quick-custom-wrap');
+                    if (wrap) wrap.classList.toggle('d-none', this.id !== 'quick-donate5');
+                });
+            });
+
+            var btn = document.getElementById('btn-quick-donate-pay');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    var name = document.getElementById('quick-name').value.trim();
+                    var email = document.getElementById('quick-email').value.trim();
+                    var mobile = document.getElementById('quick-mobile') ? document.getElementById('quick-mobile').value.trim() : '';
+                    var campaignId = document.getElementById('quick-campaign') ? document.getElementById('quick-campaign').value : '';
+                    var amount = 0;
+                    if (document.getElementById('quick-donate5') && document.getElementById('quick-donate5').checked) {
+                        amount = parseFloat(document.getElementById('quick-custom-amount').value) || 0;
+                    } else {
+                        var chk = document.querySelector('input[name="quick_donation"]:checked');
+                        amount = chk ? (parseFloat(chk.value) || 0) : 0;
+                    }
+
+                    if (!name) { alert('Please enter your full name.'); return; }
+                    if (!email) { alert('Please enter your email address.'); return; }
+                    if (amount < 1) { alert('Please select or enter a valid donation amount (minimum ₹1).'); return; }
+                    var consent = document.getElementById('quick-consent');
+                    if (consent && !consent.checked) {
+                        alert('Please agree to the donation terms before proceeding.');
+                        return;
+                    }
+
+                    if (!razorpayKeyId) {
+                        window.location.href = donationPageUrl + (campaignId ? ('?campaign_id=' + encodeURIComponent(campaignId) + '#bank-details') : '#bank-details');
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+                    fetch(createOrderUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: amount,
+                            name: name,
+                            email: email,
+                            mobile: mobile,
+                            campaign_id: campaignId
+                        })
+                    }).then(function(r) { return r.json(); }).then(function(res) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-credit-card me-2"></i>Donate with Respect';
+                        if (!res.success) {
+                            alert(res.error || 'Could not initiate payment. Redirecting to direct bank donation...');
+                            window.location.href = donationPageUrl + '#bank-details';
+                            return;
+                        }
+
+                        var options = {
+                            key: razorpayKeyId,
+                            amount: res.amount,
+                            currency: res.currency,
+                            order_id: res.orderId,
+                            name: 'Shaheed Foundation',
+                            description: 'Donation for Martyrs\' Families',
+                            prefill: { name: name, email: email, contact: mobile },
+                            theme: { color: '#0d6efd' },
+                            modal: { ondismiss: function() {} },
+                            handler: function(response) {
+                                fetch(verifyPaymentUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        name: name,
+                                        email: email,
+                                        mobile: mobile,
+                                        amount: amount,
+                                        campaign_id: campaignId
+                                    })
+                                }).then(function(r) { return r.json(); }).then(function(v) {
+                                    if (!v.ok) {
+                                        alert(v.error || 'Verification failed. Contact support with your payment ID.');
+                                        return;
+                                    }
+                                    var payWrap = document.getElementById('quick-pay-wrap');
+                                    if (payWrap) payWrap.classList.add('d-none');
+                                    var successBox = document.getElementById('quick-donation-success');
+                                    if (successBox) successBox.classList.remove('d-none');
+                                    if (v.receipt_url) {
+                                        var rWrap = document.getElementById('quick-receipt-link');
+                                        if (rWrap) {
+                                            rWrap.innerHTML = '<a href="' + v.receipt_url + '" class="btn btn-sm btn-outline-success mt-1" target="_blank" rel="noopener"><i class="fa fa-download me-1"></i> Download 80G Tax Receipt (PDF)</a>';
+                                        }
+                                    }
+                                    successBox.scrollIntoView({ behavior: 'smooth' });
+                                }).catch(function() {
+                                    alert('Could not verify payment on server. Please keep your transaction ID safe.');
+                                });
+                            }
+                        };
+                        var rzp = new Razorpay(options);
+                        rzp.on('payment.failed', function(response) {
+                            alert('Payment could not be completed. You may retry or use Bank Transfer.');
+                        });
+                        rzp.open();
+                    }).catch(function() {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-credit-card me-2"></i>Donate with Respect';
+                        alert('Connection error. Redirecting to direct bank donation...');
+                        window.location.href = donationPageUrl + '#bank-details';
+                    });
+                });
+            }
+        })();
+    </script>
 
     <?php include 'footer.php'; ?>
 

@@ -4,14 +4,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Admin_user_model extends CI_Model {
 
 	/** @var list<string> */
-	public static $roles = array('super_admin', 'admin', 'member');
+	public static $roles = array('super_admin', 'admin', 'manager', 'coordinator', 'member');
 
 	public function find_by_username($username)
 	{
-		if (!$this->db->table_exists('admin_users')) {
+		return $this->find_by_identifier($username);
+	}
+
+	public function find_by_identifier($identifier)
+	{
+		if (!$this->db->table_exists('admin_users') || trim((string) $identifier) === '') {
 			return null;
 		}
-		$q = $this->db->get_where('admin_users', array('username' => $username), 1);
+		$identifier = trim((string) $identifier);
+		$this->db->group_start();
+		$this->db->where('username', $identifier);
+		$this->db->or_where('email', $identifier);
+		$this->db->group_end();
+		$q = $this->db->get('admin_users', 1);
 		$row = $q->row_array();
 		return $this->normalize_row($row);
 	}
@@ -72,6 +82,15 @@ class Admin_user_model extends CI_Model {
 		}
 		$this->db->where('id', (int) $id);
 		return $this->db->update('admin_users', array('password_hash' => $password_hash));
+	}
+
+	public function update_email($id, $email)
+	{
+		if (!$this->db->table_exists('admin_users')) {
+			return false;
+		}
+		$this->db->where('id', (int) $id);
+		return $this->db->update('admin_users', array('email' => (string) $email));
 	}
 
 	public function update_role($id, $role)

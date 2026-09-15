@@ -48,7 +48,7 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <?php if ($row['status'] === 'paid'): ?>
+                                                <?php if ($row['status'] === 'paid' && !empty($row['receipt_no'])): ?>
                                                     <span class="badge badge-sm bg-gradient-success rounded-pill px-3">Success</span>
                                                 <?php else: ?>
                                                     <span class="badge badge-sm bg-gradient-secondary rounded-pill px-3"><?php echo html_escape($row['status']); ?></span>
@@ -56,7 +56,7 @@
                                             </td>
                                             <td class="align-middle text-center">
                                                 <?php if ($row['status'] === 'paid'): ?>
-                                                    <a href="<?php echo site_url('donations/receipt_pdf/' . (int) $row['id']); ?>" target="_blank" class="btn btn-link text-indigo px-3 mb-0" style="text-decoration: none;">
+                                                    <a href="<?php echo site_url('donations/public_receipt_pdf/' . rawurlencode($row['receipt_no'])); ?>" target="_blank" rel="noopener" class="btn btn-link text-indigo px-3 mb-0" style="text-decoration: none;">
                                                         <i class="material-symbols-rounded text-sm me-1">picture_as_pdf</i> PDF Receipt
                                                     </a>
                                                 <?php else: ?>

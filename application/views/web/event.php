@@ -42,100 +42,29 @@
 <?php if (!cms_page_override($cms, 'page_event_html')): ?>
 
     <!-- Event Start -->
-    <!-- <div class="container-fluid py-5">
-        <div class="container">
-            <div class="text-center mx-auto wow fadeIn" data-wow-delay="0.1s" style="max-width: 500px;">
-                <p class="section-title bg-white text-center text-primary px-3">Events</p>
-                <h1 class="display-6 mb-4">Be a Part of a Global Movement</h1>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/event-1.jpg')); ?>" alt="">
-                        <a href="#!" class="h3 d-inline-block">Education Program</a>
-                        <p>Through your donations and volunteer work, we spread kindness and support to children.</p>
-                        <div class="bg-light p-4">
-                            <p class="mb-1"><i class="fa fa-clock text-primary me-2"></i>10:00 AM - 18:00 PM</p>
-                            <p class="mb-1"><i class="fa fa-calendar-alt text-primary me-2"></i>Jan 01 - Jan 10</p>
-                            <p class="mb-0"><i class="fa fa-map-marker-alt text-primary me-2"></i>123 Street, New York,
-                                USA</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/event-2.jpg')); ?>" alt="">
-                        <a href="#!" class="h3 d-inline-block">Awareness Program</a>
-                        <p>Through your donations and volunteer work, we spread kindness and support to children.</p>
-                        <div class="bg-light p-4">
-                            <p class="mb-1"><i class="fa fa-clock text-primary me-2"></i>10:00 AM - 18:00 PM</p>
-                            <p class="mb-1"><i class="fa fa-calendar-alt text-primary me-2"></i>Jan 01 - Jan 10</p>
-                            <p class="mb-0"><i class="fa fa-map-marker-alt text-primary me-2"></i>123 Street, New York,
-                                USA</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/event-3.jpg')); ?>" alt="">
-                        <a href="#!" class="h3 d-inline-block">Health Care Program</a>
-                        <p>Through your donations and volunteer work, we spread kindness and support to children.</p>
-                        <div class="bg-light p-4">
-                            <p class="mb-1"><i class="fa fa-clock text-primary me-2"></i>10:00 AM - 18:00 PM</p>
-                            <p class="mb-1"><i class="fa fa-calendar-alt text-primary me-2"></i>Jan 01 - Jan 10</p>
-                            <p class="mb-0"><i class="fa fa-map-marker-alt text-primary me-2"></i>123 Street, New York,
-                                USA</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/event-1.jpg')); ?>" alt="">
-                        <a href="#!" class="h3 d-inline-block">Education Program</a>
-                        <p>Through your donations and volunteer work, we spread kindness and support to children.</p>
-                        <div class="bg-light p-4">
-                            <p class="mb-1"><i class="fa fa-clock text-primary me-2"></i>10:00 AM - 18:00 PM</p>
-                            <p class="mb-1"><i class="fa fa-calendar-alt text-primary me-2"></i>Jan 01 - Jan 10</p>
-                            <p class="mb-0"><i class="fa fa-map-marker-alt text-primary me-2"></i>123 Street, New York,
-                                USA</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/event-2.jpg')); ?>" alt="">
-                        <a href="#!" class="h3 d-inline-block">Awareness Program</a>
-                        <p>Through your donations and volunteer work, we spread kindness and support to children.</p>
-                        <div class="bg-light p-4">
-                            <p class="mb-1"><i class="fa fa-clock text-primary me-2"></i>10:00 AM - 18:00 PM</p>
-                            <p class="mb-1"><i class="fa fa-calendar-alt text-primary me-2"></i>Jan 01 - Jan 10</p>
-                            <p class="mb-0"><i class="fa fa-map-marker-alt text-primary me-2"></i>123 Street, New York,
-                                USA</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/event-3.jpg')); ?>" alt="">
-                        <a href="#!" class="h3 d-inline-block">Health Care Program</a>
-                        <p>Through your donations and volunteer work, we spread kindness and support to children.</p>
-                        <div class="bg-light p-4">
-                            <p class="mb-1"><i class="fa fa-clock text-primary me-2"></i>10:00 AM - 18:00 PM</p>
-                            <p class="mb-1"><i class="fa fa-calendar-alt text-primary me-2"></i>Jan 01 - Jan 10</p>
-                            <p class="mb-0"><i class="fa fa-map-marker-alt text-primary me-2"></i>123 Street, New York,
-                                USA</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <!-- Event End -->
-
-
-
-   
-    <!-- Event Start -->
+    <?php
+    $fallback_events = array(
+        array(
+            'title' => 'Education Support Drive',
+            'image' => 'img/puduchery.jpg',
+            'body' => 'This program ensures quality education for the children of martyrs by providing school fees, books, uniforms, and academic support—helping them build a secure future with dignity.',
+            'event_date' => '2026-10-15',
+        ),
+        array(
+            'title' => 'Martyrs Remembrance & Awareness Program',
+            'image' => 'img/TNIE.avif',
+            'body' => 'Through remembrance ceremonies and awareness campaigns, we honor the supreme sacrifice of our martyrs and remind the nation of its responsibility toward their families.',
+            'event_date' => '2026-11-20',
+        ),
+        array(
+            'title' => 'Medical & Health Care Camp',
+            'image' => 'img/health.jpg',
+            'body' => 'We organize medical camps and provide healthcare assistance to martyrs’ families, ensuring access to treatment, medicines, and emergency health support when they need it most.',
+            'event_date' => '2026-12-05',
+        ),
+    );
+    $display_events = !empty($ngom_events) ? $ngom_events : $fallback_events;
+    ?>
     <div class="container-fluid py-5">
         <div class="container">
 
@@ -149,56 +78,28 @@
             </div>
 
             <div class="row g-4">
-
-                <!-- Original Hardcoded Events -->
-                <!-- Event 1 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/puduchery.jpg')); ?>" alt="Martyrs Education Support">
-                        <a href="#!" class="h3 d-inline-block">Education Support Drive</a>
-                        <p>
-                            This program ensures quality education for the children of martyrs by providing
-                            school fees, books, uniforms, and academic support—helping them build a secure future
-                            with dignity.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Event 2 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.3s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/TNIE.avif')); ?>" alt="Martyrs Remembrance Program">
-                        <a href="#!" class="h3 d-inline-block">Martyrs Remembrance & Awareness Program</a>
-                        <p>
-                            Through remembrance ceremonies and awareness campaigns, we honor the supreme sacrifice
-                            of our martyrs and remind the nation of its responsibility toward their families.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Event 3 -->
-                <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.5s">
-                    <div class="event-item h-100 p-4">
-                        <img class="img-fluid w-100 mb-4" src="<?php echo html_escape(web_asset('img/health.jpg')); ?>" alt="Health Care Support for Martyrs Families">
-                        <a href="#!" class="h3 d-inline-block">Medical & Health Care Camp</a>
-                        <p>
-                            We organize medical camps and provide healthcare assistance to martyrs’ families,
-                            ensuring access to treatment, medicines, and emergency health support when they need it most.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Dynamic CMS Events -->
-                <?php if (!empty($ngom_events)): ?>
-                    <?php foreach ($ngom_events as $event): ?>
-                    <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s">
+                <?php foreach ($display_events as $index => $event): ?>
+                    <?php
+                    $delay = ($index % 3 === 0) ? '0.1s' : (($index % 3 === 1) ? '0.3s' : '0.5s');
+                    $raw_img = !empty($event['image']) ? $event['image'] : '';
+                    if ($raw_img === '') {
+                        $img_src = base_url('assetsA/img/no-image.png');
+                    } elseif (strpos($raw_img, 'http://') === 0 || strpos($raw_img, 'https://') === 0) {
+                        $img_src = $raw_img;
+                    } elseif (strpos($raw_img, 'assets') === 0 || strpos($raw_img, 'uploads') === 0) {
+                        $img_src = base_url($raw_img);
+                    } else {
+                        $img_src = web_asset($raw_img);
+                    }
+                    ?>
+                    <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="<?php echo $delay; ?>">
                         <div class="event-item h-100 p-4">
-                            <img class="img-fluid w-100 mb-4" src="<?php echo base_url(html_escape($event['image'])); ?>" alt="<?php echo html_escape($event['title']); ?>" onerror="this.src='<?php echo base_url('assetsA/img/no-image.png'); ?>';">
+                            <img class="img-fluid w-100 mb-4" style="height: 230px; object-fit: cover;" src="<?php echo html_escape($img_src); ?>" alt="<?php echo html_escape($event['title']); ?>" onerror="this.src='<?php echo base_url('assetsA/img/no-image.png'); ?>';">
                             <a href="#!" class="h3 d-inline-block"><?php echo html_escape($event['title']); ?></a>
                             <p class="mb-0">
                                 <?php 
                                     $body = strip_tags((string)$event['body']);
-                                    echo (strlen($body) > 150) ? substr($body, 0, 150) . '...' : $body;
+                                    echo (strlen($body) > 160) ? substr($body, 0, 160) . '...' : $body;
                                 ?>
                             </p>
                             <?php if (!empty($event['event_date'])): ?>
@@ -208,13 +109,10 @@
                             <?php endif; ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
-
-
     <!-- Event End -->
 
 

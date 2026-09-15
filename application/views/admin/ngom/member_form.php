@@ -175,7 +175,7 @@ $is_edit = !empty($is_edit);
                             $ph = isset($m['photo']) ? trim((string) $m['photo']) : '';
                             $ph_url = '';
                             if ($ph !== '') {
-                                $ph_url = (preg_match('#^https?://#i', $ph) || $ph[0] === '/') ? $ph : base_url($ph);
+                                $ph_url = (!empty($m['id'])) ? site_url('members/document/' . (int)$m['id'] . '/photo') : ((preg_match('#^https?://#i', $ph) || $ph[0] === '/') ? $ph : base_url($ph));
                             }
                             ?>
                             <img id="profile_photo_preview" src="<?php echo $ph_url !== '' ? html_escape($ph_url) : 'https://ui-avatars.com/api/?name=User&background=random'; ?>" alt="Profile" class="w-100 h-100" style="object-fit:cover;">
@@ -196,7 +196,7 @@ $is_edit = !empty($is_edit);
                             <label class="form-label text-xs font-weight-bold d-block">Aadhar Front Side</label>
                             <?php
                             $af = isset($m['aadhar_front']) ? trim((string)$m['aadhar_front']) : '';
-                            $af_url = ($af !== '') ? base_url($af) : '';
+                            $af_url = ($af !== '') ? ((!empty($m['id'])) ? site_url('members/document/' . (int)$m['id'] . '/aadhar_front') : base_url($af)) : '';
                             ?>
                             <div class="position-relative border-radius-lg overflow-hidden bg-white mb-2 shadow-sm" style="height:120px;">
                                 <?php if ($af_url): ?>
@@ -213,7 +213,7 @@ $is_edit = !empty($is_edit);
                             <label class="form-label text-xs font-weight-bold d-block">Aadhar Back Side</label>
                             <?php
                             $ab = isset($m['aadhar_back']) ? trim((string)$m['aadhar_back']) : '';
-                            $ab_url = ($ab !== '') ? base_url($ab) : '';
+                            $ab_url = ($ab !== '') ? ((!empty($m['id'])) ? site_url('members/document/' . (int)$m['id'] . '/aadhar_back') : base_url($ab)) : '';
                             ?>
                             <div class="position-relative border-radius-lg overflow-hidden bg-white mb-2 shadow-sm" style="height:120px;">
                                 <?php if ($ab_url): ?>
@@ -230,12 +230,17 @@ $is_edit = !empty($is_edit);
                             <label class="form-label text-xs font-weight-bold d-block">Fee Payment Receipt</label>
                             <?php
                             $pr = isset($m['payment_receipt']) ? trim((string) $m['payment_receipt']) : '';
-                            $pr_url = ($pr !== '') ? ((preg_match('#^https?://#i', $pr) || $pr[0] === '/') ? $pr : base_url($pr)) : '';
+                            $pr_url = ($pr !== '') ? ((!empty($m['id'])) ? site_url('members/document/' . (int)$m['id'] . '/payment_receipt') : base_url($pr)) : '';
                             $pr_is_img = (bool) preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $pr);
                             ?>
                             <div class="position-relative border-radius-lg overflow-hidden bg-white mb-2 shadow-sm" style="height:150px;">
                                 <?php if ($pr_url && $pr_is_img): ?>
                                     <img src="<?php echo html_escape($pr_url); ?>" class="w-100 h-100" style="object-fit:contain;">
+                                <?php elseif ($pr_url): ?>
+                                    <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted border border-dashed">
+                                        <i class="material-symbols-rounded fs-2">receipt_long</i>
+                                        <a href="<?php echo html_escape($pr_url); ?>" target="_blank" class="text-xs text-primary mt-1">View Receipt (PDF/Doc)</a>
+                                    </div>
                                 <?php else: ?>
                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted border border-dashed">
                                         <i class="material-symbols-rounded fs-2">receipt_long</i>
