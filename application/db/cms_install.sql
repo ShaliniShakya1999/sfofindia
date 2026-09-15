@@ -19,11 +19,5 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
   UNIQUE KEY `uniq_username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Default admin: username admin / password admin123  (CHANGE AFTER LOGIN)
-INSERT IGNORE INTO `admin_users` (`username`, `password_hash`, `email`, `role`)
-VALUES (
-  'admin',
-  '$2y$10$ZYU3mN95iXZDS4Lr9sDGIuCkum2T3a91R7ln2eiJH3BQaFSic9L7m',
-  'admin@example.com',
-  'super_admin'
-);
+-- Do not create a default administrator here. Provision the first account
+-- through a controlled CLI/deployment process with a unique password and email.

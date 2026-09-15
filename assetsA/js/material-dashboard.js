@@ -566,7 +566,7 @@ window.onload = function() {
 
   for (var i = 0; i < ripples.length; i++) {
     ripples[i].addEventListener('click', function(e) {
-      var targetEl = e.target;
+      var targetEl = e.currentTarget;
       var rippleDiv = targetEl.querySelector('.ripple');
 
       rippleDiv = document.createElement('span');

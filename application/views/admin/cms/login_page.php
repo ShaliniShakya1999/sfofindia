@@ -49,14 +49,20 @@
             <?php $ci =& get_instance(); if ($ci->session->flashdata('cms_error')): ?>
               <div class="alert alert-danger"><?php echo $ci->session->flashdata('cms_error'); ?></div>
             <?php endif; ?>
-            <form method="post" action="<?php echo isset($form_action) ? html_escape($form_action) : site_url('cms/do_login'); ?>">
+            <?php if ($ci->session->flashdata('cms_success')): ?>
+              <div class="alert alert-success"><?php echo $ci->session->flashdata('cms_success'); ?></div>
+            <?php endif; ?>
+            <form method="post" action="<?php echo isset($form_action) ? html_escape($form_action) : site_url('admin/do_login'); ?>">
+              <?php if ($ci->config->item('csrf_protection')): ?>
+                <input type="hidden" name="<?php echo $ci->security->get_csrf_token_name(); ?>" value="<?php echo $ci->security->get_csrf_hash(); ?>">
+              <?php endif; ?>
               <div class="mb-3">
-                <label class="form-label">Username / User ID</label>
-                <input type="text" name="username" class="form-control" required autofocus>
+                <label class="form-label">Username / Email / Member ID / Mobile</label>
+                <input type="text" name="username" class="form-control" placeholder="e.g. admin, email, or MBR0001" autocomplete="username" required autofocus>
               </div>
               <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
               </div>
               <button type="submit" class="btn btn-primary w-100">Sign in</button>
             </form>

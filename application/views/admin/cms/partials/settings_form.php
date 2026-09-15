@@ -106,7 +106,7 @@ if (!isset($embed)) {
 		</div>
 		<div class="col-md-6 mb-3">
 			<label class="form-label">SMTP Password</label>
-			<input type="password" name="smtp_pass" class="form-control" value="<?php echo html_escape(cms_val($cms, 'smtp_pass', '')); ?>">
+			<input type="password" name="smtp_pass" class="form-control" value="" placeholder="Leave blank to keep current password">
 		</div>
 	</div>
 

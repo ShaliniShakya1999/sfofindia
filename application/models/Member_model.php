@@ -8,6 +8,7 @@ class Member_model extends CI_Model {
 		parent::__construct();
 	}
 
+
 	public function table_exists()
 	{
 		return $this->db->table_exists('members');
@@ -15,6 +16,9 @@ class Member_model extends CI_Model {
 
 	public function ensure_extended_schema()
 	{
+		if (ENVIRONMENT === 'production' && getenv('SFOF_ALLOW_RUNTIME_SCHEMA') !== 'true') {
+			return false;
+		}
 		if (!$this->table_exists()) {
 			return false;
 		}
@@ -159,10 +163,30 @@ class Member_model extends CI_Model {
 
 	public function find_by_member_user_id($member_user_id)
 	{
-		if (!$this->table_exists() || $member_user_id === '') {
+		return $this->find_by_identifier($member_user_id);
+	}
+
+	public function find_by_identifier($identifier)
+	{
+		if (!$this->table_exists() || trim((string) $identifier) === '') {
 			return null;
 		}
-		$q = $this->db->get_where('members', array('member_user_id' => $member_user_id), 1);
+		$clean = trim((string) $identifier);
+		$digits = preg_replace('/\D/', '', $clean);
+
+		$this->db->group_start();
+		$this->db->where('member_user_id', $clean);
+		$this->db->or_where('email', $clean);
+		$this->db->or_where('mobile', $clean);
+		if ($this->db->field_exists('member_id_code', 'members')) {
+			$this->db->or_where('member_id_code', $clean);
+		}
+		if (strlen($digits) >= 10) {
+			$last10 = substr($digits, -10);
+			$this->db->or_like('mobile', $last10);
+		}
+		$this->db->group_end();
+		$q = $this->db->get('members', 1);
 		$r = $q->row_array();
 		return $r ?: null;
 	}
@@ -198,24 +222,7 @@ class Member_model extends CI_Model {
 
 	private function generate_member_id_code()
 	{
-		$prefix = 'NGO';
-		$year = date('Y');
-		$pattern = $prefix . '-' . $year . '-%';
-		
-		$this->db->select('member_id_code');
-		$this->db->like('member_id_code', $prefix . '-' . $year . '-', 'after');
-		$this->db->order_by('member_id_code', 'DESC');
-		$this->db->limit(1);
-		$row = $this->db->get('members')->row_array();
-		
-		$last_serial = 0;
-		if ($row && !empty($row['member_id_code'])) {
-			$parts = explode('-', $row['member_id_code']);
-			$last_serial = (int) end($parts);
-		}
-		
-		$next_serial = str_pad((string)($last_serial + 1), 4, '0', STR_PAD_LEFT);
-		return $prefix . '-' . $year . '-' . $next_serial;
+		return 'NGO-' . date('Y') . '-' . strtoupper(bin2hex(random_bytes(4)));
 	}
 
 	public function insert_member($data)
@@ -256,5 +263,72 @@ class Member_model extends CI_Model {
 		}
 		$this->db->where('id', (int) $id);
 		return $this->db->delete('members');
+	}
+
+	/**
+	 * Creates the member_renewals audit table if it doesn't exist yet.
+	 * Mirrors the runtime-migration pattern used by ensure_extended_schema().
+	 */
+	public function ensure_renewals_table()
+	{
+		if (ENVIRONMENT === 'production' && getenv('SFOF_ALLOW_RUNTIME_SCHEMA') !== 'true') {
+			return false;
+		}
+		if ($this->db->table_exists('member_renewals')) {
+			return true;
+		}
+		$this->db->query("CREATE TABLE IF NOT EXISTS `member_renewals` (
+			`id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			`member_id` INT UNSIGNED NOT NULL,
+			`amount` DECIMAL(10,2) NOT NULL,
+			`currency` VARCHAR(8) NOT NULL DEFAULT 'INR',
+			`razorpay_order_id` VARCHAR(64) NULL,
+			`payment_id` VARCHAR(64) NULL UNIQUE,
+			`signature_verified` TINYINT(1) DEFAULT 0,
+			`old_validity_end` DATE NULL,
+			`new_validity_end` DATE NULL,
+			`created_at` DATETIME NOT NULL
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+		return true;
+	}
+
+	public function find_renewal_by_payment_id($payment_id)
+	{
+		$this->ensure_renewals_table();
+		$q = $this->db->get_where('member_renewals', array('payment_id' => (string) $payment_id), 1);
+		$r = $q->row_array();
+		return $r ?: null;
+	}
+
+	/**
+	 * Records a verified renewal payment and applies it to the member record
+	 * (activates the member and pushes validity_end forward).
+	 */
+	public function apply_renewal($member_id, $data)
+	{
+		$this->ensure_renewals_table();
+		$member = $this->find_by_id($member_id);
+		if (!$member) {
+			return false;
+		}
+
+		$this->db->insert('member_renewals', array(
+			'member_id'           => (int) $member_id,
+			'amount'               => $data['amount'],
+			'currency'             => 'INR',
+			'razorpay_order_id'    => $data['razorpay_order_id'],
+			'payment_id'           => $data['payment_id'],
+			'signature_verified'   => 1,
+			'old_validity_end'     => $member['validity_end'] ?? null,
+			'new_validity_end'     => $data['new_validity_end'],
+			'created_at'           => date('Y-m-d H:i:s'),
+		));
+
+		return $this->update_member($member_id, array(
+			'status'          => 'active',
+			'validity_end'    => $data['new_validity_end'],
+			'payment_mode'    => 'online',
+			'payment_receipt' => $data['payment_id'],
+		));
 	}
 }

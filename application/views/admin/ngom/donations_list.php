@@ -5,6 +5,8 @@ $total_count = isset($total_count) ? (int) $total_count : 0;
 $total_amount = isset($total_amount) ? (float) $total_amount : 0.0;
 $chart_labels = isset($chart_labels) ? $chart_labels : '[]';
 $chart_data = isset($chart_data) ? $chart_data : '[]';
+$monthly_summary = isset($monthly_summary) && is_array($monthly_summary) ? $monthly_summary : array();
+$show_donation_details = !empty($show_donation_details);
 ?>
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,9 +26,10 @@ $chart_data = isset($chart_data) ? $chart_data : '[]';
     </div>
 
     <!-- Analytics Dashboard Top Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
-            <div class="card border-0 shadow-sm" style="border-radius:15px;">
+    <div class="row mb-4 align-items-stretch">
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4 d-flex">
+            <a href="#donation-history" data-donation-view="all" class="donation-summary-link text-decoration-none text-dark w-100">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:15px;">
                 <div class="card-body p-3 text-center">
                     <div class="icon icon-shape icon-lg bg-gradient-primary shadow text-center border-radius-lg mx-auto mb-3">
                         <i class="material-symbols-rounded opacity-10 mt-2">account_balance_wallet</i>
@@ -35,9 +38,11 @@ $chart_data = isset($chart_data) ? $chart_data : '[]';
                     <h4 class="mb-0 font-weight-bolder">₹<?php echo number_format($total_amount, 2); ?></h4>
                 </div>
             </div>
+            </a>
         </div>
-        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
-            <div class="card border-0 shadow-sm" style="border-radius:15px;">
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4 d-flex">
+            <a href="#donation-history" data-donation-view="successful" class="donation-summary-link text-decoration-none text-dark w-100">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:15px;">
                 <div class="card-body p-3 text-center">
                     <div class="icon icon-shape icon-lg bg-gradient-success shadow text-center border-radius-lg mx-auto mb-3">
                         <i class="material-symbols-rounded opacity-10 mt-2">receipt_long</i>
@@ -46,11 +51,22 @@ $chart_data = isset($chart_data) ? $chart_data : '[]';
                     <h4 class="mb-0 font-weight-bolder"><?php echo number_format($total_count); ?></h4>
                 </div>
             </div>
+            </a>
         </div>
-        <div class="col-xl-4 col-sm-12 mb-xl-0 mb-4">
-            <div class="card border-0 shadow-sm" style="border-radius:15px; overflow:hidden;">
+        <div class="col-xl-4 col-sm-12 mb-xl-0 mb-4 d-flex">
+            <div class="card border-0 shadow-sm h-100 w-100" style="border-radius:15px; overflow:hidden;">
                 <div class="card-body p-3">
-                    <h6 class="mb-0">Revenue (Last 6 Months)</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Revenue (Last <?php echo (int) $chart_months; ?> Months)</h6>
+                        <form method="get" action="<?php echo site_url('donations'); ?>" class="mb-0">
+                            <input type="hidden" name="view" value="<?php echo html_escape($donation_view); ?>">
+                            <select name="chart_months" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Chart month range">
+                                <?php foreach (array(3, 6, 12) as $range): ?>
+                                    <option value="<?php echo $range; ?>" <?php echo ((int) $chart_months === $range) ? 'selected' : ''; ?>><?php echo $range; ?> months</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </form>
+                    </div>
                     <div style="height: 120px; width: 100%;">
                         <canvas id="revenueChart"></canvas>
                     </div>
@@ -59,15 +75,22 @@ $chart_data = isset($chart_data) ? $chart_data : '[]';
         </div>
     </div>
 
-    <!-- Filtering Panel -->
+    <div id="donation-history">
+    <div id="donation-filter" class="<?php echo $show_donation_details ? '' : 'd-none'; ?>">
+    <!-- Filtering Panel for card-specific donation history -->
     <div class="card border-0 shadow-sm mb-4" style="border-radius:15px;">
         <div class="card-body p-3">
             <form method="get" action="<?php echo site_url('donations'); ?>" class="row g-2 align-items-end">
+                <input type="hidden" id="donation-view-input" name="view" value="<?php echo html_escape($donation_view); ?>">
+                <div class="col-md-3">
+                    <label class="form-label text-xs font-weight-bold mb-0">Month</label>
+                    <input type="month" name="month" class="form-control border px-2 py-1" value="<?php echo html_escape($month_year); ?>">
+                </div>
                 <div class="col-md-3">
                     <label class="form-label text-xs font-weight-bold mb-0">Status</label>
                     <select name="status" class="form-select border px-2 py-1">
                         <option value="">All</option>
-                        <option value="paid" <?php echo ($this->input->get('status') === 'paid') ? 'selected' : ''; ?>>Paid</option>
+                        <option value="paid" <?php echo ($donation_view === 'successful' || $this->input->get('status') === 'paid') ? 'selected' : ''; ?>>Paid</option>
                         <option value="created" <?php echo ($this->input->get('status') === 'created') ? 'selected' : ''; ?>>Pending / Failed</option>
                     </select>
                 </div>
@@ -85,11 +108,42 @@ $chart_data = isset($chart_data) ? $chart_data : '[]';
             </form>
         </div>
     </div>
+    </div>
 
-    <!-- Data Table -->
+    <!-- Recent Donor Details / Card-specific history -->
     <?php if ($table_ok): ?>
         <div class="card border-0 shadow-sm" style="border-radius:15px;">
             <div class="card-body p-0">
+                <div class="p-3 border-bottom">
+                    <h6 id="donation-history-title" class="mb-0"><?php echo $show_donation_details && $donation_view === 'successful' ? 'Successful Donations' : 'Recent Donor Details'; ?></h6>
+                    <p id="donation-history-subtitle" class="text-sm text-muted mb-0"><?php echo $show_donation_details && $donation_view === 'successful' ? 'Newest successful donations first.' : 'Latest donor transactions, newest first.'; ?></p>
+                </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var history = document.getElementById('donation-history');
+                    var filter = document.getElementById('donation-filter');
+                    var viewInput = document.getElementById('donation-view-input');
+                    var title = document.getElementById('donation-history-title');
+                    var subtitle = document.getElementById('donation-history-subtitle');
+                    var rows = document.querySelectorAll('.donation-row');
+                    document.querySelectorAll('.donation-summary-link').forEach(function (link) {
+                        link.addEventListener('click', function (event) {
+                            event.preventDefault();
+                            var successful = link.getAttribute('data-donation-view') === 'successful';
+                            viewInput.value = successful ? 'successful' : 'all';
+                            history.classList.remove('d-none');
+                            filter.classList.remove('d-none');
+                            rows.forEach(function (row) {
+                                row.classList.toggle('d-none', successful && row.getAttribute('data-donation-status') !== 'paid');
+                            });
+                            title.textContent = successful ? 'Successful Donations' : 'Recent Donor Details';
+                            subtitle.textContent = successful ? 'Newest successful donations first.' : 'Latest donor transactions, newest first.';
+                            history.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+                    });
+                });
+                </script>
                 <div class="table-responsive">
                     <table class="table align-items-center mb-0">
                         <thead>
@@ -103,7 +157,7 @@ $chart_data = isset($chart_data) ? $chart_data : '[]';
                         </thead>
                         <tbody>
                             <?php foreach ($rows as $r): ?>
-                                <tr class="border-bottom border-light">
+                                <tr class="border-bottom border-light donation-row" data-donation-status="<?php echo html_escape((string) $r['status']); ?>">
                                     <td class="px-4">
                                         <p class="text-xs font-weight-bold mb-0"><?php echo date('d M Y', strtotime($r['created_at'])); ?></p>
                                         <p class="text-xxs text-muted mb-0"><?php echo date('h:i A', strtotime($r['created_at'])); ?></p>

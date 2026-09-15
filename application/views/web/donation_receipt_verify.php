@@ -18,7 +18,8 @@
 						<?php else: ?>
 							<h1 class="h4 text-success">Valid donation receipt</h1>
 							<p class="mb-1">Receipt: <strong><?php echo html_escape($donation['receipt_no']); ?></strong></p>
-							<p class="mb-1">Donor: <?php echo html_escape($donation['name']); ?></p>
+							<?php $donor_name = trim((string) $donation['name']); ?>
+							<p class="mb-1">Donor: <?php echo html_escape($donor_name !== '' ? mb_substr($donor_name, 0, 1) . '***' : 'Anonymous'); ?></p>
 							<p class="mb-0">Amount: ₹<?php echo number_format((float) $donation['amount'], 2); ?></p>
 						<?php endif; ?>
 					</div>

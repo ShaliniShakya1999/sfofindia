@@ -11,19 +11,34 @@
                     <?php if (!empty($events)): ?>
                         <div class="row g-4">
                         <?php foreach($events as $event): ?>
-                            <div class="col-md-4">
-                                <div class="card border-0 shadow-sm h-100" style="border-radius:12px;">
-                                    <div class="card-body p-4">
-                                        <div class="bg-gradient-warning border-radius-md p-3 mb-3 d-inline-block">
-                                            <i class="material-symbols-rounded text-white">event</i>
+                            <?php 
+                                $ev_date = !empty($event['event_date']) ? $event['event_date'] : (!empty($event['date']) ? $event['date'] : 'now');
+                                $ev_desc = !empty($event['body']) ? $event['body'] : (!empty($event['description']) ? $event['description'] : '');
+                                $ev_img = !empty($event['image']) ? base_url($event['image']) : '';
+                            ?>
+                            <div class="col-md-4" id="event-<?php echo (int)($event['id'] ?? 0); ?>">
+                                <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius:14px; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                    <?php if ($ev_img !== ''): ?>
+                                        <div style="height: 160px; overflow: hidden;">
+                                            <img src="<?php echo html_escape($ev_img); ?>" alt="<?php echo html_escape($event['title'] ?? 'Event'); ?>" style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
+                                    <?php endif; ?>
+                                    <div class="card-body p-4 d-flex flex-column">
+                                        <?php if ($ev_img === ''): ?>
+                                            <div class="bg-gradient-warning border-radius-md p-3 mb-3 d-inline-block align-self-start">
+                                                <i class="material-symbols-rounded text-white">event</i>
+                                            </div>
+                                        <?php endif; ?>
                                         <h6 class="font-weight-bolder mb-1"><?php echo html_escape($event['title'] ?? 'Event'); ?></h6>
-                                        <p class="text-xs text-muted mb-1">
+                                        <p class="text-xs text-muted mb-2">
                                             <i class="material-symbols-rounded text-xs align-middle">calendar_month</i>
-                                            <?php echo !empty($event['date']) ? date('d M Y', strtotime($event['date'])) : 'TBD'; ?>
+                                            <b><?php echo date('d M Y', strtotime($ev_date)); ?></b>
                                         </p>
-                                        <p class="text-xs text-muted mb-3"><?php echo html_escape($event['description'] ?? ''); ?></p>
-                                        <span class="badge bg-gradient-success rounded-pill px-3">Open for Registration</span>
+                                        <p class="text-xs text-muted mb-3 flex-grow-1" style="line-height: 1.5;"><?php echo html_escape($ev_desc); ?></p>
+                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                            <span class="badge bg-gradient-success rounded-pill px-3 py-1">Open</span>
+                                            <a href="<?php echo site_url('contact'); ?>" class="btn btn-sm btn-outline-primary rounded-pill mb-0 px-3">Join / Contact</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

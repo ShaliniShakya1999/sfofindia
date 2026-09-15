@@ -8,6 +8,7 @@ class Certificates extends My_Controller {
 	{
 		parent::__construct();
 		$this->require_login();
+		$this->require_admin_role();
 		$this->load->database();
 		$role = (string) $this->session->userdata('cms_admin_role');
 		if ($role === 'member') {
@@ -24,6 +25,9 @@ class Certificates extends My_Controller {
 
 	public function generate_custom()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$name = $this->input->post('name', true);
 		$title = $this->input->post('title', true) ?: 'Certificate of Appreciation';
 		$body = $this->input->post('body', true) ?: 'This certificate is presented in recognition of valuable support and commitment towards our mission.';

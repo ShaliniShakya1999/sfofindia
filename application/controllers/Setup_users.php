@@ -5,20 +5,41 @@ class Setup_users extends CI_Controller {
 
 	public function index()
 	{
+		if (PHP_SAPI !== 'cli') {
+			show_404();
+			return;
+		}
+		// Was missing: $this->db is used below (directly, and inside the
+		// models via CI_Model's __get proxy) but 'database' isn't
+		// autoloaded (see application/config/autoload.php), so without
+		// this the very first $this->db call fatals.
+		$this->load->database();
+
 		$this->load->model('Admin_user_model', 'admin_m');
 		$this->load->model('Member_model', 'member_m');
+		// Make sure extended member columns (blood_group, aadhar_no,
+		// district, etc.) exist before the test-member insert below runs
+		// against a fresh/older copy of the database.
+		$this->member_m->ensure_extended_schema();
 
 		echo "<h1>System User Setup</h1>";
 
-		// 1. Ensure Super Admin exists
-		$admin = $this->admin_m->find_by_username('admin');
-		if (!$admin) {
-			$hash = password_hash('admin123', PASSWORD_BCRYPT);
-			if ($this->admin_m->insert_user('admin', $hash, 'admin@example.com', 'super_admin')) {
-				echo "✅ Default Admin Created: <strong>admin / admin123</strong><br>";
-			}
+		$args = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
+		$username = isset($args[1]) ? trim((string) $args[1]) : '';
+		$password = isset($args[2]) ? (string) $args[2] : '';
+		$email = isset($args[3]) ? trim((string) $args[3]) : '';
+		if ($username === '' || strlen($password) < 12 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			echo "Usage: php index.php setup_users <username> <password-min-12-chars> <email>" . PHP_EOL;
+			return;
+		}
+		if ($this->admin_m->find_by_username($username)) {
+			echo "Administrator already exists." . PHP_EOL;
+			return;
+		}
+		if ($this->admin_m->insert_user($username, password_hash($password, PASSWORD_DEFAULT), $email, 'super_admin')) {
+			echo "Administrator created successfully." . PHP_EOL;
 		} else {
-			echo "ℹ️ Admin account already exists.<br>";
+			echo "Administrator creation failed." . PHP_EOL;
 		}
 
 		// 2. Ensure at least one Member exists for testing

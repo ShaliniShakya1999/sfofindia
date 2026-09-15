@@ -62,9 +62,19 @@
                         The contact form is currently active. Send us your details and we will get back to you soon.
                     </p>
 
+                    <?php $ci =& get_instance(); $success_message = $ci->session->flashdata('success'); $error_message = $ci->session->flashdata('error'); ?>
+                    <?php if (!empty($success_message)): ?>
+                        <div class="alert alert-success"><?php echo html_escape($success_message); ?></div>
+                    <?php endif; ?>
+                    <?php if (!empty($error_message)): ?>
+                        <div class="alert alert-danger"><?php echo html_escape($error_message); ?></div>
+                    <?php endif; ?>
+
                    
                    
-                    <form method="post" action="send.php" id="contact-form" class="p-4 rounded-4 shadow-sm bg-white">
+                    <form method="post" action="<?php echo site_url('contact/submit'); ?>" id="contact-form" class="p-4 rounded-4 shadow-sm bg-white">
+                        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
+                        <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;">
                         <div class="row clearfix">
 
                             <!-- Name -->

@@ -50,7 +50,7 @@ $can = function_exists('ngom_can_manage_ngom_content') ? ngom_can_manage_ngom_co
 							<td><?php echo html_escape($r['title']); ?></td>
 							<td><?php echo html_escape($r['status']); ?></td>
 							<?php if ($can): ?>
-								<td class="text-end"><a href="<?php echo site_url('cms/ngom_delete'); ?>?table=ngom_projects&amp;id=<?php echo (int) $r['id']; ?>&amp;tab=projects" class="btn btn-sm btn-outline-danger mb-0" onclick="return confirm('Delete?');">Delete</a></td>
+								<td class="text-end"><form method="post" action="<?php echo site_url('cms/ngom_delete'); ?>" onsubmit="return confirm('Delete?');"><input type="hidden" name="table" value="ngom_projects"><input type="hidden" name="id" value="<?php echo (int) $r['id']; ?>"><input type="hidden" name="tab" value="projects"><button type="submit" class="btn btn-sm btn-outline-danger mb-0">Delete</button></form></td>
 							<?php endif; ?>
 						</tr>
 					<?php endforeach; ?>

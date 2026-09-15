@@ -101,8 +101,8 @@
                                         <p class="text-sm mt-1 mb-0 text-secondary">
                                             Amount: <b>₹<?php echo number_format($don['amount'], 2); ?></b>
                                             &nbsp;|&nbsp; Receipt: <b><?php echo html_escape($don['receipt_no'] ?: 'N/A'); ?></b>
-                                            <?php if ($don['status'] === 'paid'): ?>
-                                                &nbsp;<a href="<?php echo site_url('donations/receipt_pdf/' . (int)$don['id']); ?>" target="_blank" class="text-xs text-primary">
+                                            <?php if ($don['status'] === 'paid' && !empty($don['receipt_no'])): ?>
+                                                &nbsp;<a href="<?php echo site_url('donations/public_receipt_pdf/' . rawurlencode($don['receipt_no'])); ?>" target="_blank" rel="noopener" class="text-xs text-primary">
                                                     <i class="material-symbols-rounded text-xs align-middle">picture_as_pdf</i> PDF
                                                 </a>
                                             <?php endif; ?>

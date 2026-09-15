@@ -41,6 +41,19 @@ class Donation_model extends CI_Model {
 		return $r ?: null;
 	}
 
+	public function find_paid_by_receipt_no($receipt_no)
+	{
+		if (!$this->table_exists() || $receipt_no === '') {
+			return null;
+		}
+		$q = $this->db->get_where('donations', array(
+			'receipt_no' => $receipt_no,
+			'status' => 'paid',
+		), 1);
+		$r = $q->row_array();
+		return $r ?: null;
+	}
+
 	/**
 	 * @return array<int,array<string,mixed>>
 	 */
@@ -77,19 +90,9 @@ class Donation_model extends CI_Model {
 
 	public function next_receipt_no()
 	{
-		if (!$this->table_exists()) {
-			return 'RCP-' . date('Y') . '-00001';
-		}
-		$prefix = 'RCP-' . date('Y') . '-';
-		$this->db->like('receipt_no', $prefix, 'after');
-		$this->db->order_by('id', 'DESC');
-		$this->db->limit(1);
-		$last = $this->db->get('donations')->row_array();
-		$n = 1;
-		if (!empty($last['receipt_no']) && preg_match('/-(\d+)$/', $last['receipt_no'], $m)) {
-			$n = (int) $m[1] + 1;
-		}
-		return $prefix . str_pad((string) $n, 5, '0', STR_PAD_LEFT);
+		// Keep the identifier within the legacy VARCHAR(32) schema while
+		// retaining enough randomness for receipt URLs and uniqueness.
+		return 'RCP-' . date('Y') . '-' . strtoupper(bin2hex(random_bytes(11)));
 	}
 
 	public function update_by_id($id, $data)

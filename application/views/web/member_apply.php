@@ -159,6 +159,7 @@
                 </div>
 
                 <form method="post" enctype="multipart/form-data" action="<?php echo site_url('join-us/submit'); ?>" class="member-apply-card p-4 p-lg-5">
+                    <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;">
                     
                     <!-- Section 1: Manual identity details (external Aadhaar API is disabled) -->
                     <div class="form-section-head">
@@ -339,23 +340,23 @@
                                 <h5 class="text-white mb-3"><i class="fas fa-university me-2"></i> Bank Transfer Details</h5>
                                 <div class="bank-row">
                                     <span class="bank-label">Account Name</span>
-                                    <span class="bank-value">SHAHEED FOUNDATION</span>
+                                    <span class="bank-value"><?php echo html_escape(cms_val($cms, 'bank_account_name', 'SHAHEED FOUNDATION')); ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">Bank Name</span>
-                                    <span class="bank-value">AXIS BANK</span>
+                                    <span class="bank-value"><?php echo html_escape(cms_val($cms, 'bank_name', 'AXIS BANK')); ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">Account Number</span>
-                                    <span class="bank-value">925010034361992</span>
+                                    <span class="bank-value"><?php echo html_escape(cms_val($cms, 'bank_account_no', '925010034361992')); ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">IFSC Code</span>
-                                    <span class="bank-value">UTIB0001970</span>
+                                    <span class="bank-value"><?php echo html_escape(cms_val($cms, 'bank_ifsc', 'UTIB0001970')); ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">Branch</span>
-                                    <span class="bank-value">Sector 29, Gurgaon</span>
+                                    <span class="bank-value"><?php echo html_escape(cms_val($cms, 'bank_branch', 'Sector 29, Gurgaon')); ?></span>
                                 </div>
                             </div>
                         </div>

@@ -53,9 +53,12 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	if (isset($_SERVER['CI_ENV'])) {
+	$env_var = getenv('CI_ENV');
+	if ($env_var !== false && $env_var !== '') {
+		define('ENVIRONMENT', $env_var);
+	} elseif (isset($_SERVER['CI_ENV'])) {
 		define('ENVIRONMENT', $_SERVER['CI_ENV']);
-	} elseif (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'sfofindia.org') !== false) {
+	} elseif (isset($_SERVER['HTTP_HOST']) && in_array(strtolower((string) $_SERVER['HTTP_HOST']), array('sfofindia.org', 'www.sfofindia.org'), true)) {
 		define('ENVIRONMENT', 'production');
 	} else {
 		define('ENVIRONMENT', 'development');

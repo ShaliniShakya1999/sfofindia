@@ -34,18 +34,27 @@ class Ngom_table_model extends CI_Model {
 	/**
 	 * Fetch campaigns with sum of amounts from donations table.
 	 */
-	public function get_campaigns_with_totals($limit = 200)
+	public function get_campaigns_with_totals($limit = 200, $only_active = false)
 	{
 		if (!$this->db->table_exists('ngom_campaigns')) {
 			return array();
 		}
 		
-		$sql = "SELECT c.*, 
-				(SELECT IFNULL(SUM(amount), 0) FROM donations WHERE campaign_id = c.id AND status = 'paid') as raised_amount
+		$where = $only_active ? "WHERE c.status IN ('active', 'Active', 'published') " : "";
+		$has_campaign_id = $this->db->table_exists('donations') && $this->db->field_exists('campaign_id', 'donations');
+		if ($has_campaign_id) {
+			$sql = "SELECT c.*, 
+					(SELECT IFNULL(SUM(amount), 0) FROM donations WHERE campaign_id = c.id AND status = 'paid') as raised_amount
+					FROM ngom_campaigns c
+					" . $where . "ORDER BY c.id DESC
+					LIMIT ?";
+			return $this->db->query($sql, array((int) $limit))->result_array();
+		}
+
+		$sql = "SELECT c.*, 0 as raised_amount
 				FROM ngom_campaigns c
-				ORDER BY c.id DESC
+				" . $where . "ORDER BY c.id DESC
 				LIMIT ?";
-		
 		return $this->db->query($sql, array((int) $limit))->result_array();
 	}
 

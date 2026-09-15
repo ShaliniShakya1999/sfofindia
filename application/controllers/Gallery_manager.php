@@ -12,6 +12,7 @@ class Gallery_manager extends My_Controller {
         parent::__construct();
         $this->load->database();
         $this->require_login();
+        $this->require_admin_role();
         $this->load->model('Ngom_table_model', 'ngom_t');
         $this->load->helper('file');
     }
@@ -23,7 +24,15 @@ class Gallery_manager extends My_Controller {
     }
 
     public function upload() {
+        if (!$this->require_post()) {
+            return;
+        }
         header('Content-Type: application/json');
+        $role = (string) $this->session->userdata('cms_admin_role');
+        if (!in_array($role, array('super_admin', 'admin'), true)) {
+            $this->output->set_status_header(403)->set_output(json_encode(array('ok' => false, 'error' => 'Permission denied.')));
+            return;
+        }
         
         $config['upload_path']   = './uploads/';
         $config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
@@ -38,6 +47,12 @@ class Gallery_manager extends My_Controller {
         }
 
         $ud = $this->upload->data();
+        $image_path = FCPATH . 'uploads/' . $ud['file_name'];
+        if (!$this->validate_uploaded_file($image_path, array('image/jpeg', 'image/png', 'image/gif', 'image/webp'))) {
+            @unlink($image_path);
+            echo json_encode(array('ok' => false, 'error' => 'The uploaded file is not a valid image.'));
+            return;
+        }
         $rel_path = 'uploads/' . $ud['file_name'];
 
         $row = [
@@ -56,6 +71,14 @@ class Gallery_manager extends My_Controller {
     }
 
     public function delete($id) {
+        $this->require_post();
+        $this->require_admin_role();
+        $role = (string) $this->session->userdata('cms_admin_role');
+        if (!in_array($role, array('super_admin', 'admin'), true)) {
+            $this->session->set_flashdata('cms_error', 'Permission denied.');
+            redirect('gallery_manager');
+            return;
+        }
         $existing = $this->db->get_where('ngom_gallery', ['id' => (int)$id])->row_array();
         if ($existing) {
             $path = FCPATH . $existing['image_path'];

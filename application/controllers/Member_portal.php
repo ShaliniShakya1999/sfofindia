@@ -16,7 +16,9 @@ class Member_portal extends My_Controller {
 
 	public function do_login()
 	{
-		redirect('admin/do_login');
+		require_once APPPATH . 'controllers/Admin.php';
+		$admin = new Admin();
+		$admin->do_login();
 	}
 
 	public function dashboard()

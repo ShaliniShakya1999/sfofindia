@@ -7,6 +7,7 @@ class Reports extends My_Controller {
     public function __construct() {
         parent::__construct();
         $this->require_login();
+        $this->require_admin_role();
         $this->load->database();
         
         $role = (string) $this->session->userdata('cms_admin_role');

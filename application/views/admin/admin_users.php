@@ -128,11 +128,11 @@
                                         </span>
                                     </td>
                                     <td class="align-middle text-center text-sm">
-                                        <a href="<?php echo site_url('admin_users/toggle_status/'.$u['id']); ?>" 
-                                           class="badge badge-sm bg-gradient-<?php echo $isActive ? 'success' : 'secondary'; ?> border-0 text-white cursor-pointer"
-                                           onclick="return confirm('Toggle account status for this user?');">
-                                            <?php echo $isActive ? 'Active' : 'Suspended'; ?>
-                                        </a>
+                                        <form method="post" action="<?php echo site_url('admin_users/toggle_status/'.$u['id']); ?>" class="d-inline" onsubmit="return confirm('Toggle account status for this user?');">
+                                            <button type="submit" class="badge badge-sm bg-gradient-<?php echo $isActive ? 'success' : 'secondary'; ?> border-0 text-white cursor-pointer">
+                                                <?php echo $isActive ? 'Active' : 'Suspended'; ?>
+                                            </button>
+                                        </form>
                                     </td>
                                     <td class="align-middle text-center">
                                         <span class="text-secondary text-xs font-weight-bold">
@@ -144,9 +144,11 @@
                                             <i class="material-symbols-rounded text-sm me-1">edit</i> Edit
                                         </button>
                                         <?php if((int)$u['id'] !== $self_id): ?>
-                                            <a href="javascript:void(0);" onclick="return confirmDelete('<?php echo site_url('admin_users/delete/'.$u['id']); ?>', 'This user will lose all dashboard access.')" class="btn btn-link text-danger text-gradient px-3 mb-0">
+                                            <form method="post" action="<?php echo site_url('admin_users/delete/'.$u['id']); ?>" class="d-inline" onsubmit="return confirm('This user will lose all dashboard access.');">
+                                              <button type="submit" class="btn btn-link text-danger text-gradient px-3 mb-0">
                                                 <i class="material-symbols-rounded text-sm me-1">delete</i> Delete
-                                            </a>
+                                              </button>
+                                            </form>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

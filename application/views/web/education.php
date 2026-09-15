@@ -188,7 +188,9 @@
         <div class="col-lg-8">
           <div class="p-4 rounded shadow-sm bg-white">
             <h4 class="mb-3">Apply for Education Support</h4>
-            <form method="post" action="send.php" id="contact-form" class="p-4 rounded-4 shadow-sm bg-white">
+            <form method="post" action="<?php echo site_url('contact/submit'); ?>" id="contact-form" class="p-4 rounded-4 shadow-sm bg-white">
+              <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
+              <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;">
               <div class="row clearfix">
 
                 <!-- Name -->

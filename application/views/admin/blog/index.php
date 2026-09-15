@@ -108,7 +108,16 @@ function confirmDelete(id) {
         confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = '<?php echo site_url('blog_manager/delete/'); ?>' + id;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?php echo site_url('blog_manager/delete/'); ?>' + id;
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '<?php echo $this->security->get_csrf_token_name(); ?>';
+            csrf.value = '<?php echo $this->security->get_csrf_hash(); ?>';
+            form.appendChild(csrf);
+            document.body.appendChild(form);
+            form.submit();
         }
     })
 }
@@ -116,7 +125,12 @@ function confirmDelete(id) {
 document.querySelectorAll('.status-toggle').forEach(el => {
     el.addEventListener('change', function() {
         const id = this.getAttribute('data-id');
-        fetch('<?php echo site_url('blog_manager/toggle_status/'); ?>' + id)
+        const formData = new FormData();
+        formData.append('<?php echo $this->security->get_csrf_token_name(); ?>', '<?php echo $this->security->get_csrf_hash(); ?>');
+        fetch('<?php echo site_url('blog_manager/toggle_status/'); ?>' + id, {
+            method: 'POST',
+            body: formData
+        })
             .then(res => res.text())
             .then(status => {
                 // Done

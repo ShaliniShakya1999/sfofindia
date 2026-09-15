@@ -62,7 +62,10 @@ $roles = isset($cms_role_options) && is_array($cms_role_options) ? $cms_role_opt
 							</td>
 							<td class="text-end">
 								<?php if ((int) $u['id'] !== $self_id): ?>
-									<a class="btn btn-sm btn-outline-danger mb-0" href="<?php echo site_url('cms/delete_user'); ?>?id=<?php echo (int) $u['id']; ?>" onclick="return confirm('Delete this user?');">Delete</a>
+									<form method="post" action="<?php echo site_url('cms/delete_user'); ?>" class="d-inline" onsubmit="return confirm('Delete this user?');">
+										<input type="hidden" name="id" value="<?php echo (int) $u['id']; ?>">
+										<button type="submit" class="btn btn-sm btn-outline-danger mb-0">Delete</button>
+									</form>
 								<?php else: ?>
 									<span class="text-muted small">—</span>
 								<?php endif; ?>

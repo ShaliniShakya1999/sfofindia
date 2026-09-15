@@ -68,24 +68,26 @@ $route['join-us/submit'] = 'member_apply/submit';
 // Aadhaar OTP API disabled; member identity is reviewed manually.
 // $route['join-us/send_aadhaar_otp'] = 'member_apply/send_aadhaar_otp';
 // $route['join-us/verify_aadhaar_otp'] = 'member_apply/verify_aadhaar_otp';
-$route['member-login'] = 'member_portal/login';
-$route['member-login/submit'] = 'member_portal/do_login';
+$route['member-login'] = 'admin/login';
+$route['member-login/submit'] = 'admin/do_login';
 $route['member-panel'] = 'member_portal/dashboard';
 $route['member-panel/logout'] = 'member_portal/logout';
 $route['member-panel/document/(:any)'] = 'member_portal/document/$1';
 $route['admin/profile'] = 'admin/profile';
+$route['admin/renew'] = 'admin/renew';
 $route['admin/member_document/(:any)'] = 'admin/member_document/$1';
 $route['gallery'] = 'welcome/gallery';
 $route['event'] = 'welcome/event';
 $route['feature'] = 'welcome/feature';
 $route['contact'] = 'welcome/contact';
+$route['contact/submit'] = 'welcome/contact_submit';
+$route['blog'] = 'welcome/blog';
+$route['blog/(:any)'] = 'welcome/blog_article/$1';
 $route['refund_policy'] = 'welcome/refund_policy';
 $route['legal_compliance'] = 'welcome/legal_compliance';
 $route['privacy_policy'] = 'welcome/privacy_policy';
 $route['terms'] = 'welcome/terms';
-$route['create_order'] = 'welcome/create_order';
-$route['razorpay_config'] = 'welcome/razorpay_config';
-$route['send'] = 'welcome/send';
+$route['create_order'] = 'donations/create_order';
 
 // NGO CMS (admin content for public site)
 $route['cms'] = 'cms/index';

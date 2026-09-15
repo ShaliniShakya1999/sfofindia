@@ -126,9 +126,14 @@ $can = function_exists('ngom_can_manage_ngom_content') ? ngom_can_manage_ngom_co
                                     </td>
                                     <?php if ($can): ?>
                                         <td class="text-end px-4">
-                                            <a href="<?php echo site_url('cms/ngom_delete'); ?>?table=ngom_campaigns&amp;id=<?php echo (int) $r['id']; ?>&amp;redirect_custom=cms/campaigns_manage" class="text-danger font-weight-bold text-xs" onclick="return confirm('Are you sure you want to delete this campaign?');">
-                                                <i class="material-symbols-rounded text-sm align-middle">delete</i> Delete
-                                            </a>
+                                            <form method="post" action="<?php echo site_url('cms/ngom_delete'); ?>" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                <input type="hidden" name="table" value="ngom_campaigns">
+                                                <input type="hidden" name="id" value="<?php echo (int) $r['id']; ?>">
+                                                <input type="hidden" name="redirect_custom" value="cms/campaigns_manage">
+                                                <button type="submit" class="btn btn-link text-danger font-weight-bold text-xs p-0">
+                                                    <i class="material-symbols-rounded text-sm align-middle">delete</i> Delete
+                                                </button>
+                                            </form>
                                         </td>
                                     <?php endif; ?>
                                 </tr>

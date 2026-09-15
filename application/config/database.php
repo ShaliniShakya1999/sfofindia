@@ -73,12 +73,63 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+// Auto-load root .env if present
+$sfof_env_file = dirname(APPPATH) . DIRECTORY_SEPARATOR . '.env';
+if (is_file($sfof_env_file) && is_readable($sfof_env_file)) {
+	$sfof_lines = @file($sfof_env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	if (is_array($sfof_lines)) {
+		foreach ($sfof_lines as $sfof_line) {
+			$sfof_line = trim($sfof_line);
+			if ($sfof_line === '' || $sfof_line[0] === '#') continue;
+			if (strpos($sfof_line, '=') !== false) {
+				list($sfof_k, $sfof_v) = explode('=', $sfof_line, 2);
+				$sfof_k = trim($sfof_k);
+				$sfof_v = trim(trim($sfof_v), "\"'");
+				if (!isset($_SERVER[$sfof_k]) && !isset($_ENV[$sfof_k])) {
+					putenv("{$sfof_k}={$sfof_v}");
+					$_ENV[$sfof_k] = $sfof_v;
+					$_SERVER[$sfof_k] = $sfof_v;
+				}
+			}
+		}
+	}
+}
+
+$db_host = getenv('SFOF_DB_HOST');
+$db_user = getenv('SFOF_DB_USER');
+$db_password = getenv('SFOF_DB_PASSWORD');
+$db_name = getenv('SFOF_DB_NAME');
+$db_port = getenv('SFOF_DB_PORT');
+
+if (ENVIRONMENT !== 'production') {
+	$db_host = ($db_host !== false && $db_host !== '') ? $db_host : '127.0.0.1';
+	$db_user = ($db_user !== false && $db_user !== '') ? $db_user : 'root';
+	$db_password = ($db_password !== false) ? $db_password : '';
+	$db_name = ($db_name !== false && $db_name !== '') ? $db_name : 'website';
+
+	if ($db_port === false || $db_port === '') {
+		// Detect whether MySQL is running on custom port (e.g. XAMPP on 3307)
+		$db_port = 3306;
+		$sock3307 = @fsockopen('127.0.0.1', 3307, $errno, $errstr, 0.1);
+		if ($sock3307) {
+			fclose($sock3307);
+			$db_port = 3307;
+		}
+	} else {
+		$db_port = (int) $db_port;
+	}
+} else {
+	$db_host = ($db_host !== false && $db_host !== '') ? $db_host : 'localhost';
+	$db_port = ($db_port !== false && $db_port !== '') ? (int) $db_port : 3306;
+}
+
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'website',
+	'hostname' => $db_host,
+	'port'     => (int) $db_port,
+	'username' => $db_user,
+	'password' => $db_password,
+	'database' => $db_name,
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -90,7 +141,24 @@ $db['default'] = array(
 	'swap_pre' => '',
 	'encrypt' => FALSE,
 	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
-	'save_queries' => TRUE
+	'stricton' => TRUE,
+	'failover' => array(
+		array(
+			'hostname' => '127.0.0.1',
+			'port'     => 3307,
+			'username' => $db_user,
+			'password' => $db_password,
+			'database' => $db_name,
+			'dbdriver' => 'mysqli',
+		),
+		array(
+			'hostname' => '127.0.0.1',
+			'port'     => 3306,
+			'username' => $db_user,
+			'password' => $db_password,
+			'database' => $db_name,
+			'dbdriver' => 'mysqli',
+		)
+	),
+	'save_queries' => (ENVIRONMENT !== 'production')
 );

@@ -321,7 +321,18 @@ class Common_model extends CI_Model
     }
     public function saveContact($formArray)
     {
-        $this->db->insert('contact', $formArray);
+        if (!$this->db->table_exists('contact')) {
+            $this->db->query("CREATE TABLE IF NOT EXISTS `contact` (
+                `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `name` VARCHAR(191) NULL,
+                `email` VARCHAR(191) NULL,
+                `phone` VARCHAR(32) NULL,
+                `subject` VARCHAR(191) NULL,
+                `message` TEXT NULL,
+                `created_at` DATETIME NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+        return (bool) $this->db->insert('contact', $formArray);
     }
     public function savepdf($formArray)
     {

@@ -11,11 +11,7 @@ class Admin_users extends My_Controller {
 		$this->load->database();
 		$this->load->model('Admin_user_model', 'admin_user');
 		
-		$role = (string) $this->session->userdata('cms_admin_role');
-		if ($role !== 'super_admin') {
-			$this->session->set_flashdata('cms_error', 'Permission denied. Only Super Admins can manage users.');
-			redirect('admin');
-		}
+		$this->require_role('super_admin');
 	}
 
 	public function index()
@@ -45,13 +41,16 @@ class Admin_users extends My_Controller {
 
 	public function save()
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$username = trim((string) $this->input->post('username', true));
 		$password = (string) $this->input->post('password');
 		$role = (string) $this->input->post('role');
 		$email = trim((string) $this->input->post('email', true));
 
-		if ($username === '' || strlen($password) < 6) {
-			$this->session->set_flashdata('cms_error', 'Username and valid Password required.');
+		if ($username === '' || strlen($password) < 12) {
+			$this->session->set_flashdata('cms_error', 'Username and a password of at least 12 characters are required.');
 			redirect('admin_users');
 			return;
 		}
@@ -70,6 +69,9 @@ class Admin_users extends My_Controller {
 
 	public function update($id)
 	{
+		if (!$this->require_post()) {
+			return;
+		}
 		$role = (string) $this->input->post('role');
 		$password = (string) $this->input->post('new_password');
 
@@ -91,6 +93,8 @@ class Admin_users extends My_Controller {
 
 	public function toggle_status($id)
 	{
+		$this->require_post();
+		$this->require_role('super_admin');
 		$self_id = (int) $this->session->userdata('cms_admin_id');
 		if ((int)$id === $self_id) {
 			$this->session->set_flashdata('cms_error', 'You cannot disable your own account.');
@@ -110,6 +114,8 @@ class Admin_users extends My_Controller {
 
 	public function delete($id)
 	{
+		$this->require_post();
+		$this->require_role('super_admin');
 		$self_id = (int) $this->session->userdata('cms_admin_id');
 		if ((int)$id === $self_id) {
 			$this->session->set_flashdata('cms_error', 'Cannot delete self.');
@@ -124,6 +130,11 @@ class Admin_users extends My_Controller {
 	}
 
 	private function logger($action, $detail) {
-		$this->load->model('Activity_logs_model'); // Need to ensure it's not log_admin_activity if that's also model-based
+		ngom_log_activity($action, $detail);
+	}
+
+	private function log_admin_activity($action, $detail)
+	{
+		ngom_log_activity($action, $detail);
 	}
 }
