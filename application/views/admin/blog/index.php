@@ -2,7 +2,7 @@
 <div class="container-fluid py-4 min-vh-80">
     <div class="row align-items-center mb-4 g-3">
         <div class="col-md-6">
-            <h4 class="mb-0 font-weight-bolder text-dark">Blog Management 📝</h4>
+            <h4 class="mb-0 font-weight-bolder text-dark">Blog Management</h4>
             <p class="text-sm text-muted mb-0">Publish stories, news, and updates to keep your audience engaged.</p>
         </div>
         <div class="col-md-6 text-md-end">

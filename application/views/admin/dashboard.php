@@ -1,163 +1,264 @@
  <div class="container-fluid py-2">
-      <!-- Title Section -->
-      <div class="row mb-3 stagger-item" style="animation-delay: 0.1s">
-        <div class="ms-3">
-          <h3 class="mb-0 h4 font-weight-bolder">NGO Dashboard</h3>
-          <p class="mb-0 text-muted">
-            Overview & Management Hub
-          </p>
-        </div>
-      </div>
-
-      <!-- Stats Cards -->
-      <div class="row">
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 stagger-item" style="animation-delay: 0.15s">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <a href="<?php echo site_url('members'); ?>" class="text-decoration-none text-dark d-block" title="Open members">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Total Members</p>
-                  <h4 class="mb-0"><?php echo isset($ngom_members_count) ? (int) $ngom_members_count : 0; ?></h4>
+      <!-- Executive Welcome Header -->
+      <div class="row mb-3 stagger-item" style="animation-delay: 0.05s">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 14px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff;">
+            <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-white text-dark rounded-pill px-2 py-1 text-xxs font-weight-bold">ADMIN PORTAL</span>
+                  <span class="text-xs text-light opacity-8"><?= date('l, d F Y'); ?></span>
                 </div>
+                <h4 class="text-white font-weight-bolder mb-1">Welcome back, <?= html_escape($this->session->userdata('cms_admin_name') ?: 'Administrator'); ?></h4>
+                <p class="text-xs text-light opacity-7 mb-0">NGO management hub: memberships, donations, campaigns, and web initiatives.</p>
+              </div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a href="<?= site_url('members'); ?>" class="btn btn-sm btn-light mb-0 shadow-none text-nowrap font-weight-bold d-inline-flex align-items-center gap-1" style="border-radius: 8px;">
+                  <i class="material-symbols-rounded text-sm">person_add</i>
+                  <span>Members</span>
                 </a>
-                <div class="icon icon-md icon-shape btn-primary shadow-primary text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">group</i>
-                </div>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><a href="<?php echo site_url('members'); ?>" class="text-primary font-weight-bold">Manage members</a></p>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 stagger-item" style="animation-delay: 0.2s">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <a href="<?php echo site_url('donations'); ?>" class="text-decoration-none text-dark d-block" title="Open donation history">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Donations</p>
-                  <h4 class="mb-0"><?php echo isset($ngom_donations_count) ? (int) $ngom_donations_count : 0; ?></h4>
-                </div>
+                <a href="<?= site_url('donations'); ?>" class="btn btn-sm btn-outline-light mb-0 text-nowrap font-weight-bold d-inline-flex align-items-center gap-1" style="border-radius: 8px;">
+                  <i class="material-symbols-rounded text-sm">payments</i>
+                  <span>Donations</span>
                 </a>
-                <div class="icon icon-md icon-shape btn-primary shadow-primary text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">receipt_long</i>
-                </div>
+                <a href="<?= site_url('notifications'); ?>" class="btn btn-sm btn-outline-light mb-0 text-nowrap font-weight-bold d-inline-flex align-items-center gap-1" style="border-radius: 8px;">
+                  <i class="material-symbols-rounded text-sm">notifications</i>
+                  <span>Alerts</span>
+                </a>
               </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm">
-                <?php if (isset($ngom_donations_total_inr)): ?>
-                  <a href="<?php echo site_url('donations'); ?>" class="text-success font-weight-bolder">Total: ₹<?php echo number_format((float) $ngom_donations_total_inr, 2); ?></a>
-                <?php else: ?>
-                  <a href="<?php echo site_url('donations'); ?>" class="text-primary font-weight-bold">View donations</a>
-                <?php endif; ?>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 stagger-item" style="animation-delay: 0.25s">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Website CMS</p>
-                  <h4 class="mb-0">Live</h4>
-                </div>
-                <div class="icon icon-md icon-shape btn-primary shadow-primary text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">language</i>
-                </div>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><a href="<?php echo site_url('cms/dashboard'); ?>?tab=settings" class="text-primary font-weight-bold">Website settings</a></p>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-sm-6 stagger-item" style="animation-delay: 0.3s">
-          <div class="card">
-            <div class="card-header p-2 ps-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <p class="text-sm mb-0 text-capitalize">Campaigns</p>
-                  <h4 class="mb-0"><?php echo isset($active_campaigns_count) ? (int) $active_campaigns_count : 0; ?></h4>
-                </div>
-                <div class="icon icon-md icon-shape btn-primary shadow-primary text-center border-radius-lg">
-                  <i class="material-symbols-rounded opacity-10">campaign</i>
-                </div>
-              </div>
-            </div>
-            <hr class="dark horizontal my-0">
-            <div class="card-footer p-2 ps-3">
-              <p class="mb-0 text-sm"><a href="<?php echo site_url('cms/dashboard'); ?>?tab=campaigns" class="text-primary font-weight-bold">Manage campaigns</a></p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Charts Section -->
-      <div class="row">
-        <div class="col-lg-4 col-md-6 mt-4 mb-4 stagger-item" style="animation-delay: 0.35s">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="mb-0 ">Member Registrations</h6>
-              <p class="text-sm ">Last 7 days activity</p>
-              <div class="pe-2">
-                <div class="chart">
-                  <canvas id="chart-bars" class="chart-canvas" height="170"
-                    data-labels="<?php echo html_escape(json_encode($chart_members_labels ?? [])); ?>"
-                    data-values="<?php echo html_escape(json_encode($chart_members_data ?? [])); ?>"></canvas>
+      <!-- Stats Cards (Fully Clickable) -->
+      <div class="row g-3">
+        <!-- 1. Members -->
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-3 stagger-item" style="animation-delay: 0.1s">
+          <a href="<?= site_url('members'); ?>" class="text-decoration-none text-reset d-block h-100 stat-card-link" title="Open member management">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+              <div class="card-body p-3 d-flex flex-column justify-content-between h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <span class="text-xxs text-uppercase font-weight-bolder text-muted d-block mb-1">Total Members</span>
+                    <h3 class="mb-0 font-weight-bolder text-dark"><?= isset($ngom_members_count) ? number_format((int)$ngom_members_count) : 0; ?></h3>
+                  </div>
+                  <div class="rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: rgba(79, 70, 229, 0.1); color: #4f46e5;">
+                    <i class="material-symbols-rounded" style="font-size: 22px;">group</i>
+                  </div>
+                </div>
+                <div class="pt-2 border-top d-flex align-items-center justify-content-between mt-auto">
+                  <span class="text-xs font-weight-bold text-primary d-inline-flex align-items-center gap-1 stat-card-action">
+                    <span>Manage members</span>
+                    <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                  </span>
+                  <span class="badge bg-light text-secondary rounded-pill text-xxs font-weight-normal px-2">Registered</span>
                 </div>
               </div>
-              <hr class="dark horizontal">
-              <div class="d-flex ">
-                <i class="material-symbols-rounded text-sm my-auto me-1">group_add</i>
-                <p class="mb-0 text-sm"> Live registration counts </p>
+            </div>
+          </a>
+        </div>
+
+        <!-- 2. Donations -->
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-3 stagger-item" style="animation-delay: 0.15s">
+          <a href="<?= site_url('donations'); ?>" class="text-decoration-none text-reset d-block h-100 stat-card-link" title="Open donation history & records">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+              <div class="card-body p-3 d-flex flex-column justify-content-between h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <span class="text-xxs text-uppercase font-weight-bolder text-muted d-block mb-1">Donations</span>
+                    <h3 class="mb-0 font-weight-bolder text-dark">
+                      <?php if (isset($ngom_donations_total_inr)): ?>
+                        ₹<?= number_format((float)$ngom_donations_total_inr, 0); ?>
+                      <?php else: ?>
+                        <?= isset($ngom_donations_count) ? (int)$ngom_donations_count : 0; ?>
+                      <?php endif; ?>
+                    </h3>
+                  </div>
+                  <div class="rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: rgba(16, 185, 129, 0.1); color: #059669;">
+                    <i class="material-symbols-rounded" style="font-size: 22px;">payments</i>
+                  </div>
+                </div>
+                <div class="pt-2 border-top d-flex align-items-center justify-content-between mt-auto">
+                  <span class="text-xs font-weight-bold text-success d-inline-flex align-items-center gap-1 stat-card-action">
+                    <span>View donations</span>
+                    <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                  </span>
+                  <span class="badge bg-light text-secondary rounded-pill text-xxs font-weight-normal px-2"><?= isset($ngom_donations_count) ? (int)$ngom_donations_count . ' receipts' : 'Verified'; ?></span>
+                </div>
               </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- 3. Website CMS -->
+        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-3 stagger-item" style="animation-delay: 0.2s">
+          <a href="<?= site_url('cms/dashboard?tab=settings'); ?>" class="text-decoration-none text-reset d-block h-100 stat-card-link" title="Open website settings">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+              <div class="card-body p-3 d-flex flex-column justify-content-between h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <span class="text-xxs text-uppercase font-weight-bolder text-muted d-block mb-1">Website CMS</span>
+                    <div class="d-flex align-items-center gap-2">
+                      <h3 class="mb-0 font-weight-bolder text-dark">Live</h3>
+                      <span class="badge rounded-pill text-xxs font-weight-bold px-2 py-1" style="background: rgba(16, 185, 129, 0.12); color: #059669;">● Online</span>
+                    </div>
+                  </div>
+                  <div class="rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: rgba(14, 165, 233, 0.1); color: #0284c7;">
+                    <i class="material-symbols-rounded" style="font-size: 22px;">language</i>
+                  </div>
+                </div>
+                <div class="pt-2 border-top d-flex align-items-center justify-content-between mt-auto">
+                  <span class="text-xs font-weight-bold text-info d-inline-flex align-items-center gap-1 stat-card-action">
+                    <span>Website settings</span>
+                    <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                  </span>
+                  <span class="badge bg-light text-secondary rounded-pill text-xxs font-weight-normal px-2">CMS</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- 4. Active Campaigns -->
+        <div class="col-xl-3 col-sm-6 mb-3 stagger-item" style="animation-delay: 0.25s">
+          <a href="<?= site_url('cms/dashboard?tab=campaigns'); ?>" class="text-decoration-none text-reset d-block h-100 stat-card-link" title="Open campaign management">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+              <div class="card-body p-3 d-flex flex-column justify-content-between h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <span class="text-xxs text-uppercase font-weight-bolder text-muted d-block mb-1">Campaigns</span>
+                    <h3 class="mb-0 font-weight-bolder text-dark"><?= isset($active_campaigns_count) ? (int)$active_campaigns_count : 0; ?></h3>
+                  </div>
+                  <div class="rounded-3 d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: rgba(245, 158, 11, 0.1); color: #d97706;">
+                    <i class="material-symbols-rounded" style="font-size: 22px;">campaign</i>
+                  </div>
+                </div>
+                <div class="pt-2 border-top d-flex align-items-center justify-content-between mt-auto">
+                  <span class="text-xs font-weight-bold text-warning d-inline-flex align-items-center gap-1 stat-card-action">
+                    <span>Manage campaigns</span>
+                    <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                  </span>
+                  <span class="badge bg-light text-secondary rounded-pill text-xxs font-weight-normal px-2">Active</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Charts Section (Interactive) -->
+      <div class="row mt-1">
+        <!-- 1. Member Registrations Chart -->
+        <div class="col-lg-4 col-md-6 mt-3 mb-3 stagger-item" style="animation-delay: 0.3s">
+          <div class="card border-0 shadow-sm h-100 chart-card" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+            <div class="card-body p-3 pb-2 d-flex flex-column justify-content-between h-100">
+              <div>
+                <a href="<?= site_url('members'); ?>" class="text-decoration-none text-reset d-flex justify-content-between align-items-center mb-1 chart-card-header" title="Open member management">
+                  <div>
+                    <h6 class="mb-0 font-weight-bold text-dark chart-card-title">Member Registrations</h6>
+                    <p class="text-xs text-muted mb-0">Daily registrations</p>
+                  </div>
+                  <span class="badge bg-light text-secondary rounded-pill px-2 py-1 text-xxs font-weight-bold border">Last 7 days</span>
+                </a>
+                <div class="d-flex align-items-baseline gap-2 mb-2 mt-1">
+                  <span class="h4 font-weight-bolder text-dark mb-0"><?= number_format(array_sum($chart_members_data ?? [])); ?></span>
+                  <span class="text-xxs text-muted text-uppercase font-weight-bold">new this week</span>
+                </div>
+                <div class="pe-1">
+                  <div class="chart" style="height: 165px; position: relative;">
+                    <canvas id="chart-bars" class="chart-canvas" height="165"
+                      data-labels="<?php echo html_escape(json_encode($chart_members_labels ?? [])); ?>"
+                      data-values="<?php echo html_escape(json_encode($chart_members_data ?? [])); ?>"></canvas>
+                  </div>
+                </div>
+              </div>
+              <a href="<?= site_url('members'); ?>" class="d-flex align-items-center justify-content-between text-xs text-muted pt-2 mt-2 border-top text-decoration-none chart-card-footer" title="Manage all registered members">
+                <span class="d-inline-flex align-items-center">
+                  <i class="material-symbols-rounded text-xs me-1" style="color: #1a685b;">group_add</i>
+                  <span>Live registration counts</span>
+                </span>
+                <span class="font-weight-bold d-inline-flex align-items-center gap-1" style="color: #1a685b;">
+                  <span>View members</span>
+                  <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                </span>
+              </a>
             </div>
           </div>
         </div>
-        <div class="col-lg-4 col-md-6 mt-4 mb-4 stagger-item" style="animation-delay: 0.4s">
-          <div class="card ">
-            <div class="card-body">
-              <h6 class="mb-0 "> Monthly Donations </h6>
-              <p class="text-sm "> Collections (Last 6 months) </p>
-              <div class="pe-2">
-                <div class="chart">
-                  <canvas id="chart-line" class="chart-canvas" height="170"
-                    data-labels="<?php echo html_escape(json_encode($chart_donations_labels ?? [])); ?>"
-                    data-values="<?php echo html_escape(json_encode($chart_donations_data ?? [])); ?>"></canvas>
+
+        <!-- 2. Monthly Donations Chart -->
+        <div class="col-lg-4 col-md-6 mt-3 mb-3 stagger-item" style="animation-delay: 0.35s">
+          <div class="card border-0 shadow-sm h-100 chart-card" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+            <div class="card-body p-3 pb-2 d-flex flex-column justify-content-between h-100">
+              <div>
+                <a href="<?= site_url('donations'); ?>" class="text-decoration-none text-reset d-flex justify-content-between align-items-center mb-1 chart-card-header" title="Open donation history">
+                  <div>
+                    <h6 class="mb-0 font-weight-bold text-dark chart-card-title">Monthly Donations</h6>
+                    <p class="text-xs text-muted mb-0">Collections (₹)</p>
+                  </div>
+                  <span class="badge bg-light text-secondary rounded-pill px-2 py-1 text-xxs font-weight-bold border">Last 6 months</span>
+                </a>
+                <div class="d-flex align-items-baseline gap-2 mb-2 mt-1">
+                  <span class="h4 font-weight-bolder text-dark mb-0">₹<?= number_format(array_sum($chart_donations_data ?? [])); ?></span>
+                  <span class="text-xxs text-muted text-uppercase font-weight-bold">total collected</span>
+                </div>
+                <div class="pe-1">
+                  <div class="chart" style="height: 165px; position: relative;">
+                    <canvas id="chart-line" class="chart-canvas" height="165"
+                      data-labels="<?php echo html_escape(json_encode($chart_donations_labels ?? [])); ?>"
+                      data-values="<?php echo html_escape(json_encode($chart_donations_data ?? [])); ?>"></canvas>
+                  </div>
                 </div>
               </div>
-              <hr class="dark horizontal">
-              <div class="d-flex ">
-                <i class="material-symbols-rounded text-sm my-auto me-1">currency_rupee</i>
-                <p class="mb-0 text-sm"> Verified paid donations </p>
-              </div>
+              <a href="<?= site_url('donations'); ?>" class="d-flex align-items-center justify-content-between text-xs text-muted pt-2 mt-2 border-top text-decoration-none chart-card-footer" title="Open donation receipts and records">
+                <span class="d-inline-flex align-items-center">
+                  <i class="material-symbols-rounded text-xs me-1 text-success">verified</i>
+                  <span>Verified paid donations</span>
+                </span>
+                <span class="text-success font-weight-bold d-inline-flex align-items-center gap-1">
+                  <span>View donations</span>
+                  <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                </span>
+              </a>
             </div>
           </div>
         </div>
-        <div class="col-lg-4 mt-4 mb-3 stagger-item" style="animation-delay: 0.45s">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="mb-0 ">Campaign Raised</h6>
-              <p class="text-sm ">Top campaigns funds (₹)</p>
-              <div class="pe-2">
-                <div class="chart">
-                  <canvas id="chart-line-tasks" class="chart-canvas" height="170"
-                    data-labels="<?php echo html_escape(json_encode($chart_campaigns_labels ?? [])); ?>"
-                    data-values="<?php echo html_escape(json_encode($chart_campaigns_data ?? [])); ?>"></canvas>
+
+        <!-- 3. Campaign Raised Chart -->
+        <div class="col-lg-4 mt-3 mb-3 stagger-item" style="animation-delay: 0.4s">
+          <div class="card border-0 shadow-sm h-100 chart-card" style="border-radius: 14px; border: 1px solid #edf2f7 !important;">
+            <div class="card-body p-3 pb-2 d-flex flex-column justify-content-between h-100">
+              <div>
+                <a href="<?= site_url('cms/dashboard?tab=campaigns'); ?>" class="text-decoration-none text-reset d-flex justify-content-between align-items-center mb-1 chart-card-header" title="Open campaign management">
+                  <div>
+                    <h6 class="mb-0 font-weight-bold text-dark chart-card-title">Campaign Raised</h6>
+                    <p class="text-xs text-muted mb-0">Top campaign funds</p>
+                  </div>
+                  <span class="badge bg-light text-secondary rounded-pill px-2 py-1 text-xxs font-weight-bold border">Top Funds</span>
+                </a>
+                <div class="d-flex align-items-baseline gap-2 mb-2 mt-1">
+                  <span class="h4 font-weight-bolder text-dark mb-0">₹<?= number_format(array_sum($chart_campaigns_data ?? [])); ?></span>
+                  <span class="text-xxs text-muted text-uppercase font-weight-bold">top campaigns tally</span>
+                </div>
+                <div class="pe-1">
+                  <div class="chart" style="height: 165px; position: relative;">
+                    <canvas id="chart-line-tasks" class="chart-canvas" height="165"
+                      data-labels="<?php echo html_escape(json_encode($chart_campaigns_labels ?? [])); ?>"
+                      data-values="<?php echo html_escape(json_encode($chart_campaigns_data ?? [])); ?>"></canvas>
+                  </div>
                 </div>
               </div>
-              <hr class="dark horizontal">
-              <div class="d-flex ">
-                <i class="material-symbols-rounded text-sm my-auto me-1">campaign</i>
-                <p class="mb-0 text-sm">Real-time funds tally</p>
-              </div>
+              <a href="<?= site_url('cms/dashboard?tab=campaigns'); ?>" class="d-flex align-items-center justify-content-between text-xs text-muted pt-2 mt-2 border-top text-decoration-none chart-card-footer" title="Open campaigns in CMS">
+                <span class="d-inline-flex align-items-center">
+                  <i class="material-symbols-rounded text-xs me-1 text-warning">campaign</i>
+                  <span>Real-time funds tally</span>
+                </span>
+                <span class="text-warning font-weight-bold d-inline-flex align-items-center gap-1">
+                  <span>Manage campaigns</span>
+                  <i class="material-symbols-rounded text-xs">arrow_forward</i>
+                </span>
+              </a>
             </div>
           </div>
         </div>
@@ -241,6 +342,45 @@
           </div>
         </div>
         <style>
+          .stat-card-link {
+            cursor: pointer;
+            display: block;
+            outline: none;
+          }
+          .stat-card-link .card {
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+          }
+          .stat-card-link:hover .card,
+          .stat-card-link:focus .card {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+            border-color: rgba(79, 70, 229, 0.3) !important;
+          }
+          .stat-card-link:hover .stat-card-action {
+            text-decoration: underline;
+          }
+          .chart-card {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            background: #ffffff;
+          }
+          .chart-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+            border-color: rgba(26, 104, 91, 0.2) !important;
+          }
+          .chart-card-header {
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+          }
+          .chart-card-header:hover .chart-card-title {
+            color: #1a685b !important;
+          }
+          .chart-card-footer {
+            cursor: pointer;
+            transition: opacity 0.15s ease, background-color 0.15s ease;
+          }
+          .chart-card-footer:hover {
+            opacity: 0.8;
+          }
           .dashboard-project-row {
             cursor: pointer;
             transition: background-color 0.2s ease;

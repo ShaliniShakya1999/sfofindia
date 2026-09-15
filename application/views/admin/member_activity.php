@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius:15px; background: linear-gradient(135deg,#0ea5e9,#6366f1);">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius:15px; background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%);">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3">
                         <div class="bg-white bg-opacity-20 p-3 rounded-circle">
@@ -25,7 +25,7 @@
         <!-- Stats Row -->
         <div class="col-md-4 mb-4">
             <div class="card border-0 shadow-sm text-center p-4" style="border-radius:12px;">
-                <div class="icon icon-shape bg-gradient-primary shadow-primary border-radius-md mx-auto mb-3">
+                <div class="icon icon-shape text-center border-radius-md mx-auto mb-3" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); box-shadow: 0 4px 10px rgba(26, 104, 91, 0.25); color: #fff;">
                     <i class="material-symbols-rounded opacity-10">payments</i>
                 </div>
                 <h3 class="font-weight-bolder mb-0">

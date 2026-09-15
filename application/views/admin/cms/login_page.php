@@ -28,9 +28,18 @@
       padding-top: .6rem;
       padding-bottom: .6rem;
     }
+    .btn-brand {
+      background: linear-gradient(135deg, #1a685b 0%, #134e4a 100%);
+      color: #ffffff;
+      border: none;
+    }
+    .btn-brand:hover {
+      background: linear-gradient(135deg, #134e4a 0%, #0f3d3a 100%);
+      color: #ffffff;
+    }
     .form-control:focus {
-      box-shadow: 0 0 0 .2rem rgba(13,110,253,.18);
-      border-color: rgba(13,110,253,.45);
+      box-shadow: 0 0 0 .2rem rgba(26, 104, 91, 0.20);
+      border-color: #1a685b;
     }
     .btn {
       border-radius: 12px;
@@ -61,12 +70,18 @@
                 <input type="text" name="username" class="form-control" placeholder="e.g. admin, email, or MBR0001" autocomplete="username" required autofocus>
               </div>
               <div class="mb-3">
-                <label class="form-label">Password</label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label mb-0">Password</label>
+                  <a href="<?php echo site_url('admin/forgot_password'); ?>" class="text-decoration-none small" style="color: #1a685b; font-weight: 600;">Forgot Password?</a>
+                </div>
                 <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
               </div>
-              <button type="submit" class="btn btn-primary w-100">Sign in</button>
+              <button type="submit" class="btn btn-brand w-100 py-2">Sign in</button>
             </form>
-            <p class="small text-muted mt-3 mb-0"><a href="<?php echo site_url(''); ?>">← Back to website</a></p>
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+              <p class="small text-muted mb-0"><a href="<?php echo site_url(''); ?>" class="text-decoration-none text-muted">← Back to website</a></p>
+              <p class="small mb-0"><a href="<?php echo site_url('admin/forgot_password'); ?>" class="text-decoration-none" style="color: #1a685b; font-weight: 500;">Need help logging in?</a></p>
+            </div>
           </div>
         </div>
       </div>

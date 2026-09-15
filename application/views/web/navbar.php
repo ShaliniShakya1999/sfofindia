@@ -5,7 +5,7 @@ $active = $CI->router->method;
 $class = strtolower((string) $CI->router->fetch_class());
 ?>
 
-<div class="container-fluid bg-secondary px-0 navbar-shell">
+<div class="container-fluid px-0 navbar-shell">
     <div class="nav-bar">
         <nav class="navbar navbar-expand-lg bg-primary navbar-dark px-3 px-lg-4 py-lg-0" aria-label="Primary navigation">
 
@@ -47,7 +47,7 @@ $class = strtolower((string) $CI->router->fetch_class());
                     <!-- Donation -->
                     <a href="<?php echo web_link('donation.php'); ?>"
                        class="nav-item nav-link nav-donate <?= ($active === 'donation') ? 'active' : '' ?>">
-                        <i class="fas fa-heart me-1" aria-hidden="true"></i> Donate
+                        Donate
                     </a>
                     <a href="<?php echo web_link('documents.php'); ?>"
                        class="nav-item nav-link <?= ($active === 'documents') ? 'active' : '' ?>">
@@ -84,10 +84,10 @@ $class = strtolower((string) $CI->router->fetch_class());
 
                 <!-- Auth Buttons -->
                 <div class="d-none d-lg-flex ms-auto align-items-center">
-                    <a href="<?php echo site_url('join-us'); ?>" class="btn btn-secondary rounded-pill px-3 py-2 me-2 font-weight-bold shadow-sm">
+                    <a href="<?php echo site_url('join-us'); ?>" class="btn btn-nav-register me-2">
                         <i class="fas fa-user-plus me-1"></i> Registration
                     </a>
-                    <a href="<?php echo site_url('admin/login'); ?>" class="btn btn-light rounded-pill px-3 py-2 font-weight-bold shadow-sm">
+                    <a href="<?php echo site_url('admin/login'); ?>" class="btn btn-nav-login">
                         <i class="fas fa-sign-in-alt me-1"></i> Login
                     </a>
                     
@@ -98,11 +98,15 @@ $class = strtolower((string) $CI->router->fetch_class());
                     </div>
                 </div>
 
-                <!-- Mobile Auth Links (Optional, shown in collapse) -->
+                <!-- Mobile Auth Links (Shown in collapse) -->
                 <div class="d-lg-none mt-3 pt-3 border-top">
-                    <a href="<?php echo web_link('donation.php'); ?>" class="btn btn-secondary w-100 mb-2"><i class="fas fa-heart me-1"></i> Donate now</a>
-                    <a href="<?php echo site_url('join-us'); ?>" class="btn btn-outline-light w-100 mb-2">Registration</a>
-                    <a href="<?php echo site_url('admin/login'); ?>" class="btn btn-light w-100">Login</a>
+                    <a href="<?php echo web_link('donation.php'); ?>" class="btn btn-nav-donate-mobile w-100 mb-2">Donate</a>
+                    <a href="<?php echo site_url('join-us'); ?>" class="btn btn-nav-register w-100 mb-2">
+                        <i class="fas fa-user-plus me-1"></i> Registration
+                    </a>
+                    <a href="<?php echo site_url('admin/login'); ?>" class="btn btn-nav-login w-100">
+                        <i class="fas fa-sign-in-alt me-1"></i> Login
+                    </a>
                 </div>
 
             </div>
@@ -112,53 +116,132 @@ $class = strtolower((string) $CI->router->fetch_class());
 
 
 <style>
+.navbar-shell {
+    background: transparent;
+    width: 100%;
+}
 .nav-bar {
     width: 100%;
     padding: 0 !important;
-    box-shadow: 0 8px 24px rgba(20, 33, 61, .12);
+    background: #ffac00 !important;
+    box-shadow: 0 4px 14px rgba(20, 33, 61, .1);
     position: relative;
     z-index: 1030;
-    transform: translate3d(0, 0, 0);
-    transition: transform .24s ease, box-shadow .24s ease;
-    will-change: transform;
 }
 .nav-bar.navbar-scrolled {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    top: 0;
-}
-.nav-bar.navbar-hidden {
-    transform: translate3d(0, -110%, 0);
+    width: 100%;
+    background: #ffac00 !important;
+    box-shadow: 0 4px 20px rgba(20, 33, 61, .16);
 }
 .navbar {
     width: 100%;
     min-height: 54px;
+    background: #ffac00 !important;
 }
 .navbar .navbar-nav {
     align-items: center;
 }
 .navbar .nav-link {
-    padding: .9rem .62rem;
+    padding: .85rem .62rem;
     font-size: .86rem;
     letter-spacing: .01em;
+    color: rgba(255, 255, 255, 0.95);
+    transition: color 0.15s ease;
 }
+.navbar .nav-link:hover {
+    color: #ffffff;
+}
+
+/* Donate button in navigation */
 .navbar .nav-donate {
-    color: #fff !important;
-    background: rgba(255, 255, 255, .14);
-    border-radius: 999px;
-    padding: .55rem .85rem !important;
-    margin: 0 .2rem;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50px;
+    padding: .44rem .95rem !important;
+    margin: 0 .25rem;
     line-height: 1.2;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .navbar .nav-donate:hover,
 .navbar .nav-donate.active {
-    background: #f3b321;
-    color: #182848 !important;
+    background: #1a685b !important;
+    border-color: #1a685b !important;
+    color: #ffffff !important;
 }
+.navbar .nav-link.nav-donate::after {
+    display: none !important;
+}
+
+/* Theme-matched Registration & Login Buttons */
+.btn-nav-register {
+    background-color: #1a685b;
+    color: #ffffff !important;
+    border: 1.5px solid #14554a;
+    border-radius: 50px;
+    padding: 0.44rem 1.05rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(26, 104, 91, 0.25);
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+.btn-nav-register:hover {
+    background-color: #134e44;
+    border-color: #0f3d35;
+    color: #ffffff !important;
+    box-shadow: 0 3px 8px rgba(26, 104, 91, 0.35);
+}
+
+.btn-nav-login {
+    background-color: #ffffff;
+    color: #1a685b !important;
+    border: 1.5px solid #ffffff;
+    border-radius: 50px;
+    padding: 0.44rem 1.05rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+.btn-nav-login:hover {
+    background-color: #f3fdfa;
+    color: #134e44 !important;
+    border-color: #e2f4ee;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.btn-nav-donate-mobile {
+    background-color: #ffffff;
+    color: #1a685b !important;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    border: none;
+    font-weight: 700;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+.btn-nav-donate-mobile:hover {
+    background-color: #1a685b;
+    color: #ffffff !important;
+}
+
 .navbar-social {
     border-left: 1px solid rgba(255,255,255,.25);
     gap: .4rem;
@@ -172,11 +255,12 @@ $class = strtolower((string) $CI->router->fetch_class());
     border-radius: 50%;
     color: #fff;
     font-size: .85rem;
-    transition: transform .2s ease, background-color .2s ease;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+    opacity: 0.92;
 }
 .social-link:hover {
     color: #fff;
-    transform: translateY(-2px);
+    opacity: 1;
 }
 .social-youtube { background: #d32f2f; }
 .social-facebook { background: #3568b8; }
@@ -193,15 +277,6 @@ $class = strtolower((string) $CI->router->fetch_class());
     font-weight: 600;
     position: relative;
 }
-.navbar .nav-link.nav-donate.active {
-    background: #f3b321 !important;
-    color: #182848 !important;
-}
-.navbar .nav-link.nav-donate::after {
-    display: none;
-}
-
-/* Optional: underline effect instead of background */
 .navbar .nav-link.active::after {
     content: "";
     position: absolute;
@@ -228,37 +303,35 @@ $class = strtolower((string) $CI->router->fetch_class());
     }
     var shell = navBar.closest('.navbar-shell');
     var topBar = document.querySelector('.top-bar');
-    var lastScroll = window.pageYOffset || document.documentElement.scrollTop;
-    var pauseTimer;
+
     function updateNavbar() {
         var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-        var scrollDelta = currentScroll - lastScroll;
-        var topBarHeight = topBar ? topBar.getBoundingClientRect().height : 0;
+        var topBarHeight = topBar ? topBar.offsetHeight : 0;
+
         if (currentScroll > topBarHeight) {
-            navBar.classList.add('navbar-scrolled');
-            if (shell) {
-                shell.style.height = navBar.offsetHeight + 'px';
+            if (!navBar.classList.contains('navbar-scrolled')) {
+                if (shell) {
+                    shell.style.height = navBar.offsetHeight + 'px';
+                }
+                navBar.classList.add('navbar-scrolled');
             }
         } else {
-            navBar.classList.remove('navbar-scrolled');
-            navBar.classList.remove('navbar-hidden');
-            if (shell) {
-                shell.style.height = '';
+            if (navBar.classList.contains('navbar-scrolled')) {
+                navBar.classList.remove('navbar-scrolled');
+                if (shell) {
+                    shell.style.height = '';
+                }
             }
         }
-        if (scrollDelta > 2 && currentScroll > 80) {
-            navBar.classList.add('navbar-hidden');
-        } else if (scrollDelta < -2 || currentScroll <= 80) {
-            navBar.classList.remove('navbar-hidden');
-        }
-        window.clearTimeout(pauseTimer);
-        pauseTimer = window.setTimeout(function () {
-            navBar.classList.remove('navbar-hidden');
-        }, 220);
-        lastScroll = currentScroll <= 0 ? 0 : currentScroll;
     }
+
     updateNavbar();
-    window.addEventListener('resize', updateNavbar);
+    window.addEventListener('resize', function () {
+        if (navBar.classList.contains('navbar-scrolled') && shell) {
+            shell.style.height = navBar.offsetHeight + 'px';
+        }
+        updateNavbar();
+    });
     window.addEventListener('scroll', updateNavbar, { passive: true });
 }());
 </script>

@@ -506,6 +506,13 @@ class Donations extends My_Controller {
 		$did = (int) $this->db->insert_id();
 		ngom_log_activity('manual_donation', 'Added manual donation for ' . $name . ' (₹' . $amount . ')');
 
+		ngom_notify(
+			'Donation Received',
+			'₹' . number_format($amount, 2) . ' from ' . $name . ' (Receipt #' . $data['receipt_no'] . ').',
+			'success',
+			'donations'
+		);
+
 		$row = $this->donations->find_by_id($did);
 		if ($row) {
 			$this->send_receipt_email($row);

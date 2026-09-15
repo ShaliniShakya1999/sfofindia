@@ -56,7 +56,7 @@ $active_filter = $active_filter ?? 'all';
     <?php endif; ?>
 
     <!-- Top Header -->
-    <div class="row align-items-center mb-4">
+    <div class="row align-items-center mb-4" style="position: relative; z-index: 5;">
         <div class="col-md-7">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb bg-transparent mb-1 pb-0 pt-1 px-0">
@@ -67,7 +67,7 @@ $active_filter = $active_filter ?? 'all';
             <div class="d-flex align-items-center gap-2">
                 <h3 class="font-weight-bolder mb-0 text-dark">Notification Center</h3>
                 <?php if (!empty($counts['unread']) && $counts['unread'] > 0): ?>
-                    <span class="badge bg-gradient-danger rounded-pill px-3 py-1 text-xs">
+                    <span class="badge rounded-pill px-3 py-1 text-xs font-weight-bold" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;">
                         <?= (int)$counts['unread']; ?> Unread
                     </span>
                 <?php endif; ?>
@@ -79,7 +79,7 @@ $active_filter = $active_filter ?? 'all';
                 <?php if (!empty($counts['unread']) && $counts['unread'] > 0): ?>
                     <form method="post" action="<?= site_url('notifications/mark_all_read'); ?>" class="d-inline">
                         <input type="hidden" name="<?= $csrf_name; ?>" value="<?= $csrf_hash; ?>">
-                        <button type="submit" class="btn btn-sm btn-outline-dark mb-0 shadow-sm d-inline-flex align-items-center gap-1" style="border-radius:8px;">
+                        <button type="submit" class="btn btn-sm mb-0 shadow-sm d-inline-flex align-items-center gap-1 notif-top-btn" style="border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#1a685b;font-weight:600;">
                             <i class="material-symbols-rounded text-sm">done_all</i>
                             <span>Mark All Read</span>
                         </button>
@@ -89,7 +89,7 @@ $active_filter = $active_filter ?? 'all';
                 <?php if (!empty($counts['total']) && ($counts['total'] - ($counts['unread'] ?? 0)) > 0): ?>
                     <form method="post" action="<?= site_url('notifications/clear_all_read'); ?>" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all read notification history?');">
                         <input type="hidden" name="<?= $csrf_name; ?>" value="<?= $csrf_hash; ?>">
-                        <button type="submit" class="btn btn-sm btn-outline-danger mb-0 shadow-sm d-inline-flex align-items-center gap-1" style="border-radius:8px;">
+                        <button type="submit" class="btn btn-sm mb-0 shadow-sm d-inline-flex align-items-center gap-1 notif-top-clear-btn" style="border-radius:8px;border:1px solid #fecaca;background:#fff;color:#dc2626;font-weight:600;">
                             <i class="material-symbols-rounded text-sm">cleaning_services</i>
                             <span>Clear Read History</span>
                         </button>
@@ -99,75 +99,83 @@ $active_filter = $active_filter ?? 'all';
         </div>
     </div>
 
-    <!-- Quick Stats Cards -->
-    <div class="row g-3 mb-4">
+    <!-- Quick Stats Cards (Interactive Filters) -->
+    <div class="row g-3 mb-4" style="position: relative; z-index: 5;">
         <div class="col-xl-3 col-sm-6">
-            <div class="card border-0 shadow-sm" style="border-radius:14px;">
-                <div class="card-body p-3">
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <p class="text-xs text-uppercase font-weight-bolder text-muted mb-0">Total Alerts</p>
-                            <h4 class="font-weight-bolder mb-0 text-dark"><?= (int)($counts['total'] ?? 0); ?></h4>
-                        </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-dark shadow text-center border-radius-md d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                                <i class="material-symbols-rounded text-white" style="font-size:24px;">notifications</i>
+            <a href="<?= site_url('notifications'); ?>" class="text-decoration-none d-block h-100">
+                <div class="card border-0 shadow-sm stat-filter-card <?= ($active_filter === 'all') ? 'active-stat-card' : ''; ?>" style="border-radius:14px;">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <p class="text-xs text-uppercase font-weight-bolder text-muted mb-1" style="letter-spacing:0.5px;">Total Alerts</p>
+                                <h4 class="font-weight-bolder mb-0 text-dark"><?= (int)($counts['total'] ?? 0); ?></h4>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="rounded-3 d-inline-flex align-items-center justify-content-center" style="width:44px;height:44px;background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;">
+                                    <i class="material-symbols-rounded" style="font-size:22px;">notifications</i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-xl-3 col-sm-6">
-            <div class="card border-0 shadow-sm" style="border-radius:14px;">
-                <div class="card-body p-3">
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <p class="text-xs text-uppercase font-weight-bolder text-muted mb-0">Unread</p>
-                            <h4 class="font-weight-bolder mb-0 text-danger"><?= (int)($counts['unread'] ?? 0); ?></h4>
-                        </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-danger shadow text-center border-radius-md d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                                <i class="material-symbols-rounded text-white" style="font-size:24px;">mark_email_unread</i>
+            <a href="<?= site_url('notifications?filter=unread'); ?>" class="text-decoration-none d-block h-100">
+                <div class="card border-0 shadow-sm stat-filter-card <?= ($active_filter === 'unread') ? 'active-stat-card' : ''; ?>" style="border-radius:14px;">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <p class="text-xs text-uppercase font-weight-bolder text-muted mb-1" style="letter-spacing:0.5px;">Unread</p>
+                                <h4 class="font-weight-bolder mb-0 unread-count-num" style="color:#b91c1c;"><?= (int)($counts['unread'] ?? 0); ?></h4>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="rounded-3 d-inline-flex align-items-center justify-content-center" style="width:44px;height:44px;background:#fef2f2;color:#dc2626;border:1px solid #fee2e2;">
+                                    <i class="material-symbols-rounded" style="font-size:22px;">mark_email_unread</i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-xl-3 col-sm-6">
-            <div class="card border-0 shadow-sm" style="border-radius:14px;">
-                <div class="card-body p-3">
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <p class="text-xs text-uppercase font-weight-bolder text-muted mb-0">Memberships</p>
-                            <h4 class="font-weight-bolder mb-0 text-info"><?= (int)($counts['members'] ?? 0); ?></h4>
-                        </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                                <i class="material-symbols-rounded text-white" style="font-size:24px;">person_add</i>
+            <a href="<?= site_url('notifications?filter=members'); ?>" class="text-decoration-none d-block h-100">
+                <div class="card border-0 shadow-sm stat-filter-card <?= ($active_filter === 'members') ? 'active-stat-card' : ''; ?>" style="border-radius:14px;">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <p class="text-xs text-uppercase font-weight-bolder text-muted mb-1" style="letter-spacing:0.5px;">Memberships</p>
+                                <h4 class="font-weight-bolder mb-0" style="color:#0369a1;"><?= (int)($counts['members'] ?? 0); ?></h4>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="rounded-3 d-inline-flex align-items-center justify-content-center" style="width:44px;height:44px;background:#f0f9ff;color:#0284c7;border:1px solid #e0f2fe;">
+                                    <i class="material-symbols-rounded" style="font-size:22px;">person_add</i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-xl-3 col-sm-6">
-            <div class="card border-0 shadow-sm" style="border-radius:14px;">
-                <div class="card-body p-3">
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <p class="text-xs text-uppercase font-weight-bolder text-muted mb-0">Donations</p>
-                            <h4 class="font-weight-bolder mb-0 text-success"><?= (int)($counts['donations'] ?? 0); ?></h4>
-                        </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;">
-                                <i class="material-symbols-rounded text-white" style="font-size:24px;">payments</i>
+            <a href="<?= site_url('notifications?filter=donations'); ?>" class="text-decoration-none d-block h-100">
+                <div class="card border-0 shadow-sm stat-filter-card <?= ($active_filter === 'donations') ? 'active-stat-card' : ''; ?>" style="border-radius:14px;">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <p class="text-xs text-uppercase font-weight-bolder text-muted mb-1" style="letter-spacing:0.5px;">Donations</p>
+                                <h4 class="font-weight-bolder mb-0" style="color:#1a685b;"><?= (int)($counts['donations'] ?? 0); ?></h4>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="rounded-3 d-inline-flex align-items-center justify-content-center" style="width:44px;height:44px;background:#e6f0ee;color:#1a685b;border:1px solid #cce2de;">
+                                    <i class="material-symbols-rounded" style="font-size:22px;">payments</i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -178,30 +186,25 @@ $active_filter = $active_filter ?? 'all';
             <div class="row g-3 align-items-center">
                 <!-- Filter Pills -->
                 <div class="col-lg-8">
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2 notif-filter-group">
                         <a href="<?= site_url('notifications'); ?>" 
-                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold <?= ($active_filter === 'all') ? 'btn-dark shadow-sm' : 'btn-outline-secondary'; ?>" 
-                           style="border-radius:8px;">
-                            All <span class="badge bg-secondary ms-1"><?= (int)($counts['total'] ?? 0); ?></span>
+                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold notif-tab-btn <?= ($active_filter === 'all') ? 'active-notif-tab' : ''; ?>">
+                            All <span class="badge ms-1 count-pill"><?= (int)($counts['total'] ?? 0); ?></span>
                         </a>
                         <a href="<?= site_url('notifications?filter=unread'); ?>" 
-                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold <?= ($active_filter === 'unread') ? 'btn-danger shadow-sm' : 'btn-outline-danger'; ?>" 
-                           style="border-radius:8px;">
-                            Unread <span class="badge bg-white text-danger ms-1"><?= (int)($counts['unread'] ?? 0); ?></span>
+                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold notif-tab-btn <?= ($active_filter === 'unread') ? 'active-notif-tab' : ''; ?>">
+                            Unread <span class="badge ms-1 count-pill unread-pill-num <?= ($active_filter !== 'unread' && !empty($counts['unread'])) ? 'unread-alert-badge' : ''; ?>"><?= (int)($counts['unread'] ?? 0); ?></span>
                         </a>
                         <a href="<?= site_url('notifications?filter=members'); ?>" 
-                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold <?= ($active_filter === 'members') ? 'btn-info text-white shadow-sm' : 'btn-outline-info'; ?>" 
-                           style="border-radius:8px;">
-                            Memberships <span class="badge bg-white text-info ms-1"><?= (int)($counts['members'] ?? 0); ?></span>
+                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold notif-tab-btn <?= ($active_filter === 'members') ? 'active-notif-tab' : ''; ?>">
+                            Memberships <span class="badge ms-1 count-pill"><?= (int)($counts['members'] ?? 0); ?></span>
                         </a>
                         <a href="<?= site_url('notifications?filter=donations'); ?>" 
-                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold <?= ($active_filter === 'donations') ? 'btn-success text-white shadow-sm' : 'btn-outline-success'; ?>" 
-                           style="border-radius:8px;">
-                            Donations <span class="badge bg-white text-success ms-1"><?= (int)($counts['donations'] ?? 0); ?></span>
+                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold notif-tab-btn <?= ($active_filter === 'donations') ? 'active-notif-tab' : ''; ?>">
+                            Donations <span class="badge ms-1 count-pill"><?= (int)($counts['donations'] ?? 0); ?></span>
                         </a>
                         <a href="<?= site_url('notifications?filter=system'); ?>" 
-                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold <?= ($active_filter === 'system') ? 'btn-secondary text-white shadow-sm' : 'btn-outline-secondary'; ?>" 
-                           style="border-radius:8px;">
+                           class="btn btn-sm mb-0 px-3 py-2 text-xs font-weight-bold notif-tab-btn <?= ($active_filter === 'system') ? 'active-notif-tab' : ''; ?>">
                             System & Security
                         </a>
                     </div>
@@ -245,34 +248,58 @@ $active_filter = $active_filter ?? 'all';
 
                         if ($is_donation) {
                             $icon = 'payments';
-                            $grad = 'bg-gradient-success text-white';
+                            $icon_bg = '#e6f0ee';
+                            $icon_color = '#1a685b';
+                            $icon_border = '#cce2de';
                             $category_label = 'Donation';
-                            $cat_badge = 'bg-success text-white';
+                            $badge_bg = '#e6f0ee';
+                            $badge_color = '#1a685b';
+                            $badge_border = '#cce2de';
                         } elseif ($is_member) {
                             $icon = 'person_add';
-                            $grad = 'bg-gradient-info text-white';
+                            $icon_bg = '#f0f9ff';
+                            $icon_color = '#0284c7';
+                            $icon_border = '#e0f2fe';
                             $category_label = 'Membership';
-                            $cat_badge = 'bg-info text-white';
+                            $badge_bg = '#f0f9ff';
+                            $badge_color = '#0369a1';
+                            $badge_border = '#bae6fd';
                         } elseif ($is_renewal) {
                             $icon = 'autorenew';
-                            $grad = 'bg-gradient-warning text-white';
+                            $icon_bg = '#fffbeb';
+                            $icon_color = '#d97706';
+                            $icon_border = '#fef3c7';
                             $category_label = 'Renewal';
-                            $cat_badge = 'bg-warning text-dark';
+                            $badge_bg = '#fef3c7';
+                            $badge_color = '#92400e';
+                            $badge_border = '#fde68a';
                         } elseif ($raw_type === 'danger') {
                             $icon = 'error';
-                            $grad = 'bg-gradient-danger text-white';
+                            $icon_bg = '#fef2f2';
+                            $icon_color = '#dc2626';
+                            $icon_border = '#fee2e2';
                             $category_label = 'Security Alert';
-                            $cat_badge = 'bg-danger text-white';
+                            $badge_bg = '#fee2e2';
+                            $badge_color = '#991b1b';
+                            $badge_border = '#fecaca';
                         } elseif ($raw_type === 'warning') {
                             $icon = 'warning';
-                            $grad = 'bg-gradient-warning text-white';
+                            $icon_bg = '#fffbeb';
+                            $icon_color = '#d97706';
+                            $icon_border = '#fef3c7';
                             $category_label = 'Notice';
-                            $cat_badge = 'bg-warning text-dark';
+                            $badge_bg = '#fef3c7';
+                            $badge_color = '#92400e';
+                            $badge_border = '#fde68a';
                         } else {
                             $icon = 'notifications';
-                            $grad = 'bg-gradient-dark text-white';
+                            $icon_bg = '#f1f5f9';
+                            $icon_color = '#475569';
+                            $icon_border = '#e2e8f0';
                             $category_label = 'System';
-                            $cat_badge = 'bg-secondary text-white';
+                            $badge_bg = '#f1f5f9';
+                            $badge_color = '#475569';
+                            $badge_border = '#e2e8f0';
                         }
                     ?>
                         <div class="list-group-item p-3 border-0 border-bottom notif-item <?= $is_unread ? 'notif-unread' : 'notif-read'; ?>"
@@ -282,23 +309,23 @@ $active_filter = $active_filter ?? 'all';
                              data-category="<?= html_escape(strtolower($category_label)); ?>"
                              style="transition: background-color 0.2s ease;">
                             <div class="d-flex align-items-start gap-3">
-                                <!-- Category Icon Avatar -->
-                                <div class="icon icon-shape <?= $grad; ?> shadow-sm rounded-circle text-center d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px;">
-                                    <i class="material-symbols-rounded" style="font-size:22px;"><?= $icon; ?></i>
+                                <!-- Category Icon Avatar (Balanced Soft Squircle) -->
+                                <div class="rounded-3 text-center d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;background:<?= $icon_bg; ?>;color:<?= $icon_color; ?>;border:1px solid <?= $icon_border; ?>;">
+                                    <i class="material-symbols-rounded" style="font-size:20px;"><?= $icon; ?></i>
                                 </div>
 
                                 <!-- Body -->
                                 <div class="flex-grow-1 min-w-0">
                                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <span class="badge <?= $cat_badge; ?> rounded-pill px-2 py-0 text-xxs font-weight-bold">
+                                            <span class="badge rounded-pill px-2 py-0 text-xxs font-weight-bold" style="background:<?= $badge_bg; ?>;color:<?= $badge_color; ?>;border:1px solid <?= $badge_border; ?>;">
                                                 <?= $category_label; ?>
                                             </span>
                                             <h6 class="text-sm font-weight-bold mb-0 text-dark">
                                                 <?= html_escape($title); ?>
                                             </h6>
                                             <?php if ($is_unread): ?>
-                                                <span class="badge bg-danger rounded-pill px-2 py-0 text-xxs unread-indicator" style="font-size:10px;">
+                                                <span class="badge rounded-pill px-2 py-0 text-xxs unread-indicator" style="background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;font-size:10px;">
                                                     New
                                                 </span>
                                             <?php endif; ?>
@@ -317,7 +344,7 @@ $active_filter = $active_filter ?? 'all';
                                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-1">
                                         <div>
                                             <?php if (!empty($n['link'])): ?>
-                                                <a href="<?= html_escape(site_url($n['link'])); ?>" class="btn btn-xs btn-outline-dark mb-0 d-inline-flex align-items-center gap-1" style="border-radius:6px;">
+                                                <a href="<?= html_escape(site_url($n['link'])); ?>" class="btn btn-xs notif-action-btn mb-0 d-inline-flex align-items-center gap-1">
                                                     <span>View Details</span>
                                                     <i class="material-symbols-rounded text-xs">arrow_forward</i>
                                                 </a>
@@ -328,7 +355,7 @@ $active_filter = $active_filter ?? 'all';
                                             <?php if ($is_unread): ?>
                                                 <form method="post" action="<?= site_url('notifications/mark_read/'.$n['id']); ?>" class="d-inline mark-read-form" data-id="<?= $n['id']; ?>">
                                                     <input type="hidden" name="<?= $csrf_name; ?>" value="<?= $csrf_hash; ?>">
-                                                    <button type="submit" class="btn btn-link text-secondary text-xs mb-0 p-1 d-inline-flex align-items-center gap-1" title="Mark as read">
+                                                    <button type="submit" class="btn btn-link notif-markread-btn text-xs mb-0 p-1 d-inline-flex align-items-center gap-1" title="Mark as read">
                                                         <i class="material-symbols-rounded text-sm">done</i>
                                                         <span class="d-none d-sm-inline">Mark Read</span>
                                                     </button>
@@ -337,7 +364,7 @@ $active_filter = $active_filter ?? 'all';
 
                                             <form method="post" action="<?= site_url('notifications/delete/'.$n['id']); ?>" class="d-inline delete-notif-form" data-id="<?= $n['id']; ?>" onsubmit="return confirm('Delete this notification?');">
                                                 <input type="hidden" name="<?= $csrf_name; ?>" value="<?= $csrf_hash; ?>">
-                                                <button type="submit" class="btn btn-link text-danger text-xs mb-0 p-1 d-inline-flex align-items-center gap-1" title="Delete notification">
+                                                <button type="submit" class="btn btn-link notif-delete-btn text-xs mb-0 p-1 d-inline-flex align-items-center gap-1" title="Delete notification">
                                                     <i class="material-symbols-rounded text-sm">delete_outline</i>
                                                     <span class="d-none d-sm-inline">Delete</span>
                                                 </button>
@@ -362,16 +389,104 @@ $active_filter = $active_filter ?? 'all';
 </div>
 
 <style>
+.stat-filter-card {
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid #edf2f7 !important;
+    border-radius: 14px;
+    transition: all 0.2s ease;
+}
+.stat-filter-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-2px);
+}
+.stat-filter-card.active-stat-card {
+    border-color: #1a685b !important;
+    background-color: #fbfdfc !important;
+    box-shadow: 0 0 0 1px #1a685b !important;
+}
+.notif-tab-btn {
+    border-radius: 8px;
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+}
+.notif-tab-btn:hover {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+.notif-tab-btn .count-pill {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.68rem;
+}
+.notif-tab-btn.active-notif-tab {
+    background: #1a685b !important;
+    color: #ffffff !important;
+    border-color: #1a685b !important;
+    box-shadow: 0 2px 6px rgba(26, 104, 91, 0.2) !important;
+}
+.notif-tab-btn.active-notif-tab .count-pill {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+.unread-alert-badge {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+}
 .notif-unread {
-    background-color: #fafbfc;
-    border-left: 4px solid #e91e63 !important;
+    background-color: #fafcfb;
+    border-left: 3.5px solid #1a685b !important;
 }
 .notif-read {
     background-color: #ffffff;
-    border-left: 4px solid transparent !important;
+    border-left: 3.5px solid transparent !important;
+}
+.notif-item {
+    border-bottom: 1px solid #f1f5f9 !important;
 }
 .notif-item:hover {
-    background-color: #f8f9fa !important;
+    background-color: #f8fafc !important;
+}
+.notif-action-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1a685b;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem !important;
+    font-size: 0.72rem !important;
+    transition: all 0.15s ease;
+}
+.notif-action-btn:hover {
+    background: #1a685b;
+    color: #ffffff;
+    border-color: #1a685b;
+}
+.notif-delete-btn {
+    color: #94a3b8;
+    text-decoration: none !important;
+    border-radius: 6px;
+    padding: 3px 8px !important;
+    transition: all 0.15s ease;
+}
+.notif-delete-btn:hover {
+    color: #dc2626 !important;
+    background: #fee2e2;
+}
+.notif-markread-btn {
+    color: #64748b;
+    text-decoration: none !important;
+    border-radius: 6px;
+    padding: 3px 8px !important;
+    transition: all 0.15s ease;
+}
+.notif-markread-btn:hover {
+    color: #1a685b !important;
+    background: #e6f0ee;
 }
 .text-xxs {
     font-size: 0.68rem !important;
@@ -441,6 +556,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         var btn = form.querySelector('button');
                         if (btn) btn.remove();
                     }
+                    // Decrement unread numbers across the interface
+                    var unreadEls = document.querySelectorAll('.unread-count-num, .unread-pill-num, .unread-header-count, .navbar-notif-badge, .notif-badge');
+                    unreadEls.forEach(function(el) {
+                        var cur = parseInt(el.textContent, 10) || 0;
+                        if (cur > 1) {
+                            el.textContent = cur - 1;
+                        } else {
+                            el.textContent = '0';
+                            if (el.classList.contains('navbar-notif-badge') || el.classList.contains('notif-badge')) {
+                                el.classList.add('d-none');
+                            }
+                        }
+                    });
                 } else {
                     form.submit();
                 }

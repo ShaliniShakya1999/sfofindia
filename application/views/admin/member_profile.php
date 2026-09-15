@@ -95,7 +95,7 @@ if ($raw_email !== '') {
 										$photo_url = (preg_match('#^https?://#i', $photo) || $photo[0] === '/') ? $photo : base_url($photo);
 									}
 									?>
-									<div class="border rounded-circle overflow-hidden bg-light shadow-sm" style="width:120px;height:120px; border: 3px solid #4f46e5 !important;">
+									<div class="border rounded-circle overflow-hidden bg-light shadow-sm" style="width:120px;height:120px; border: 3px solid #1a685b !important;">
 										<?php if ($photo_url !== ''): ?>
 											<img src="<?php echo html_escape($photo_url); ?>" alt="" class="w-100 h-100" style="object-fit:cover;">
 										<?php else: ?>
@@ -105,7 +105,7 @@ if ($raw_email !== '') {
 								</div>
 								<div class="col">
 									<h4 class="mb-1 font-weight-bolder text-dark"><?php echo html_escape($member['name'] ?? ''); ?></h4>
-									<p class="mb-0 text-sm font-weight-bold text-muted">Member ID: <span class="text-primary"><?php echo html_escape($member['member_id_code'] ?? 'PENDING'); ?></span></p>
+									<p class="mb-0 text-sm font-weight-bold text-muted">Member ID: <span style="color: #1a685b; font-weight: 700;"><?php echo html_escape($member['member_id_code'] ?? 'PENDING'); ?></span></p>
 									<span class="badge bg-gradient-indigo mt-2"><?php echo html_escape(strtoupper($member['role'] ?? 'MEMBER')); ?></span>
 								</div>
 							</div>
@@ -167,7 +167,7 @@ if ($raw_email !== '') {
 									<div class="col-12">
 										<div class="d-flex align-items-center gap-4">
 											<div class="position-relative">
-												<div class="border rounded-circle overflow-hidden bg-light shadow-sm" style="width:100px;height:100px; border: 2px solid #4f46e5 !important;">
+												<div class="border rounded-circle overflow-hidden bg-light shadow-sm" style="width:100px;height:100px; border: 2px solid #1a685b !important;">
 													<img id="edit_photo_preview" src="<?php echo $photo_url !== '' ? html_escape($photo_url) : ''; ?>" alt="" class="w-100 h-100" style="object-fit:cover;<?php echo $photo_url === '' ? 'display:none;' : ''; ?>">
 													<?php if ($photo_url === ''): ?>
 														<div id="edit_photo_placeholder" class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><i class="material-symbols-rounded" style="font-size: 32px;">person</i></div>
@@ -360,15 +360,15 @@ if ($raw_email !== '') {
 </div>
 
 <style>
-.bg-gradient-indigo { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-.text-indigo { color: #4f46e5 !important; }
-.bg-indigo-soft { background: #e0e7ff; }
+.bg-gradient-indigo { background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); }
+.text-indigo { color: #1a685b !important; }
+.bg-indigo-soft { background: #e6f0ee; }
 .bg-success-soft { background: #ecfdf5; }
 .bg-danger-soft { background: #fef2f2; }
 .form-control-label { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; color: #7b809a; }
-.nav-pills .nav-link { font-weight: 600; border-radius: 10px; transition: 0.3s; }
-.nav-pills .nav-link.active { background: #4f46e5 !important; color: #fff; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.4); }
-.active-auth-tab { background: #fff !important; color: #4f46e5 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
+.nav-pills .nav-link { font-weight: 600; border-radius: 10px; transition: 0.2s; }
+.nav-pills .nav-link.active { background: #1a685b !important; color: #fff; box-shadow: 0 4px 6px rgba(26, 104, 91, 0.3); }
+.active-auth-tab { background: #fff !important; color: #1a685b !important; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
 .letter-spacing-2 { letter-spacing: 2px; }
 </style>
 

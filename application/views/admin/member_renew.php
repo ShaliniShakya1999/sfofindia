@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     "email": "<?php echo $member['email']; ?>",
                     "contact": "<?php echo $member['mobile']; ?>"
                 },
-                "theme": { "color": "#4f46e5" },
+                "theme": { "color": "#1a685b" },
                 "modal": { "ondismiss": function() { resetBtn(); } }
             };
             const rzp = new Razorpay(options);
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (data.ok) {
                 Swal.fire({
-                    title: 'Membership Renewed! 🎉',
+                    title: 'Membership Renewed!',
                     text: 'You are active until ' + data.validity_end + '.',
                     icon: 'success',
                     confirmButtonText: 'Go to Profile'
@@ -163,9 +163,9 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 <style>
-.bg-gradient-indigo { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-.text-indigo { color: #4f46e5 !important; }
-.shadow-primary { box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39); }
+.bg-gradient-indigo { background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); }
+.text-indigo { color: #1a685b !important; }
+.shadow-primary { box-shadow: 0 4px 14px 0 rgba(26, 104, 91, 0.28); }
 .px-6 { padding-left: 3rem; padding-right: 3rem; }
 .form-control-label { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; color: #7b809a; }
 </style>

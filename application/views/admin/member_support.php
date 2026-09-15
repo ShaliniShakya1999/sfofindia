@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius:15px; background: linear-gradient(135deg,#10b981,#0ea5e9);">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius:15px; background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%);">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-3">
                         <div class="bg-white bg-opacity-20 p-3 rounded-circle">
@@ -25,12 +25,12 @@
         <!-- Contact Info Cards -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100 text-center p-4" style="border-radius:15px;">
-                <div class="icon icon-shape bg-gradient-primary shadow-primary border-radius-md mx-auto mb-3">
+                <div class="icon icon-shape text-center border-radius-md mx-auto mb-3" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); box-shadow: 0 4px 10px rgba(26, 104, 91, 0.25); color: #fff;">
                     <i class="material-symbols-rounded opacity-10">phone</i>
                 </div>
                 <h6 class="font-weight-bolder mb-1">Call Us</h6>
                 <p class="text-sm text-muted mb-0">Available Mon–Sat, 9AM – 6PM</p>
-                <a href="tel:+919876543210" class="btn btn-sm btn-outline-primary rounded-pill mt-3">+91 98765 43210</a>
+                <a href="tel:+919876543210" class="btn btn-sm rounded-pill mt-3" style="color: #1a685b; border: 1px solid #1a685b;">+91 98765 43210</a>
             </div>
         </div>
         <div class="col-md-4">
@@ -64,7 +64,7 @@
                 <div class="card-body p-4">
                     <?php if ($this->session->flashdata('support_success')): ?>
                         <div class="alert alert-success text-white text-sm mb-3">
-                            ✅ <?php echo html_escape($this->session->flashdata('support_success')); ?>
+                            <?php echo html_escape($this->session->flashdata('support_success')); ?>
                         </div>
                     <?php endif; ?>
                     <form action="<?php echo site_url('admin/support_submit'); ?>" method="post">
@@ -99,7 +99,7 @@
                                 </div>
                             </div>
                             <div class="col-12 text-end">
-                                <button type="submit" class="btn bg-gradient-primary rounded-pill px-5">
+                                <button type="submit" class="btn rounded-pill px-5" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); color: #fff; box-shadow: 0 4px 12px rgba(26, 104, 91, 0.25); border: none;">
                                     <i class="material-symbols-rounded text-sm align-middle me-1">send</i> Send Message
                                 </button>
                             </div>
@@ -148,5 +148,5 @@
 
 <style>
 .form-control-label { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; color: #7b809a; }
-.accordion-button:not(.collapsed) { background: #ede9fe !important; color: #4f46e5 !important; box-shadow: none; }
+.accordion-button:not(.collapsed) { background: #e6f0ee !important; color: #1a685b !important; box-shadow: none; }
 </style>

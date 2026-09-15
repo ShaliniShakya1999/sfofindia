@@ -34,24 +34,24 @@ if ($is_expired || $status_raw === 'inactive') {
 ?>
 <div class="container-fluid py-4">
     <!-- --- HEADER SECTION --- -->
-    <div class="row mb-4 opacity-0 stagger-item">
+    <div class="row mb-4">
         <div class="col-12">
             <a href="<?php echo site_url('admin/profile'); ?>" class="text-decoration-none text-reset d-block" title="Click to view and edit your profile">
-                <div class="card border-0 shadow-sm overflow-hidden welcome-banner-interactive" style="border-radius: 15px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); cursor: pointer;">
+                <div class="card border-0 shadow-sm overflow-hidden welcome-banner-interactive" style="border-radius: 15px; background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); cursor: pointer;">
                     <div class="card-body p-4 position-relative">
                         <div class="row align-items-center">
                             <div class="col-lg-8 col-md-7 text-white">
-                                <h3 class="text-white mb-1 font-weight-bolder">Welcome, <?php echo html_escape($member['name']); ?>! 👋</h3>
+                                <h3 class="text-white mb-1 font-weight-bolder">Welcome, <?php echo html_escape($member['name']); ?>!</h3>
                                 <p class="text-white opacity-8 mb-0">
                                     Member ID: <strong><?php echo html_escape($member['member_id_code'] ?? 'SFI-' . date('Y') . '-' . $member['id']); ?></strong> | 
-                                    Role: <span class="badge bg-white text-primary text-xs"><?php echo strtoupper($member['role'] ?? 'MEMBER'); ?></span>
+                                    Role: <span class="badge bg-white text-xs" style="color: #1a685b;"><?php echo strtoupper($member['role'] ?? 'MEMBER'); ?></span>
                                     <?php if ($validity_end): ?>
                                     | Validity: <span class="badge <?php echo $is_expired ? 'bg-danger text-white' : 'bg-success text-white'; ?> text-xs"><?php echo date('d M, Y', strtotime($validity_end)); ?></span>
                                     <?php endif; ?>
                                 </p>
                             </div>
                             <div class="col-lg-4 col-md-5 text-end d-flex align-items-center justify-content-end position-relative z-index-1 mt-3 mt-md-0">
-                                <span class="btn btn-sm btn-white text-primary rounded-pill mb-0 font-weight-bold shadow-sm d-inline-flex align-items-center me-2 banner-profile-btn">
+                                <span class="btn btn-sm btn-white rounded-pill mb-0 font-weight-bold shadow-sm d-inline-flex align-items-center me-2 banner-profile-btn" style="color: #1a685b !important;">
                                     <i class="material-symbols-rounded text-sm me-1">person</i> View Profile <i class="material-symbols-rounded text-sm ms-1">arrow_forward</i>
                                 </span>
                                 <i class="material-symbols-rounded text-white opacity-2 d-none d-md-block" style="font-size: 80px; position: absolute; right: -15px; top: -35px; pointer-events: none;">verified</i>
@@ -65,7 +65,7 @@ if ($is_expired || $status_raw === 'inactive') {
 
     <?php if ($is_expired || $status_raw === 'inactive'): ?>
     <!-- --- MEMBERSHIP EXPIRY WARNING --- -->
-    <div class="row mb-4 opacity-0 stagger-item">
+    <div class="row mb-4">
         <div class="col-12">
             <div class="alert alert-warning text-white d-flex align-items-center justify-content-between p-3" style="border-radius: 12px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                 <div class="d-flex align-items-center">
@@ -84,13 +84,13 @@ if ($is_expired || $status_raw === 'inactive') {
     <!-- --- STATS CARDS --- -->
     <div class="row mb-4">
         <!-- 1. Total Donated -->
-        <div class="col-xl-3 col-sm-6 mb-4 opacity-0 stagger-item">
+        <div class="col-xl-3 col-sm-6 mb-4">
             <a href="<?php echo site_url('admin/donation_history'); ?>" class="text-decoration-none text-reset d-block h-100" title="Click to view full donation history">
                 <div class="card border-0 shadow-sm h-100 stat-card-interactive" style="border-radius: 14px;">
                     <div class="card-body p-3 d-flex flex-column justify-content-between">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <div class="icon icon-shape bg-gradient-primary shadow-primary text-center border-radius-md">
+                                <div class="icon icon-shape text-center border-radius-md" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); box-shadow: 0 4px 10px rgba(26, 104, 91, 0.25); color: #fff;">
                                     <i class="material-symbols-rounded opacity-10">payments</i>
                                 </div>
                                 <div class="ms-3">
@@ -102,11 +102,11 @@ if ($is_expired || $status_raw === 'inactive') {
                                     <h4 class="font-weight-bolder mb-0">₹<?php echo number_format($total_sum, 0); ?></h4>
                                 </div>
                             </div>
-                            <span class="badge bg-light text-primary rounded-circle p-2 stat-arrow-badge">
+                            <span class="badge bg-light rounded-circle p-2 stat-arrow-badge" style="color: #1a685b !important;">
                                 <i class="material-symbols-rounded text-xs d-block">arrow_forward</i>
                             </span>
                         </div>
-                        <div class="border-top border-light mt-3 pt-2 d-flex align-items-center justify-content-between text-xs text-primary font-weight-bold">
+                        <div class="border-top border-light mt-3 pt-2 d-flex align-items-center justify-content-between text-xs font-weight-bold" style="color: #1a685b !important;">
                             <span>View Donation History</span>
                             <i class="material-symbols-rounded text-xs">arrow_forward</i>
                         </div>
@@ -116,7 +116,7 @@ if ($is_expired || $status_raw === 'inactive') {
         </div>
 
         <!-- 2. Campaigns -->
-        <div class="col-xl-3 col-sm-6 mb-4 opacity-0 stagger-item">
+        <div class="col-xl-3 col-sm-6 mb-4">
             <a href="<?php echo site_url('admin/campaigns'); ?>" class="text-decoration-none text-reset d-block h-100" title="Click to explore active campaigns">
                 <div class="card border-0 shadow-sm h-100 stat-card-interactive" style="border-radius: 14px;">
                     <div class="card-body p-3 d-flex flex-column justify-content-between">
@@ -144,7 +144,7 @@ if ($is_expired || $status_raw === 'inactive') {
         </div>
 
         <!-- 3. Events -->
-        <div class="col-xl-3 col-sm-6 mb-4 opacity-0 stagger-item">
+        <div class="col-xl-3 col-sm-6 mb-4">
             <a href="<?php echo site_url('admin/events'); ?>" class="text-decoration-none text-reset d-block h-100" title="Click to see upcoming events">
                 <div class="card border-0 shadow-sm h-100 stat-card-interactive" style="border-radius: 14px;">
                     <div class="card-body p-3 d-flex flex-column justify-content-between">
@@ -172,7 +172,7 @@ if ($is_expired || $status_raw === 'inactive') {
         </div>
 
         <!-- 4. Status -->
-        <div class="col-xl-3 col-sm-6 mb-4 opacity-0 stagger-item">
+        <div class="col-xl-3 col-sm-6 mb-4">
             <a href="<?php echo $status_link; ?>" class="text-decoration-none text-reset d-block h-100" title="Click to view membership details">
                 <div class="card border-0 shadow-sm h-100 stat-card-interactive" style="border-radius: 14px;">
                     <div class="card-body p-3 d-flex flex-column justify-content-between">
@@ -203,7 +203,7 @@ if ($is_expired || $status_raw === 'inactive') {
 
     <div class="row">
         <!-- --- QUICK DOCUMENTS --- -->
-        <div class="col-lg-8 mb-4 opacity-0 stagger-item">
+        <div class="col-lg-8 mb-4">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-header pb-0 bg-transparent border-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 font-weight-bolder">My Official Documents</h5>
@@ -212,33 +212,33 @@ if ($is_expired || $status_raw === 'inactive') {
                 <div class="card-body p-4">
                     <div class="row g-4">
                         <div class="col-md-4">
-                            <div class="p-3 text-center border-radius-lg border border-light bg-light-hover transition-all h-100 d-flex flex-column justify-content-between" style="cursor: pointer;" onclick="window.location.href='<?php echo site_url('admin/member_document/id-card'); ?>';">
+                            <div class="p-3 text-center border-radius-lg border border-light bg-light-hover transition-all h-100 d-flex flex-column justify-content-between doc-item-card" style="cursor: pointer;" onclick="window.location.href='<?php echo site_url('admin/member_document/id-card'); ?>';">
                                 <div>
-                                    <i class="material-symbols-rounded text-primary mb-2" style="font-size: 40px;">badge</i>
-                                    <h6 class="mb-1">Identity Card</h6>
+                                    <i class="material-symbols-rounded mb-2" style="font-size: 40px; color: #1a685b;">badge</i>
+                                    <h6 class="mb-1 font-weight-bold">Identity Card</h6>
                                     <p class="text-xs text-muted mb-3">Official member ID with Verification QR</p>
                                 </div>
-                                <a href="<?php echo site_url('admin/member_document/id-card'); ?>" class="btn btn-sm btn-primary w-100 rounded-pill"><i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">visibility</i> View & Download Card</a>
+                                <a href="<?php echo site_url('admin/member_document/id-card'); ?>" class="btn btn-sm w-100 rounded-pill doc-action-btn" style="background: #1a685b; color: #fff; box-shadow: 0 2px 8px rgba(26, 104, 91, 0.25);"><i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">visibility</i> View &amp; Download Card</a>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="p-3 text-center border-radius-lg border border-light bg-light-hover transition-all h-100 d-flex flex-column justify-content-between" style="cursor: pointer;" onclick="window.location.href='<?php echo site_url('admin/member_document/appointment-letter'); ?>';">
+                            <div class="p-3 text-center border-radius-lg border border-light bg-light-hover transition-all h-100 d-flex flex-column justify-content-between doc-item-card" style="cursor: pointer;" onclick="window.location.href='<?php echo site_url('admin/member_document/appointment-letter'); ?>';">
                                 <div>
                                     <i class="material-symbols-rounded text-success mb-2" style="font-size: 40px;">description</i>
-                                    <h6 class="mb-1">Appointment</h6>
-                                    <p class="text-xs text-muted mb-3">Your official joining / appointment letter</p>
+                                    <h6 class="mb-1 font-weight-bold">Appointment Letter</h6>
+                                    <p class="text-xs text-muted mb-3">Your official joining &amp; appointment letter</p>
                                 </div>
-                                <a href="<?php echo site_url('admin/member_document/appointment-letter'); ?>" class="btn btn-sm btn-success w-100 rounded-pill"><i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">visibility</i> View Appointment Letter</a>
+                                <a href="<?php echo site_url('admin/member_document/appointment-letter'); ?>" class="btn btn-sm btn-success w-100 rounded-pill doc-action-btn"><i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">visibility</i> View Appointment Letter</a>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="p-3 text-center border-radius-lg border border-light bg-light-hover transition-all h-100 d-flex flex-column justify-content-between" style="cursor: pointer;" onclick="window.location.href='<?php echo site_url('admin/member_document/certificate'); ?>';">
+                            <div class="p-3 text-center border-radius-lg border border-light bg-light-hover transition-all h-100 d-flex flex-column justify-content-between doc-item-card" style="cursor: pointer;" onclick="window.location.href='<?php echo site_url('admin/member_document/certificate'); ?>';">
                                 <div>
-                                    <i class="material-symbols-rounded text-warning mb-2" style="font-size: 40px;">workspace_premium</i>
-                                    <h6 class="mb-1">Contribution Cert</h6>
-                                    <p class="text-xs text-muted mb-3">Appreciation certificate for your support</p>
+                                    <i class="material-symbols-rounded mb-2" style="font-size: 40px; color: #d97706;">workspace_premium</i>
+                                    <h6 class="mb-1 font-weight-bold">Contribution Certificate</h6>
+                                    <p class="text-xs text-muted mb-3">Official appreciation certificate for support</p>
                                 </div>
-                                <a href="<?php echo site_url('admin/member_document/certificate'); ?>" class="btn btn-sm btn-warning w-100 text-white rounded-pill"><i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">visibility</i> View Certificate</a>
+                                <a href="<?php echo site_url('admin/member_document/certificate'); ?>" class="btn btn-sm btn-doc-cert w-100 rounded-pill doc-action-btn"><i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">visibility</i> View &amp; Download Certificate</a>
                             </div>
                         </div>
                     </div>
@@ -247,15 +247,15 @@ if ($is_expired || $status_raw === 'inactive') {
         </div>
 
         <!-- --- SUPPORT A CAUSE --- -->
-        <div class="col-lg-4 mb-4 opacity-0 stagger-item">
+        <div class="col-lg-4 mb-4">
             <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 15px; background: #fff;">
                 <div class="card-body p-4 text-center">
-                    <div class="bg-gradient-primary rounded-circle d-inline-flex p-3 mb-3">
+                    <div class="rounded-circle d-inline-flex p-3 mb-3" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%);">
                         <i class="material-symbols-rounded text-white" style="font-size: 32px;">favorite</i>
                     </div>
                     <h5 class="font-weight-bolder mb-2">Support a Mission</h5>
                     <p class="text-sm text-muted mb-4">Every contribution helps us reach more lives. Help us grow the movement.</p>
-                    <a href="<?php echo site_url('donation'); ?>" class="btn btn-lg btn-primary w-100 rounded-pill shadow-primary">Donate Now 💰</a>
+                    <a href="<?php echo site_url('donation'); ?>" class="btn btn-lg w-100 rounded-pill" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); color: #fff; box-shadow: 0 4px 12px rgba(26, 104, 91, 0.25); border: none;">Donate Now</a>
                     <hr class="my-4 light">
                     <a href="<?php echo site_url('admin/donation_history'); ?>" class="d-flex justify-content-between align-items-center text-start text-decoration-none text-reset p-2 rounded bg-light-hover transition-all" title="View donation history">
                         <div class="ps-1">
@@ -271,11 +271,11 @@ if ($is_expired || $status_raw === 'inactive') {
 
     <div class="row">
         <!-- --- RECENT CAMPAIGNS --- -->
-        <div class="col-md-6 mb-4 opacity-0 stagger-item">
+        <div class="col-md-6 mb-4">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-header bg-transparent border-0 pb-0 d-flex justify-content-between align-items-center">
                     <h6 class="font-weight-bolder mb-0">Active Campaigns</h6>
-                    <a href="<?php echo site_url('admin/campaigns'); ?>" class="text-xs font-weight-bold text-primary text-decoration-none d-inline-flex align-items-center gap-1 hover-opacity">
+                    <a href="<?php echo site_url('admin/campaigns'); ?>" class="text-xs font-weight-bold text-decoration-none d-inline-flex align-items-center gap-1 hover-opacity" style="color: #1a685b !important;">
                         <span>View All</span>
                         <i class="material-symbols-rounded text-xs">arrow_forward</i>
                     </a>
@@ -301,14 +301,14 @@ if ($is_expired || $status_raw === 'inactive') {
                                  onclick='showCampaignModal(<?php echo $c_json; ?>)'
                                  title="Click to view campaign details"
                                  style="cursor: pointer;">
-                                <div class="bg-primary border-radius-md p-2 me-3 shadow-xs d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                <div class="border-radius-md p-2 me-3 shadow-xs d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0; background-color: #1a685b !important;">
                                     <i class="material-symbols-rounded text-white text-sm">campaign</i>
                                 </div>
                                 <div class="flex-grow-1 min-w-0 me-2">
                                     <h6 class="mb-1 text-sm text-truncate font-weight-bold text-dark"><?php echo html_escape($c_title); ?></h6>
                                     <p class="text-xs text-muted mb-0">Live now • Support this cause</p>
                                 </div>
-                                <a href="<?php echo site_url('donation'); ?>" class="btn btn-sm btn-outline-primary rounded-pill mb-0 text-xs px-3 py-1 flex-shrink-0" onclick="event.stopPropagation();">Participate</a>
+                                <a href="<?php echo site_url('donation'); ?>" class="btn btn-sm rounded-pill mb-0 text-xs px-3 py-1 flex-shrink-0" style="color: #1a685b; border: 1px solid #1a685b;" onclick="event.stopPropagation();">Participate</a>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -321,11 +321,11 @@ if ($is_expired || $status_raw === 'inactive') {
         </div>
 
         <!-- --- UPCOMING EVENTS --- -->
-        <div class="col-md-6 mb-4 opacity-0 stagger-item">
+        <div class="col-md-6 mb-4">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-header bg-transparent border-0 pb-0 d-flex justify-content-between align-items-center">
                     <h6 class="font-weight-bolder mb-0">Upcoming Events</h6>
-                    <a href="<?php echo site_url('admin/events'); ?>" class="text-xs font-weight-bold text-primary text-decoration-none d-inline-flex align-items-center gap-1 hover-opacity">
+                    <a href="<?php echo site_url('admin/events'); ?>" class="text-xs font-weight-bold text-decoration-none d-inline-flex align-items-center gap-1 hover-opacity" style="color: #1a685b !important;">
                         <span>View All</span>
                         <i class="material-symbols-rounded text-xs">arrow_forward</i>
                     </a>
@@ -354,7 +354,7 @@ if ($is_expired || $status_raw === 'inactive') {
                                  onclick='showEventModal(<?php echo $ev_json; ?>)'
                                  title="Click to view event details"
                                  style="cursor: pointer;">
-                                <div class="bg-warning border-radius-md p-2 me-3 shadow-xs d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                <div class="border-radius-md p-2 me-3 shadow-xs d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0; background-color: #d97706 !important;">
                                     <i class="material-symbols-rounded text-white text-sm">event</i>
                                 </div>
                                 <div class="flex-grow-1 min-w-0 me-2">
@@ -424,7 +424,7 @@ if ($is_expired || $status_raw === 'inactive') {
                 <a id="eventModalFullLink" href="<?php echo site_url('admin/events'); ?>" class="btn btn-outline-secondary rounded-pill btn-sm mb-0 px-3">
                     View All Events
                 </a>
-                <a href="<?php echo site_url('contact'); ?>" class="btn bg-gradient-primary rounded-pill btn-sm mb-0 px-4">
+                <a href="<?php echo site_url('contact'); ?>" class="btn rounded-pill btn-sm mb-0 px-4" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); color: #fff;">
                     Register / Contact NGO
                 </a>
             </div>
@@ -440,7 +440,7 @@ if ($is_expired || $status_raw === 'inactive') {
                 <img id="campModalImg" src="" alt="Campaign" style="width: 100%; height: 100%; object-fit: cover;">
                 <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%);"></div>
                 <div style="position: absolute; bottom: 12px; left: 16px;">
-                    <span class="badge bg-primary text-white font-weight-bold rounded-pill px-3 py-1 text-xxs">
+                    <span class="badge text-white font-weight-bold rounded-pill px-3 py-1 text-xxs" style="background-color: #1a685b;">
                         <i class="material-symbols-rounded text-xxs align-middle me-1">campaign</i> Mission
                     </span>
                 </div>
@@ -449,7 +449,7 @@ if ($is_expired || $status_raw === 'inactive') {
                 <div class="w-100">
                     <div class="d-flex justify-content-between align-items-start gap-2">
                         <div>
-                            <span class="badge bg-primary text-white rounded-pill px-3 py-1 mb-2 text-xxs font-weight-bold">
+                            <span class="badge text-white rounded-pill px-3 py-1 mb-2 text-xxs font-weight-bold" style="background-color: #1a685b;">
                                 Active Cause
                             </span>
                             <h5 class="modal-title font-weight-bolder text-dark mb-0" id="campModalTitle">Campaign Details</h5>
@@ -465,8 +465,8 @@ if ($is_expired || $status_raw === 'inactive') {
                 <a href="<?php echo site_url('admin/campaigns'); ?>" class="btn btn-outline-secondary rounded-pill btn-sm mb-0 px-3">
                     View All Campaigns
                 </a>
-                <a href="<?php echo site_url('donation'); ?>" class="btn bg-gradient-primary rounded-pill btn-sm mb-0 px-4">
-                    Donate & Support 💰
+                <a href="<?php echo site_url('donation'); ?>" class="btn rounded-pill btn-sm mb-0 px-4" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); color: #fff;">
+                    Donate & Support
                 </a>
             </div>
         </div>
@@ -474,51 +474,84 @@ if ($is_expired || $status_raw === 'inactive') {
 </div>
 
 <style>
-.stagger-item { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(20px); }
-.stagger-item.show { opacity: 1 !important; transform: translateY(0); }
-.bg-light-hover { transition: background 0.3s; }
+.bg-light-hover { transition: background 0.2s; }
 .bg-light-hover:hover { background: #f8f9fa; }
-.transition-all { transition: all 0.3s; }
+.transition-all { transition: all 0.2s; }
+
+/* Grounded Stat Cards without Jumping */
 .stat-card-interactive {
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
     cursor: pointer;
     border: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 .stat-card-interactive:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07) !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
 }
 .stat-card-interactive .stat-arrow-badge {
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 .stat-card-interactive:hover .stat-arrow-badge {
-    background-color: #212529 !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
-    transform: translateX(3px);
 }
+
+/* Grounded Welcome Banner */
 .welcome-banner-interactive {
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: box-shadow 0.2s ease !important;
 }
 .welcome-banner-interactive:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 36px rgba(79, 70, 229, 0.35) !important;
+    box-shadow: 0 8px 24px rgba(26, 104, 91, 0.22) !important;
 }
 .welcome-banner-interactive:hover .banner-profile-btn {
     background: #ffffff !important;
-    transform: scale(1.04);
 }
 .banner-profile-btn {
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: background 0.2s ease;
 }
+
+/* Clean Event & Campaign Items */
 .event-clickable-item, .campaign-clickable-item {
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
     border: 1px solid transparent !important;
 }
 .event-clickable-item:hover, .campaign-clickable-item:hover {
-    transform: translateY(-2px);
-    background-color: #ffffff !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
-    border-color: rgba(0, 0, 0, 0.08) !important;
+    background-color: #f8fafc !important;
+    border-color: rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* My Official Documents Card & Buttons */
+.doc-item-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.07) !important;
+    border-radius: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.doc-item-card:hover {
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+.doc-action-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.3;
+    padding: 0.45rem 0.75rem;
+    border: none !important;
+}
+.btn-doc-cert {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25) !important;
+}
+.btn-doc-cert:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.32) !important;
 }
 .hover-opacity:hover { opacity: 0.8; }
 </style>
@@ -566,15 +599,6 @@ function showCampaignModal(data) {
         modal.show();
     }
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const items = document.querySelectorAll('.stagger-item');
-    items.forEach((item, index) => {
-        setTimeout(() => {
-            item.classList.add('show');
-        }, index * 100);
-    });
-});
 </script>
 
 <?php if (isset($is_birthday_today) && $is_birthday_today): ?>
@@ -584,28 +608,20 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-content text-center border-0 overflow-hidden" style="border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
             <div class="modal-header border-0 pb-0 position-relative" style="background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%); padding: 50px;">
                  <div class="w-100 text-center">
-                    <i class="material-symbols-rounded text-danger pulse-animation" style="font-size: 80px;">cake</i>
+                    <i class="material-symbols-rounded text-danger" style="font-size: 80px;">cake</i>
                  </div>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 15px; right: 15px;"></button>
             </div>
             <div class="modal-body p-4 pt-5">
-                <h2 class="font-weight-800 mb-2">Happy Birthday, <?php echo html_escape($member['name']); ?>! 🎂</h2>
-                <p class="text-muted mb-4 px-3">The entire NGO Team wishes you a fantastic day ahead. Thank you for being a part of our journey and supporting the cause! ❤️</p>
+                <h2 class="font-weight-800 mb-2">Happy Birthday, <?php echo html_escape($member['name']); ?>!</h2>
+                <p class="text-muted mb-4 px-3">The entire NGO Team wishes you a fantastic day ahead. Thank you for being a part of our journey and supporting the cause!</p>
                 <div class="d-grid">
-                    <button type="button" class="btn btn-primary rounded-pill py-2 font-weight-bold" data-bs-dismiss="modal">Thank You! 🎉</button>
+                    <button type="button" class="btn rounded-pill py-2 font-weight-bold" style="background: #1a685b; color: #fff; border: none;" data-bs-dismiss="modal">Thank You!</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<style>
-.pulse-animation { animation: pulse 2s infinite; }
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var bdayModal = new bootstrap.Modal(document.getElementById('birthdayModal'));

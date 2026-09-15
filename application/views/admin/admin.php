@@ -1,3 +1,11 @@
+<?php
+$CI =& get_instance();
+$panel_user_type = (string) $CI->session->userdata('panel_user_type');
+if ($panel_user_type === '') {
+  $panel_user_type = 'admin';
+}
+$is_member_panel = ($panel_user_type === 'member');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="<?= base_url(); ?>assetsA/img/apple-icon.png">
   <link rel="icon" type="image/png" href="<?= base_url(); ?>assetsA/img/favicon.png">
-  <title>Admin</title>
+  <title><?= $is_member_panel ? 'Member Portal - Shaheed Foundation of India' : 'Admin Panel - Shaheed Foundation of India'; ?></title>
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <!-- Nucleo Icons -->
@@ -61,7 +69,7 @@
         text: text,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#4f46e5',
+        confirmButtonColor: '#1a685b',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Confirm'
       }).then((result) => {
@@ -77,13 +85,13 @@
     :root {
       --admin-radius: 16px;
       --admin-radius-sm: 12px;
-      /* Premium Indigo Palette */
-      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      --primary-soft: rgba(79, 70, 229, 0.1);
-      --glass-bg: rgba(255, 255, 255, 0.75);
+      /* SFOI Brand Green & Warm Accent Palette */
+      --primary-gradient: linear-gradient(135deg, #134e4a 0%, #1a685b 100%);
+      --primary-soft: rgba(26, 104, 91, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.82);
       --glass-border: rgba(255, 255, 255, 0.4);
       --admin-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-      --admin-shadow-hover: 0 20px 45px rgba(79, 70, 229, 0.12);
+      --admin-shadow-hover: 0 20px 45px rgba(26, 104, 91, 0.12);
       --text-main: #1e293b;
       --text-muted: #64748b;
     }
@@ -96,16 +104,25 @@
       scroll-behavior: smooth;
     }
 
-    /* --- Animations --- */
+    /* --- Clean Entry Animations --- */
+    <?php if ($is_member_panel): ?>
+    /* Member Panel: Strict Zero Jumping / Cursor Animation Elimination */
+    .stagger-item {
+      opacity: 1 !important;
+      animation: none !important;
+      transform: none !important;
+    }
+    <?php else: ?>
     @keyframes slideInUp {
-      from { transform: translateY(20px); opacity: 0; }
+      from { transform: translateY(6px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
 
     .stagger-item {
       opacity: 0;
-      animation: slideInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      animation: slideInUp 0.3s ease-out forwards;
     }
+    <?php endif; ?>
 
     /* --- Sidebar Glass --- */
     #sidenav-main {
@@ -117,60 +134,62 @@
     }
 
     #sidenav-main .navbar-nav .nav-link {
-      transition: all 0.2s ease;
-      margin: 4px 12px !important;
-      min-height: 42px;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      margin: 1px 6px !important;
+      min-height: 34px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 0.65rem 0.85rem !important;
-      border-radius: 12px !important;
+      padding: 0.35rem 0.65rem !important;
+      border-radius: 6px !important;
       font-family: "Segoe UI", Arial, sans-serif !important;
-      font-size: 0.95rem !important;
-      font-weight: 700 !important;
-      letter-spacing: 0;
-      line-height: 1.4 !important;
+      font-size: 0.8rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.005em;
+      line-height: 1.35 !important;
       color: #334155 !important;
     }
 
     #sidenav-main .navbar-nav .nav-link .nav-link-text {
-      font-size: inherit !important;
-      font-weight: 700 !important;
+      font-size: 0.8rem !important;
+      font-weight: 500 !important;
       letter-spacing: inherit;
       white-space: nowrap;
+      margin-left: 0 !important;
     }
 
     #sidenav-main .sidenav-header .navbar-brand {
       font-family: "Segoe UI", Arial, sans-serif !important;
-      font-size: 0.88rem !important;
+      font-size: 0.82rem !important;
       font-weight: 600 !important;
     }
 
     #sidenav-main .navbar-nav h6 {
       font-family: "Segoe UI", Arial, sans-serif !important;
-      font-size: 0.74rem !important;
-      font-weight: 800 !important;
-      letter-spacing: 0.08em;
-      color: #334155 !important;
+      font-size: 0.68rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.07em;
+      color: #64748b !important;
+      margin-top: 0.75rem !important;
+      margin-bottom: 0.25rem !important;
+      padding-left: 0.75rem !important;
     }
 
     #sidenav-main .nav-link.active {
       background: var(--primary-gradient) !important;
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25) !important;
-      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(26, 104, 91, 0.2) !important;
     }
 
-    /* --- Cards Premium --- */
+    /* --- Cards Grounded & Refined --- */
     .main-content .card {
-      border: 1px solid rgba(0,0,0,0.05) !important;
+      border: 1px solid rgba(0,0,0,0.06) !important;
       border-radius: var(--admin-radius) !important;
-      box-shadow: var(--admin-shadow) !important;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
     .main-content .card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--admin-shadow-hover) !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07) !important;
+      border-color: rgba(0, 0, 0, 0.1) !important;
     }
 
     /* --- Form Controls --- */
@@ -180,8 +199,8 @@
     }
 
     .form-control:focus {
-      border-color: #4f46e5 !important;
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+      border-color: #1a685b !important;
+      box-shadow: 0 0 0 4px rgba(26, 104, 91, 0.12) !important;
       background: #fff !important;
     }
 
@@ -189,24 +208,43 @@
     .btn-primary {
       background: var(--primary-gradient) !important;
       border: none !important;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2) !important;
+      box-shadow: 0 2px 8px rgba(26, 104, 91, 0.22) !important;
     }
 
     .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3) !important;
+      box-shadow: 0 4px 14px rgba(26, 104, 91, 0.3) !important;
+      opacity: 0.96;
     }
 
     /* --- Layout Elements --- */
-    #navbarBlur {
+    #navbarBlur,
+    #navbarBlur.navbar-main {
       background: var(--glass-bg) !important;
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--glass-border);
-      margin-top: 15px !important;
+      margin-top: 12px !important;
+      margin-bottom: 0 !important;
+      position: relative !important;
+      top: auto !important;
+      z-index: 10 !important;
+      pointer-events: auto;
     }
 
     .navbar-brand-img {
       filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    }
+
+    .admin-profile-pill {
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .admin-profile-pill:hover {
+      border-color: #1a685b !important;
+      box-shadow: 0 2px 8px rgba(26, 104, 91, 0.15) !important;
+      background-color: #f8fafc !important;
+    }
+    .admin-profile-pill:hover span.text-dark {
+      color: #1a685b !important;
     }
 
     /* --- Scrollbar Customization --- */
@@ -218,17 +256,23 @@
 
     #sidenav-collapse-main,
     .navbar-vertical.navbar-expand-xs .navbar-collapse {
-      height: calc(100vh - 100px) !important;
-      max-height: calc(100vh - 100px) !important;
+      height: calc(100vh - 90px) !important;
+      max-height: calc(100vh - 90px) !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
     }
 
     #sidenav-collapse-main::-webkit-scrollbar,
     .navbar-vertical.navbar-expand-xs .navbar-collapse::-webkit-scrollbar {
-      width: 5px;
+      width: 3px;
+      display: none;
+    }
+
+    #sidenav-main:hover #sidenav-collapse-main::-webkit-scrollbar,
+    #sidenav-collapse-main:hover::-webkit-scrollbar {
+      display: block;
     }
 
     #sidenav-collapse-main::-webkit-scrollbar-track,
@@ -239,17 +283,27 @@
     #sidenav-collapse-main::-webkit-scrollbar-thumb,
     .navbar-vertical.navbar-expand-xs .navbar-collapse::-webkit-scrollbar-thumb {
       background: rgba(0, 0, 0, 0.12);
+      border-radius: 6px;
+    }
+
+    /* Modern slim scrollbar across entire admin panel */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
       border-radius: 10px;
-      transition: background 0.2s ease;
     }
-
-    #sidenav-main:hover #sidenav-collapse-main::-webkit-scrollbar-thumb,
-    #sidenav-collapse-main:hover::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.28);
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
     }
-
-    #sidenav-collapse-main::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.45);
+    body, html {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
     }
 
     /* Floating PerfectScrollbar rail overrides if PS active */
@@ -307,10 +361,10 @@
     #sidenav-main .sidebar-toggle {
       display: flex !important;
       align-items: center !important;
-      padding: 0.42rem 0.7rem !important;
-      margin: 2px 0.5rem !important;
-      border-radius: 0.45rem !important;
-      font-size: 0.8125rem !important; /* 13px */
+      padding: 0.35rem 0.65rem !important;
+      margin: 2px 0.45rem !important;
+      border-radius: 0.375rem !important;
+      font-size: 0.8rem !important; /* ~12.8px */
       font-weight: 500 !important;
       letter-spacing: 0.005em;
       color: #334155 !important;
@@ -321,9 +375,10 @@
 
     #sidenav-main .navbar-nav > .nav-item > .nav-link .nav-link-text,
     #sidenav-main .sidebar-toggle .nav-link-text {
-      font-size: 0.8125rem !important;
+      font-size: 0.8rem !important;
       font-weight: 500 !important;
       letter-spacing: 0.005em;
+      margin-left: 0 !important;
     }
 
     #sidenav-main .navbar-nav > .nav-item > .nav-link:hover,
@@ -332,21 +387,14 @@
       color: #0f172a !important;
     }
 
-    /* Svelte, proportionate primary icon sizing */
-    #sidenav-main .navbar-nav > .nav-item > .nav-link i,
-    #sidenav-main .navbar-nav > .nav-item > .nav-link .material-symbols-rounded,
+    /* Remove icons from sidebar as requested */
+    #sidenav-main .navbar-nav .nav-link i,
+    #sidenav-main .navbar-nav .nav-link .material-symbols-rounded,
     #sidenav-main .sidebar-toggle i,
-    #sidenav-main .sidebar-toggle .material-symbols-rounded {
-      font-size: 1.15rem !important;
-      width: 20px !important;
-      min-width: 20px !important;
-      height: 20px !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      margin-right: 0.65rem !important;
-      color: #64748b !important;
-      flex-shrink: 0;
+    #sidenav-main .sidebar-toggle .material-symbols-rounded,
+    #sidenav-main .sidebar-submenu .nav-link i,
+    #sidenav-main .sidebar-submenu .nav-link .material-symbols-rounded {
+      display: none !important;
     }
 
     /* Chevron arrow styling */
@@ -365,8 +413,8 @@
     /* Submenu tree indentation and layout */
     .sidebar-submenu {
       list-style: none;
-      margin: 0.15rem 0.5rem 0.35rem 1.35rem !important;
-      padding: 0.12rem 0 0.12rem 0.6rem !important;
+      margin: 0.1rem 0.4rem 0.25rem 0.85rem !important;
+      padding: 0.1rem 0 0.1rem 0.65rem !important;
       border-left: 1.5px solid rgba(0, 0, 0, 0.08) !important;
     }
     .sidebar-submenu .nav-item {
@@ -376,8 +424,8 @@
     .sidebar-submenu .nav-link {
       display: flex !important;
       align-items: center !important;
-      padding: 0.34rem 0.55rem !important;
-      font-size: 0.775rem !important; /* 12.4px */
+      padding: 0.26rem 0.5rem !important;
+      font-size: 0.76rem !important; /* ~12px */
       font-weight: 400 !important;
       letter-spacing: 0.005em;
       margin: 0 !important;
@@ -387,46 +435,49 @@
       transition: all 0.15s ease-in-out;
       box-sizing: border-box;
     }
+    .sidebar-submenu .nav-link::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: #cbd5e1;
+      margin-right: 8px;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+    .sidebar-submenu .nav-link:hover::before {
+      background-color: #1a685b;
+      transform: scale(1.3);
+    }
+    .sidebar-submenu .nav-link.active::before {
+      background-color: #1a685b;
+      transform: scale(1.4);
+    }
     .sidebar-submenu .nav-link .nav-link-text {
-      font-size: 0.775rem !important;
+      font-size: 0.76rem !important;
       font-weight: 400 !important;
       letter-spacing: 0.005em;
+      margin-left: 0 !important;
     }
     .sidebar-submenu .nav-link:hover {
-      background-color: rgba(0, 0, 0, 0.035) !important;
-      color: #0f172a !important;
-    }
-
-    /* Submenu icons */
-    .sidebar-submenu .nav-link i,
-    .sidebar-submenu .nav-link .material-symbols-rounded {
-      font-size: 1.05rem !important;
-      width: 18px !important;
-      min-width: 18px !important;
-      height: 18px !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      margin-right: 0.55rem !important;
-      color: #64748b !important;
-      flex-shrink: 0;
+      background-color: rgba(26, 104, 91, 0.06) !important;
+      color: #1a685b !important;
     }
 
     /* Modern active link style */
     #sidenav-main .nav-link.active {
-      background-image: linear-gradient(195deg, #374151 0%, #111827 100%) !important;
-      color: #ffffff !important;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18) !important;
+      background: rgba(26, 104, 91, 0.08) !important;
+      color: #1a685b !important;
+      border-left: 3px solid #1a685b !important;
+      box-shadow: none !important;
     }
-    #sidenav-main .nav-link.active .nav-link-text,
-    #sidenav-main .nav-link.active i,
-    #sidenav-main .nav-link.active .material-symbols-rounded {
-      color: #ffffff !important;
-      opacity: 1 !important;
-      font-weight: 500 !important;
+    #sidenav-main .nav-link.active .nav-link-text {
+      color: #1a685b !important;
+      font-weight: 600 !important;
     }
     #sidenav-main .nav-link.active .badge {
-      background-color: rgba(255, 255, 255, 0.22) !important;
+      background-color: #1a685b !important;
       color: #ffffff !important;
       border: none !important;
       box-shadow: none !important;
@@ -501,9 +552,12 @@
   <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
     <div class="sidenav-header">
       <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-      <a class="navbar-brand px-4 py-3 m-0" href="<?= site_url('admin'); ?>">
-        <img src="<?= base_url(); ?>assetsA/img/ngo-logo.png" class="navbar-brand-img" width="35" height="35" alt="NGO Logo">
-        <span class="ms-1 text-sm text-dark">Website admin</span>
+      <a class="navbar-brand px-3 py-3 m-0 d-flex align-items-center" href="<?= site_url('admin'); ?>">
+        <img src="<?= base_url(); ?>assetsA/img/ngo-logo.png" class="navbar-brand-img rounded-circle me-2" width="34" height="34" alt="NGO Logo">
+        <div class="d-flex flex-column text-start">
+          <span class="text-xs font-weight-bolder text-dark mb-0 lh-1"><?= $is_member_panel ? 'MEMBER PORTAL' : 'SFOI ADMIN'; ?></span>
+          <span class="text-xxs text-muted" style="font-size: 0.65rem; margin-top: 2px;"><?= $is_member_panel ? 'Shaheed Foundation Member' : 'Shaheed Foundation'; ?></span>
+        </div>
       </a>
     </div>
     <hr class="horizontal dark mt-0 mb-2">
@@ -525,9 +579,29 @@
 
       // Dynamic real-time metrics for navigation badges
       $unread_notifications_count = 0;
-      if ($CI->db->table_exists('ngom_notifications')) {
-          $CI->db->where('is_read', 0);
-          $unread_notifications_count = (int) $CI->db->count_all_results('ngom_notifications');
+      $navbar_notifications = array();
+      if ($is_member_panel) {
+          $member_id = (int) $CI->session->userdata('cms_member_id');
+          $CI->load->model('Member_model', 'member_m');
+          $member_record = $member_id > 0 ? $CI->member_m->find_by_id($member_id) : null;
+          if ($member_record) {
+              $member_all_notifs = $CI->member_m->get_member_notifications($member_record);
+              foreach ($member_all_notifs as $item) {
+                  if (!empty($item['is_new'])) {
+                      $unread_notifications_count++;
+                  }
+              }
+              $navbar_notifications = array_slice($member_all_notifs, 0, 5);
+          }
+      } else {
+          if ($CI->db->table_exists('ngom_notifications')) {
+              $CI->db->where('is_read', 0);
+              $unread_notifications_count = (int) $CI->db->count_all_results('ngom_notifications');
+
+              $CI->db->order_by('id', 'DESC');
+              $CI->db->limit(5);
+              $navbar_notifications = $CI->db->get('ngom_notifications')->result_array();
+          }
       }
 
       $pending_members_count = 0;
@@ -741,12 +815,11 @@
 
           <!-- Logout -->
           <li class="nav-item mt-3">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded-lg"
+            <a class="nav-link d-flex align-items-center justify-content-center px-3 py-2 rounded-lg"
                href="javascript:void(0)"
                id="member-logout-btn"
-               style="border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.06); transition: all 0.3s; cursor:pointer;">
-              <i class="material-symbols-rounded" style="font-size:20px; color:#dc3545;">logout</i>
-              <span class="nav-link-text ms-1" style="color:#dc3545; font-size: 0.8rem; font-weight: 500;">Logout</span>
+               style="border: 1px solid rgba(220,53,69,0.3); background: rgba(220,53,69,0.06); transition: all 0.2s; cursor:pointer;">
+              <span class="nav-link-text" style="color:#dc3545; font-size: 0.78rem; font-weight: 500;">Logout</span>
             </a>
           </li>
 
@@ -982,10 +1055,9 @@
 
           <!-- Logout -->
           <li class="nav-item mt-3 mb-2 px-2">
-            <a class="nav-link d-flex align-items-center justify-content-center gap-2 py-2 rounded-3"
+            <a class="nav-link d-flex align-items-center justify-content-center py-2 rounded-3"
                href="<?= site_url('admin/logout'); ?>"
-               style="border: 1px solid rgba(220,53,69,0.25); background: rgba(220,53,69,0.04); font-size: 0.8rem; font-weight: 500; color: #dc3545 !important; transition: all 0.2s;">
-              <i class="material-symbols-rounded" style="font-size: 1.1rem; color: #dc3545; margin: 0 !important; width: auto !important;">logout</i>
+               style="border: 1px solid rgba(220,53,69,0.25); background: rgba(220,53,69,0.04); font-size: 0.78rem; font-weight: 500; color: #dc3545 !important; transition: all 0.2s;">
               <span>Logout</span>
             </a>
           </li>
@@ -995,20 +1067,117 @@
   </aside>
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
-    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
-      <div class="container-fluid py-1 px-3">
-        <!-- <nav aria-label="breadcrumb">
-          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Dashboard</li>
-          </ol>
-        </nav> -->
-        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-          <ul class="navbar-nav ms-md-auto d-flex align-items-center justify-content-end w-100">
-            <li class="nav-item me-2">
-              <a class="btn btn-sm btn-outline-dark mb-0" href="<?= base_url(); ?>" target="_blank" rel="noopener">View website</a>
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
+      <div class="container-fluid py-1 px-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+          <div class="d-inline-flex align-items-center gap-2 px-2 py-1 rounded-pill bg-white border" style="font-size: 0.72rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #10b981; display: inline-block;"></span>
+            <span class="font-weight-600 text-dark">Portal Live</span>
+          </div>
+          <span class="text-xs text-muted d-none d-lg-inline">|</span>
+          <span class="text-xs text-secondary d-none d-lg-inline"><?= date('l, d M Y'); ?></span>
+        </div>
+        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4 justify-content-end" id="navbar">
+          <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto">
+            <li class="nav-item">
+              <a class="btn btn-sm btn-outline-secondary mb-0 d-inline-flex align-items-center gap-1 text-xs px-2 px-sm-3" href="<?= base_url(); ?>" target="_blank" rel="noopener" style="border-radius: 8px; height: 34px;">
+                <i class="material-symbols-rounded text-sm">open_in_new</i>
+                <span class="d-none d-sm-inline">Public Site</span>
+              </a>
             </li>
-            <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+            <li class="nav-item dropdown dropdown-notifications position-relative">
+              <a href="javascript:;" class="btn btn-sm btn-outline-secondary mb-0 position-relative d-inline-flex align-items-center justify-content-center p-0 navbar-notif-btn" id="dropdownMenuNotifications" data-bs-toggle="dropdown" aria-expanded="false" title="Notification Center" style="border-radius: 8px; width: 34px; height: 34px;">
+                <i class="material-symbols-rounded" style="font-size: 19px;">notifications</i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger navbar-notif-badge <?= ($unread_notifications_count > 0) ? '' : 'd-none'; ?>" style="font-size: 0.58rem; padding: 2px 5px; min-width: 17px;">
+                  <?= $unread_notifications_count > 99 ? '99+' : (int)$unread_notifications_count; ?>
+                </span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end px-2 py-2 me-sm-n2 border-0 shadow-lg navbar-notif-dropdown" aria-labelledby="dropdownMenuNotifications" style="width: 320px; border-radius: 14px; border: 1px solid #edf2f7 !important; z-index: 1060;">
+                <li class="d-flex align-items-center justify-content-between px-2 pt-1 pb-2 border-bottom mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="font-weight-bold text-xs text-uppercase text-dark">Notifications</span>
+                    <span class="badge rounded-pill bg-danger text-white navbar-notif-preview-count <?= ($unread_notifications_count > 0) ? '' : 'd-none'; ?>" style="font-size: 0.62rem; padding: 1px 6px;">
+                      <?= (int)$unread_notifications_count; ?> new
+                    </span>
+                  </div>
+                  <a href="<?= $is_member_panel ? site_url('admin/notifications') : site_url('notifications'); ?>" class="text-xs font-weight-bold text-decoration-none" style="color: #1a685b;">View Center</a>
+                </li>
+                <div class="navbar-notif-preview-items" style="max-height: 270px; overflow-y: auto;">
+                  <?php if (empty($navbar_notifications)): ?>
+                    <li class="text-center py-4 text-muted text-xs">
+                      <i class="material-symbols-rounded d-block text-lg mb-1 opacity-5">notifications_paused</i>
+                      <span>No notifications yet</span>
+                    </li>
+                  <?php else: ?>
+                    <?php foreach ($navbar_notifications as $nn): 
+                      $nn_is_unread = isset($nn['is_new']) ? !empty($nn['is_new']) : empty($nn['is_read']);
+                      $nn_title = (string)$nn['title'];
+                      $nn_icon = !empty($nn['icon']) ? $nn['icon'] : 'notifications';
+                      $nn_color = !empty($nn['color']) ? $nn['color'] : '#1a685b';
+                      $nn_msg = !empty($nn['message']) ? $nn['message'] : (!empty($nn['body']) ? $nn['body'] : '');
+                      if (empty($nn['icon'])) {
+                        if (stripos($nn_title, 'donation') !== false || stripos($nn_msg, 'receipt') !== false) {
+                          $nn_icon = 'payments';
+                          $nn_color = '#059669';
+                        } elseif (stripos($nn_title, 'member') !== false) {
+                          $nn_icon = 'person_add';
+                          $nn_color = '#0284c7';
+                        }
+                      }
+                      $nn_time = !empty($nn['time']) ? $nn['time'] : (isset($nn['created_at']) ? date('d M, h:i A', strtotime($nn['created_at'])) : 'Recent');
+                      if (!empty($nn['created_at']) && empty($nn['time'])) {
+                        $diff = time() - strtotime($nn['created_at']);
+                        if ($diff < 60) $nn_time = 'Just now';
+                        elseif ($diff < 3600) $nn_time = floor($diff / 60) . 'm ago';
+                        elseif ($diff < 86400) $nn_time = floor($diff / 3600) . 'h ago';
+                        elseif ($diff < 172800) $nn_time = 'Yesterday';
+                      }
+                      $nn_default_center = $is_member_panel ? 'admin/notifications' : 'notifications';
+                      $nn_link = !empty($nn['link']) ? (filter_var($nn['link'], FILTER_VALIDATE_URL) ? $nn['link'] : site_url($nn['link'])) : site_url($nn_default_center);
+                    ?>
+                      <li class="mb-1">
+                        <a class="dropdown-item border-radius-md p-2 d-flex align-items-start gap-2 text-wrap <?= $nn_is_unread ? 'bg-light font-weight-bold' : ''; ?>" href="<?= html_escape($nn_link); ?>" style="border-radius: 8px; transition: background 0.15s ease;">
+                          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1" style="width: 28px; height: 28px; background: <?= $nn_color; ?>18; color: <?= $nn_color; ?>;">
+                            <i class="material-symbols-rounded" style="font-size: 16px;"><?= $nn_icon; ?></i>
+                          </div>
+                          <div class="flex-grow-1 min-w-0">
+                            <div class="d-flex align-items-center justify-content-between gap-1">
+                              <h6 class="text-xs font-weight-bold mb-0 text-dark text-truncate" style="max-width: 160px;">
+                                <?= html_escape($nn_title); ?>
+                              </h6>
+                              <span class="text-xxs text-muted flex-shrink-0"><?= $nn_time; ?></span>
+                            </div>
+                            <p class="text-xxs text-secondary mb-0 text-truncate" style="max-width: 210px; line-height: 1.3;">
+                              <?= html_escape($nn_msg); ?>
+                            </p>
+                          </div>
+                          <?php if ($nn_is_unread): ?>
+                            <span class="badge rounded-circle p-1 bg-danger flex-shrink-0 mt-2" style="width: 6px; height: 6px;" title="New"></span>
+                          <?php endif; ?>
+                        </a>
+                      </li>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
+                </div>
+                <li class="pt-2 border-top text-center mt-1">
+                  <a href="<?= $is_member_panel ? site_url('admin/notifications') : site_url('notifications'); ?>" class="btn btn-xs btn-outline-dark mb-0 w-100 py-1" style="border-radius: 6px;">
+                    <span>Open Notification Center</span>
+                    <i class="material-symbols-rounded text-xxs ms-1">arrow_forward</i>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a href="<?= site_url('admin/profile'); ?>" class="d-inline-flex align-items-center gap-2 px-2 py-1 rounded-pill bg-white border text-decoration-none admin-profile-pill" style="height: 34px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);" title="<?= $is_member_panel ? 'View Member Profile' : 'View Administrator Profile'; ?>">
+                <span class="rounded-circle text-white d-inline-flex align-items-center justify-content-center font-weight-bold" style="width: 24px; height: 24px; font-size: 0.68rem; background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%);">
+                  <?= strtoupper(substr($CI->session->userdata('cms_admin_name') ?: 'A', 0, 1)); ?>
+                </span>
+                <span class="text-xs font-weight-bold text-dark d-none d-md-inline pe-1">
+                  <?= html_escape($CI->session->userdata('cms_admin_name') ?: ($is_member_panel ? 'Member' : 'Administrator')); ?>
+                </span>
+              </a>
+            </li>
+            <li class="nav-item d-xl-none ps-2 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
                 <div class="sidenav-toggler-inner">
                   <i class="sidenav-toggler-line"></i>
@@ -1033,286 +1202,362 @@
   <script src="<?= base_url(); ?>assetsA/js/plugins/smooth-scrollbar.min.js"></script>
   <script src="<?= base_url(); ?>assetsA/js/plugins/chartjs.min.js"></script>
   <script>
-  (function () {
+  (function() {
+    // Shared chart formatting and gradient helpers
+    function createVerticalGradient(colorTop, colorBottom) {
+      return function(context) {
+        var chart = context.chart;
+        var ctx = chart.ctx;
+        var chartArea = chart.chartArea;
+        if (!chartArea) {
+          return colorTop;
+        }
+        var gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+        gradient.addColorStop(0, colorTop);
+        gradient.addColorStop(1, colorBottom);
+        return gradient;
+      };
+    }
+
+    function createTooltipConfig(labelFormatter) {
+      return {
+        backgroundColor: "#0f172a",
+        titleColor: "#ffffff",
+        bodyColor: "#e2e8f0",
+        borderColor: "rgba(255, 255, 255, 0.08)",
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: { top: 8, bottom: 8, left: 12, right: 12 },
+        displayColors: false,
+        titleFont: {
+          size: 11,
+          weight: "600",
+          family: "'Inter', -apple-system, sans-serif"
+        },
+        bodyFont: {
+          size: 12,
+          weight: "500",
+          family: "'Inter', -apple-system, sans-serif"
+        },
+        callbacks: {
+          title: function(items) {
+            return items && items[0] ? items[0].label : "";
+          },
+          label: labelFormatter
+        }
+      };
+    }
+
+    function formatCurrencyTick(value) {
+      if (value < 0) return "";
+      if (value === 0) return "₹0";
+      if (value >= 100000) {
+        var l = value / 100000;
+        return "₹" + (l % 1 === 0 ? l : l.toFixed(1)) + "L";
+      }
+      if (value >= 1000) {
+        var k = value / 1000;
+        return "₹" + (k % 1 === 0 ? k : k.toFixed(1)) + "k";
+      }
+      return "₹" + value;
+    }
+
+    // --- 1. Member Registrations Bar Chart ---
     var el1 = document.getElementById("chart-bars");
-    if (!el1) return;
-    var ctx = el1.getContext("2d");
-    var labels1 = ["M", "T", "W", "T", "F", "S", "S"];
-    var data1 = [0, 0, 0, 0, 0, 0, 0];
-    try {
-      if (el1.dataset.labels) labels1 = JSON.parse(el1.dataset.labels);
-      if (el1.dataset.values) data1 = JSON.parse(el1.dataset.values);
-    } catch(e) {}
+    if (el1) {
+      var ctx1 = el1.getContext("2d");
+      var labels1 = ["M", "T", "W", "T", "F", "S", "S"];
+      var data1 = [0, 0, 0, 0, 0, 0, 0];
+      try {
+        if (el1.dataset.labels) labels1 = JSON.parse(el1.dataset.labels);
+        if (el1.dataset.values) data1 = JSON.parse(el1.dataset.values);
+      } catch(e) {}
 
-    var maxVal = Math.max.apply(null, data1);
-    var suggestedMax = maxVal > 10 ? Math.ceil(maxVal * 1.25) : 10;
+      var maxVal1 = Math.max.apply(null, data1);
+      var suggestedMax1 = maxVal1 > 5 ? Math.ceil(maxVal1 * 1.25) : 6;
 
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: labels1,
-        datasets: [{
-          label: "Members",
-          tension: 0.4,
-          borderWidth: 0,
-          borderRadius: 4,
-          borderSkipped: false,
-          backgroundColor: "#43A047",
-          data: data1,
-          barThickness: 'flex'
-        }, ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          }
+      new Chart(ctx1, {
+        type: "bar",
+        data: {
+          labels: labels1,
+          datasets: [{
+            label: "Members",
+            borderWidth: 0,
+            borderRadius: 6,
+            borderSkipped: false,
+            backgroundColor: createVerticalGradient("rgba(26, 104, 91, 0.95)", "rgba(26, 104, 91, 0.40)"),
+            hoverBackgroundColor: "#134e4a",
+            data: data1,
+            barThickness: 16,
+            maxBarThickness: 22
+          }]
         },
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        scales: {
-          y: {
-            grid: {
-              drawBorder: false,
-              display: true,
-              drawOnChartArea: true,
-              drawTicks: false,
-              borderDash: [5, 5],
-              color: '#e5e5e5'
-            },
-            ticks: {
-              suggestedMin: 0,
-              suggestedMax: suggestedMax,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: createTooltipConfig(function(context) {
+              var count = Number(context.raw || 0);
+              return count + (count === 1 ? " member registered" : " members registered");
+            })
+          },
+          interaction: {
+            intersect: false,
+            mode: "index"
+          },
+          scales: {
+            y: {
+              min: 0,
               beginAtZero: true,
-              stepSize: 1,
-              padding: 10,
-              font: {
-                size: 13,
-                lineHeight: 2
+              suggestedMin: 0,
+              suggestedMax: suggestedMax1,
+              grid: {
+                drawBorder: false,
+                display: true,
+                drawOnChartArea: true,
+                drawTicks: false,
+                borderDash: [4, 4],
+                color: "#f1f5f9"
               },
-              color: "#737373"
+              ticks: {
+                precision: 0,
+                stepSize: 1,
+                padding: 8,
+                font: {
+                  size: 11,
+                  weight: "500",
+                  family: "'Inter', -apple-system, sans-serif"
+                },
+                color: "#94a3b8"
+              }
             },
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              display: false,
-              drawOnChartArea: false,
-              drawTicks: false,
-              borderDash: [5, 5]
-            },
-            ticks: {
-              display: true,
-              color: '#737373',
-              padding: 10,
-              font: {
-                size: 12,
-                lineHeight: 2
+            x: {
+              grid: {
+                drawBorder: false,
+                display: false,
+                drawOnChartArea: false,
+                drawTicks: false
               },
-            }
-          },
-        },
-      },
-    });
-  })();
-
-  (function () {
-    var el2 = document.getElementById("chart-line");
-    if (!el2) return;
-    var ctx2 = el2.getContext("2d");
-    var labels2 = ["Apr", "May", "Jun", "Jul", "Aug", "Sep"];
-    var data2 = [0, 0, 0, 0, 0, 0];
-    try {
-      if (el2.dataset.labels) labels2 = JSON.parse(el2.dataset.labels);
-      if (el2.dataset.values) data2 = JSON.parse(el2.dataset.values);
-    } catch(e) {}
-
-    var maxVal2 = Math.max.apply(null, data2);
-    var suggestedMax2 = maxVal2 > 1000 ? Math.ceil(maxVal2 * 1.2) : 5000;
-
-    new Chart(ctx2, {
-      type: "line",
-      data: {
-        labels: labels2,
-        datasets: [{
-          label: "Donations (₹)",
-          tension: 0.3,
-          borderWidth: 2,
-          pointRadius: 4,
-          pointBackgroundColor: "#0d6efd",
-          pointBorderColor: "#ffffff",
-          borderColor: "#0d6efd",
-          backgroundColor: "rgba(13, 110, 253, 0.08)",
-          fill: true,
-          data: data2,
-          maxBarThickness: 6
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return "Donations: ₹" + Number(context.raw).toLocaleString('en-IN');
+              ticks: {
+                display: true,
+                color: "#94a3b8",
+                padding: 6,
+                font: {
+                  size: 11,
+                  weight: "500",
+                  family: "'Inter', -apple-system, sans-serif"
+                }
               }
             }
           }
-        },
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        scales: {
-          y: {
-            grid: {
-              drawBorder: false,
-              display: true,
-              drawOnChartArea: true,
-              drawTicks: false,
-              borderDash: [4, 4],
-              color: '#e5e5e5'
+        }
+      });
+    }
+
+    // --- 2. Monthly Donations Line Chart ---
+    var el2 = document.getElementById("chart-line");
+    if (el2) {
+      var ctx2 = el2.getContext("2d");
+      var labels2 = ["Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+      var data2 = [0, 0, 0, 0, 0, 0];
+      try {
+        if (el2.dataset.labels) labels2 = JSON.parse(el2.dataset.labels);
+        if (el2.dataset.values) data2 = JSON.parse(el2.dataset.values);
+      } catch(e) {}
+
+      var maxVal2 = Math.max.apply(null, data2);
+      var suggestedMax2 = maxVal2 > 500 ? Math.ceil(maxVal2 * 1.2) : 1000;
+
+      new Chart(ctx2, {
+        type: "line",
+        data: {
+          labels: labels2,
+          datasets: [{
+            label: "Donations (₹)",
+            tension: 0.42,
+            borderWidth: 2.5,
+            borderColor: "#0d9488",
+            backgroundColor: function(context) {
+              var chart = context.chart;
+              var ctx = chart.ctx;
+              var chartArea = chart.chartArea;
+              if (!chartArea) return "rgba(13, 148, 136, 0.1)";
+              var gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, "rgba(13, 148, 136, 0.30)");
+              gradient.addColorStop(0.7, "rgba(13, 148, 136, 0.06)");
+              gradient.addColorStop(1, "rgba(13, 148, 136, 0.00)");
+              return gradient;
             },
-            ticks: {
-              display: true,
-              color: '#737373',
+            fill: true,
+            pointRadius: 3.5,
+            pointHoverRadius: 6.5,
+            pointBackgroundColor: "#ffffff",
+            pointHoverBackgroundColor: "#0d9488",
+            pointBorderColor: "#0d9488",
+            pointHoverBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 2.5,
+            data: data2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: createTooltipConfig(function(context) {
+              var val = Number(context.raw || 0);
+              return "Donations: ₹" + val.toLocaleString("en-IN");
+            })
+          },
+          interaction: {
+            intersect: false,
+            mode: "index"
+          },
+          scales: {
+            y: {
+              min: 0,
+              beginAtZero: true,
               suggestedMin: 0,
               suggestedMax: suggestedMax2,
-              padding: 10,
-              callback: function(value) {
-                return '₹' + (value >= 1000 ? (value / 1000) + 'k' : value);
+              grid: {
+                drawBorder: false,
+                display: true,
+                drawOnChartArea: true,
+                drawTicks: false,
+                borderDash: [4, 4],
+                color: "#f1f5f9"
               },
-              font: {
-                size: 12,
-                lineHeight: 2
-              },
-            }
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              display: false,
-              drawOnChartArea: false,
-              drawTicks: false,
-              borderDash: [5, 5]
+              ticks: {
+                display: true,
+                color: "#94a3b8",
+                precision: 0,
+                padding: 8,
+                callback: formatCurrencyTick,
+                font: {
+                  size: 11,
+                  weight: "500",
+                  family: "'Inter', -apple-system, sans-serif"
+                }
+              }
             },
-            ticks: {
-              display: true,
-              color: '#737373',
-              padding: 10,
-              font: {
-                size: 12,
-                lineHeight: 2
+            x: {
+              grid: {
+                drawBorder: false,
+                display: false,
+                drawOnChartArea: false,
+                drawTicks: false
               },
-            }
-          },
-        },
-      },
-    });
-  })();
-
-  (function () {
-    var el3 = document.getElementById("chart-line-tasks");
-    if (!el3) return;
-    var ctx3 = el3.getContext("2d");
-    var labels3 = ["Support", "Medical", "Education"];
-    var data3 = [0, 0, 0];
-    try {
-      if (el3.dataset.labels) labels3 = JSON.parse(el3.dataset.labels);
-      if (el3.dataset.values) data3 = JSON.parse(el3.dataset.values);
-    } catch(e) {}
-
-    var maxVal3 = Math.max.apply(null, data3);
-    var suggestedMax3 = maxVal3 > 1000 ? Math.ceil(maxVal3 * 1.2) : 10000;
-
-    new Chart(ctx3, {
-      type: "bar",
-      data: {
-        labels: labels3,
-        datasets: [{
-          label: "Raised (₹)",
-          tension: 0,
-          borderWidth: 0,
-          borderRadius: 4,
-          borderSkipped: false,
-          backgroundColor: "#e91e63",
-          data: data3,
-          barThickness: 'flex'
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return "Raised: ₹" + Number(context.raw).toLocaleString('en-IN');
+              ticks: {
+                display: true,
+                color: "#94a3b8",
+                padding: 6,
+                font: {
+                  size: 11,
+                  weight: "500",
+                  family: "'Inter', -apple-system, sans-serif"
+                }
               }
             }
           }
+        }
+      });
+    }
+
+    // --- 3. Campaign Raised Bar Chart ---
+    var el3 = document.getElementById("chart-line-tasks");
+    if (el3) {
+      var ctx3 = el3.getContext("2d");
+      var labels3 = ["Support", "Medical", "Education"];
+      var data3 = [0, 0, 0];
+      try {
+        if (el3.dataset.labels) labels3 = JSON.parse(el3.dataset.labels);
+        if (el3.dataset.values) data3 = JSON.parse(el3.dataset.values);
+      } catch(e) {}
+
+      var maxVal3 = Math.max.apply(null, data3);
+      var suggestedMax3 = maxVal3 > 500 ? Math.ceil(maxVal3 * 1.2) : 1000;
+
+      new Chart(ctx3, {
+        type: "bar",
+        data: {
+          labels: labels3,
+          datasets: [{
+            label: "Raised (₹)",
+            borderWidth: 0,
+            borderRadius: 6,
+            borderSkipped: false,
+            backgroundColor: createVerticalGradient("rgba(245, 158, 11, 0.95)", "rgba(217, 119, 6, 0.45)"),
+            hoverBackgroundColor: "#b45309",
+            data: data3,
+            barThickness: 18,
+            maxBarThickness: 24
+          }]
         },
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        scales: {
-          y: {
-            grid: {
-              drawBorder: false,
-              display: true,
-              drawOnChartArea: true,
-              drawTicks: false,
-              borderDash: [4, 4],
-              color: '#e5e5e5'
-            },
-            ticks: {
-              display: true,
-              color: '#737373',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: createTooltipConfig(function(context) {
+              var val = Number(context.raw || 0);
+              return "Raised: ₹" + val.toLocaleString("en-IN");
+            })
+          },
+          interaction: {
+            intersect: false,
+            mode: "index"
+          },
+          scales: {
+            y: {
+              min: 0,
+              beginAtZero: true,
               suggestedMin: 0,
               suggestedMax: suggestedMax3,
-              padding: 10,
-              callback: function(value) {
-                return '₹' + (value >= 1000 ? (value / 1000) + 'k' : value);
+              grid: {
+                drawBorder: false,
+                display: true,
+                drawOnChartArea: true,
+                drawTicks: false,
+                borderDash: [4, 4],
+                color: "#f1f5f9"
               },
-              font: {
-                size: 12,
-                lineHeight: 2
-              },
-            }
-          },
-          x: {
-            grid: {
-              drawBorder: false,
-              display: false,
-              drawOnChartArea: false,
-              drawTicks: false,
-              borderDash: [5, 5]
+              ticks: {
+                display: true,
+                color: "#94a3b8",
+                precision: 0,
+                padding: 8,
+                callback: formatCurrencyTick,
+                font: {
+                  size: 11,
+                  weight: "500",
+                  family: "'Inter', -apple-system, sans-serif"
+                }
+              }
             },
-            ticks: {
-              display: true,
-              color: '#737373',
-              padding: 10,
-              font: {
-                size: 11,
-                lineHeight: 2
+            x: {
+              grid: {
+                drawBorder: false,
+                display: false,
+                drawOnChartArea: false,
+                drawTicks: false
               },
+              ticks: {
+                display: true,
+                color: "#94a3b8",
+                padding: 6,
+                font: {
+                  size: 11,
+                  weight: "500",
+                  family: "'Inter', -apple-system, sans-serif"
+                }
+              }
             }
-          },
-        },
-      },
-    });
+          }
+        }
+      });
+    }
   })();
   </script>
   <script>
@@ -1421,17 +1666,19 @@
       // Step 3: Background live unread poller (updates badges dynamically)
       function syncLiveSidebarBadges() {
         if (typeof base_url === 'undefined') return;
-        fetch(base_url + 'notifications/unread_count', {
+        var notifUrl = <?= $is_member_panel ? "base_url + 'admin/member_unread_count'" : "base_url + 'notifications/unread_count'"; ?>;
+        fetch(notifUrl, {
           headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (!data || data.status !== 'ok') return;
 
-          // Upper Notifications badge
+          var count = parseInt(<?= $is_member_panel ? "data.unread_count" : "data.unread_notifications"; ?>, 10) || 0;
+
+          // Upper Sidebar Notifications badge
           var notifBadge = document.querySelector('.notif-badge');
           if (notifBadge) {
-            var count = parseInt(data.unread_notifications, 10) || 0;
             if (count > 0) {
               notifBadge.textContent = count;
               notifBadge.classList.remove('d-none');
@@ -1440,7 +1687,28 @@
             }
           }
 
-          // People header badge
+          // Top Navbar Notifications badge and preview count
+          var navbarBadge = document.querySelector('.navbar-notif-badge');
+          var navbarPreviewBadge = document.querySelector('.navbar-notif-preview-count');
+          if (navbarBadge) {
+            if (count > 0) {
+              navbarBadge.textContent = count > 99 ? '99+' : count;
+              navbarBadge.classList.remove('d-none');
+            } else {
+              navbarBadge.classList.add('d-none');
+            }
+          }
+          if (navbarPreviewBadge) {
+            if (count > 0) {
+              navbarPreviewBadge.textContent = count + ' new';
+              navbarPreviewBadge.classList.remove('d-none');
+            } else {
+              navbarPreviewBadge.classList.add('d-none');
+            }
+          }
+
+          <?php if (!$is_member_panel): ?>
+          // People header badge (Admin only)
           var peopleBadge = document.querySelector('.people-toggle-badge');
           var peopleCollapse = document.querySelector('#collapseSectionPeople');
           if (peopleBadge) {
@@ -1452,6 +1720,7 @@
               peopleBadge.classList.add('d-none');
             }
           }
+          <?php endif; ?>
         })
         .catch(function() {});
       }

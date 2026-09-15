@@ -2,7 +2,7 @@
 <div class="container-fluid py-4 min-vh-80">
     <div class="row align-items-center mb-4 g-3">
         <div class="col-md-6">
-            <h4 class="mb-0 font-weight-bolder text-dark">Photo Gallery 🖼️</h4>
+            <h4 class="mb-0 font-weight-bolder text-dark">Photo Gallery</h4>
             <p class="text-sm text-muted mb-0">Manage visual memories of your events, campaigns, and social work.</p>
         </div>
         <div class="col-md-6 text-md-end">
@@ -80,7 +80,7 @@
 
 <style>
     .gallery-item:hover .hover-overlay { opacity: 1 !important; }
-    .gallery-item:hover .position-relative { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    .gallery-item:hover .position-relative { box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important; }
     .bg-gradient-primary { background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%); border:0; }
 </style>
 

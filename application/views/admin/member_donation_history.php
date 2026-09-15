@@ -87,8 +87,8 @@
 </div>
 
 <style>
-.bg-gradient-indigo { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-.text-indigo { color: #4f46e5 !important; }
-.btn-indigo { background-color: #4f46e5; color: #fff; }
-.shadow-primary { box-shadow: 0 4px 6px rgba(79, 70, 229, 0.4); }
+.bg-gradient-indigo { background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); }
+.text-indigo { color: #1a685b !important; }
+.btn-indigo { background-color: #1a685b; color: #fff; }
+.shadow-primary { box-shadow: 0 4px 6px rgba(26, 104, 91, 0.3); }
 </style>

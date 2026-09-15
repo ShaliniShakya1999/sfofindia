@@ -18,7 +18,7 @@ $tab_defs = array(
 	'campaigns' => array('label' => 'Campaigns', 'icon' => 'campaign'),
 	'audit' => array('label' => 'Audit reports', 'icon' => 'description'),
 	'users' => array('label' => 'CMS users', 'icon' => 'group'),
-	'web_update' => array('label' => 'Web update ⚙️', 'icon' => 'settings'),
+	'web_update' => array('label' => 'Web update', 'icon' => 'settings'),
 );
 
 $is_member = ($cms_role === 'member');

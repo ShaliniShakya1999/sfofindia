@@ -331,4 +331,302 @@ class Member_model extends CI_Model {
 			'payment_receipt' => $data['payment_id'],
 		));
 	}
+
+	/**
+	 * Returns unified list of notifications belonging specifically to a member.
+	 * Admin-access notifications (ngom_notifications) are strictly excluded.
+	 *
+	 * @param array $member
+	 * @param int|null $limit
+	 * @return array
+	 */
+	public function get_member_notifications($member, $limit = null)
+	{
+		if (empty($member) || !is_array($member)) {
+			return array();
+		}
+
+		$notifications = array();
+
+		// 1. Birthday greeting
+		if (!empty($member['dob']) && $member['dob'] !== '0000-00-00') {
+			if (date('m-d', strtotime($member['dob'])) === date('m-d')) {
+				$notifications[] = array(
+					'id'             => 'bday',
+					'category'       => 'account',
+					'category_label' => 'BIRTHDAY',
+					'icon'           => 'cake',
+					'color'          => '#f59e0b',
+					'badge_bg'       => '#fef3c7',
+					'title'          => 'Happy Birthday, ' . ($member['name'] ?? 'Member') . '! 🎂',
+					'body'           => 'On behalf of Shaheed Foundation of India, we wish you a joyous, blessed, and victorious birthday!',
+					'message'        => 'On behalf of Shaheed Foundation of India, we wish you a joyous, blessed, and victorious birthday!',
+					'time'           => 'Today',
+					'link'           => site_url('admin/profile'),
+					'link_text'      => 'View Profile',
+					'is_new'         => true,
+					'is_read'        => 0,
+					'sort_time'      => time() + 500,
+					'created_at'     => date('Y-m-d H:i:s'),
+				);
+			}
+		}
+
+		// 2. Member Official E-ID Card
+		$notifications[] = array(
+			'id'             => 'doc_id_card',
+			'category'       => 'account',
+			'category_label' => 'E-IDENTITY CARD',
+			'icon'           => 'badge',
+			'color'          => '#0d9488',
+			'badge_bg'       => '#ccfbf1',
+			'title'          => 'Official Member E-Identity Card Ready',
+			'body'           => 'Your authenticated Shaheed Foundation Identity Card is ready to download and print. Keep it with you during official foundation activities.',
+			'message'        => 'Your authenticated Shaheed Foundation Identity Card is ready to download and print.',
+			'time'           => 'Instant Access',
+			'link'           => site_url('admin/member_document/id-card'),
+			'link_text'      => 'Download ID Card',
+			'is_new'         => false,
+			'is_read'        => 1,
+			'sort_time'      => strtotime($member['verified_at'] ?? ($member['joining_date'] ?? 'now')),
+			'created_at'     => !empty($member['verified_at']) ? $member['verified_at'] : (!empty($member['joining_date']) ? $member['joining_date'] : date('Y-m-d H:i:s')),
+		);
+
+		// 3. Member Official Appointment Letter
+		$notifications[] = array(
+			'id'             => 'doc_appointment',
+			'category'       => 'account',
+			'category_label' => 'APPOINTMENT',
+			'icon'           => 'assignment_turned_in',
+			'color'          => '#2563eb',
+			'badge_bg'       => '#dbeafe',
+			'title'          => 'Member Appointment Letter Available',
+			'body'           => 'Access your official appointment documentation confirming your role and volunteer authority.',
+			'message'        => 'Access your official appointment documentation confirming your role and volunteer authority.',
+			'time'           => 'Available',
+			'link'           => site_url('admin/member_document/appointment-letter'),
+			'link_text'      => 'View Appointment Letter',
+			'is_new'         => false,
+			'is_read'        => 1,
+			'sort_time'      => strtotime($member['verified_at'] ?? ($member['joining_date'] ?? 'now')) - 10,
+			'created_at'     => !empty($member['verified_at']) ? $member['verified_at'] : (!empty($member['joining_date']) ? $member['joining_date'] : date('Y-m-d H:i:s')),
+		);
+
+		// 4. Membership Profile Active & Verified
+		$member_code = !empty($member['member_id_code']) ? $member['member_id_code'] : (!empty($member['member_user_id']) ? $member['member_user_id'] : 'MBR000' . $member['id']);
+		$notifications[] = array(
+			'id'             => 'account_verified',
+			'category'       => 'account',
+			'category_label' => 'MEMBERSHIP',
+			'icon'           => 'verified',
+			'color'          => '#1a685b',
+			'badge_bg'       => '#e6f0ee',
+			'title'          => 'Membership Profile Verified & Active',
+			'body'           => 'Welcome to Shaheed Foundation of India! Your member ID is ' . $member_code . '. Thank you for standing with our nation\'s heroes.',
+			'message'        => 'Welcome to Shaheed Foundation of India! Member ID: ' . $member_code,
+			'time'           => !empty($member['verified_at']) ? date('d M Y', strtotime($member['verified_at'])) : (!empty($member['joining_date']) ? date('d M Y', strtotime($member['joining_date'])) : 'Recently'),
+			'link'           => site_url('admin/profile'),
+			'link_text'      => 'My Profile',
+			'is_new'         => false,
+			'is_read'        => 1,
+			'sort_time'      => strtotime($member['verified_at'] ?? ($member['joining_date'] ?? 'now')) - 20,
+			'created_at'     => !empty($member['verified_at']) ? $member['verified_at'] : (!empty($member['joining_date']) ? $member['joining_date'] : date('Y-m-d H:i:s')),
+		);
+
+		// 5. Membership Validity / Renewal Alert
+		if (!empty($member['validity_end'])) {
+			$v_end = strtotime($member['validity_end']);
+			if ($v_end < time()) {
+				$notifications[] = array(
+					'id'             => 'validity_alert',
+					'category'       => 'account',
+					'category_label' => 'ACTION REQUIRED',
+					'icon'           => 'warning',
+					'color'          => '#dc2626',
+					'badge_bg'       => '#fee2e2',
+					'title'          => 'Membership Renewal Required',
+					'body'           => 'Your membership expired on ' . date('d M Y', $v_end) . '. Renew your membership now to continue accessing benefits.',
+					'message'        => 'Your membership expired on ' . date('d M Y', $v_end) . '. Renew now to continue accessing benefits.',
+					'time'           => 'Expired',
+					'link'           => site_url('admin/renew'),
+					'link_text'      => 'Renew Membership',
+					'is_new'         => true,
+					'is_read'        => 0,
+					'sort_time'      => time() + 1000,
+					'created_at'     => date('Y-m-d H:i:s'),
+				);
+			} else {
+				$days_left = ceil(($v_end - time()) / 86400);
+				$notifications[] = array(
+					'id'             => 'validity_notice',
+					'category'       => 'account',
+					'category_label' => 'VALIDITY',
+					'icon'           => 'verified_user',
+					'color'          => '#0284c7',
+					'badge_bg'       => '#e0f2fe',
+					'title'          => 'Membership Valid (' . $days_left . ' days remaining)',
+					'body'           => 'Your annual membership is active and valid until ' . date('d M Y', $v_end) . '.',
+					'message'        => 'Annual membership active and valid until ' . date('d M Y', $v_end) . '.',
+					'time'           => 'Until ' . date('d M Y', $v_end),
+					'link'           => site_url('admin/profile'),
+					'link_text'      => 'View Details',
+					'is_new'         => false,
+					'is_read'        => 1,
+					'sort_time'      => $v_end - (300 * 86400),
+					'created_at'     => $member['validity_start'] ?? date('Y-m-d H:i:s'),
+				);
+			}
+		}
+
+		// 6. Member's Own Donations (Strictly belonging to this member's email)
+		$email = isset($member['email']) ? trim($member['email']) : '';
+		if ($email !== '' && $this->db->table_exists('donations')) {
+			$this->db->where('email', $email);
+			$this->db->where('status', 'paid');
+			$this->db->order_by('id', 'DESC');
+			$recent_donations = $this->db->get('donations', 10)->result_array();
+			foreach ($recent_donations as $don) {
+				$don_amt = '₹' . number_format((float)$don['amount'], 2);
+				$is_new_don = (time() - strtotime($don['created_at'])) < 86400 * 7;
+				$notifications[] = array(
+					'id'             => 'don_' . $don['id'],
+					'category'       => 'donations',
+					'category_label' => 'DONATION',
+					'icon'           => 'payments',
+					'color'          => '#16a34a',
+					'badge_bg'       => '#dcfce7',
+					'title'          => 'Donation Contribution Received (' . $don_amt . ')',
+					'body'           => 'Your contribution of ' . $don_amt . ' was received successfully. Receipt No: ' . $don['receipt_no'] . '. Thank you for supporting our welfare programs!',
+					'message'        => 'Your contribution of ' . $don_amt . ' received. Receipt #' . $don['receipt_no'],
+					'time'           => date('d M Y, h:i A', strtotime($don['created_at'])),
+					'link'           => site_url('admin/donation_history'),
+					'link_text'      => 'Donation History',
+					'is_new'         => $is_new_don,
+					'is_read'        => $is_new_don ? 0 : 1,
+					'sort_time'      => strtotime($don['created_at']),
+					'created_at'     => $don['created_at'],
+				);
+			}
+		}
+
+		// 7. Active Causes & Fundraising Campaigns (Beneficial for members)
+		if ($this->db->table_exists('ngom_campaigns')) {
+			$this->db->where('status', 'active');
+			$this->db->order_by('id', 'DESC');
+			$campaigns = $this->db->get('ngom_campaigns', 5)->result_array();
+			foreach ($campaigns as $camp) {
+				$goal_txt = !empty($camp['goal_amount']) ? '₹' . number_format((float)$camp['goal_amount'], 0) : 'Fundraising Goal';
+				$raised_txt = !empty($camp['raised_display']) ? $camp['raised_display'] : 'Active';
+				$raw_desc = strip_tags($camp['description'] ?? '');
+				$short_desc = mb_substr($raw_desc, 0, 130);
+				if (mb_strlen($raw_desc) > 130) $short_desc .= '...';
+
+				$created_ts = !empty($camp['created_at']) ? strtotime($camp['created_at']) : time();
+				$is_new_camp = (time() - $created_ts) < (86400 * 14);
+
+				$notifications[] = array(
+					'id'             => 'camp_' . $camp['id'],
+					'category'       => 'campaigns',
+					'category_label' => 'NEW CAMPAIGN',
+					'icon'           => 'volunteer_activism',
+					'color'          => '#f59e0b',
+					'badge_bg'       => '#fef3c7',
+					'title'          => 'Active Cause: ' . $camp['title'],
+					'body'           => 'Target: ' . $goal_txt . ' (Raised: ' . $raised_txt . ') • ' . $short_desc,
+					'message'        => 'Target: ' . $goal_txt . ' (Raised: ' . $raised_txt . ')',
+					'time'           => !empty($camp['created_at']) ? date('d M Y', strtotime($camp['created_at'])) : 'Active Initiative',
+					'link'           => site_url('admin/campaigns'),
+					'link_text'      => 'Support Campaign',
+					'is_new'         => $is_new_camp,
+					'is_read'        => $is_new_camp ? 0 : 1,
+					'sort_time'      => $created_ts,
+					'created_at'     => !empty($camp['created_at']) ? $camp['created_at'] : date('Y-m-d H:i:s'),
+				);
+			}
+		}
+
+		// 8. Upcoming Foundation Events & Programs (Beneficial for members)
+		if ($this->db->table_exists('ngom_events')) {
+			$this->db->order_by('event_date', 'ASC');
+			$events = $this->db->get('ngom_events', 5)->result_array();
+			foreach ($events as $evt) {
+				$event_date_txt = !empty($evt['event_date']) ? date('d M Y', strtotime($evt['event_date'])) : 'Upcoming';
+				$raw_body = strip_tags($evt['body'] ?? '');
+				$short_body = mb_substr($raw_body, 0, 130);
+				if (mb_strlen($raw_body) > 130) $short_body .= '...';
+
+				$evt_ts = !empty($evt['event_date']) ? strtotime($evt['event_date']) : time();
+				$is_upcoming = $evt_ts >= (time() - 86400);
+
+				$notifications[] = array(
+					'id'             => 'evt_' . $evt['id'],
+					'category'       => 'events',
+					'category_label' => 'UPCOMING EVENT',
+					'icon'           => 'event_available',
+					'color'          => '#6366f1',
+					'badge_bg'       => '#ede9fe',
+					'title'          => 'Program Scheduled: ' . $evt['title'],
+					'body'           => 'Date: ' . $event_date_txt . ' • ' . $short_body,
+					'message'        => 'Date: ' . $event_date_txt . ' • ' . $short_body,
+					'time'           => $event_date_txt,
+					'link'           => site_url('admin/events'),
+					'link_text'      => 'Event Details',
+					'is_new'         => $is_upcoming,
+					'is_read'        => $is_upcoming ? 0 : 1,
+					'sort_time'      => $evt_ts,
+					'created_at'     => !empty($evt['created_at']) ? $evt['created_at'] : date('Y-m-d H:i:s'),
+				);
+			}
+		}
+
+		// 9. Latest Foundation Announcements & Blog Articles (Beneficial for members)
+		if ($this->db->table_exists('blog')) {
+			$this->db->where('status', 'Active');
+			$this->db->order_by('id', 'DESC');
+			$articles = $this->db->get('blog', 5)->result_array();
+			foreach ($articles as $art) {
+				$art_date = !empty($art['postedDate']) ? date('d M Y', strtotime($art['postedDate'])) : (!empty($art['creationDate']) ? date('d M Y', strtotime($art['creationDate'])) : 'Recent');
+				$raw_text = strip_tags($art['description'] ?? ($art['heading'] ?? ''));
+				$short_text = mb_substr($raw_text, 0, 130);
+				if (mb_strlen($raw_text) > 130) $short_text .= '...';
+
+				$art_ts = !empty($art['creationDate']) ? strtotime($art['creationDate']) : time();
+				$is_new_art = (time() - $art_ts) < (86400 * 14);
+
+				$notifications[] = array(
+					'id'             => 'blog_' . $art['id'],
+					'category'       => 'updates',
+					'category_label' => 'ANNOUNCEMENT',
+					'icon'           => 'newspaper',
+					'color'          => '#0891b2',
+					'badge_bg'       => '#cffafe',
+					'title'          => 'Foundation News: ' . $art['title'],
+					'body'           => $short_text,
+					'message'        => $short_text,
+					'time'           => $art_date,
+					'link'           => site_url('blog/' . ($art['slug'] ?? $art['id'])),
+					'link_text'      => 'Read Article',
+					'is_new'         => $is_new_art,
+					'is_read'        => $is_new_art ? 0 : 1,
+					'sort_time'      => $art_ts,
+					'created_at'     => !empty($art['creationDate']) ? $art['creationDate'] : date('Y-m-d H:i:s'),
+				);
+			}
+		}
+
+		// STRICT PRIVACY: ngom_notifications (admin system alerts) is excluded.
+		// Admin alerts like "New Member Registered" or general donations are NEVER shown to members.
+
+		// Sort all chronologically descending
+		usort($notifications, function($a, $b) {
+			return ($b['sort_time'] ?? 0) <=> ($a['sort_time'] ?? 0);
+		});
+
+		if ($limit !== null && $limit > 0) {
+			return array_slice($notifications, 0, $limit);
+		}
+
+		return $notifications;
+	}
 }
+

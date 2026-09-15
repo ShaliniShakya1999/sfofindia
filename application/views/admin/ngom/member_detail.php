@@ -128,21 +128,33 @@ $masked_aadhaar = strlen($masked_aadhaar) >= 4 ? 'XXXX-XXXX-' . substr($masked_a
 			</div>
 			<div class="card border-0 shadow-sm">
 				<div class="card-header pb-0"><h6>Quick actions</h6></div>
-				<div class="card-body d-flex flex-wrap gap-2">
+				<div class="card-body d-flex flex-wrap align-items-center gap-2 pt-2">
 					<?php if ($member['mobile'] ?? ''): ?>
-						<a class="btn btn-success btn-sm mb-0" target="_blank" href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $member['mobile']); ?>">WhatsApp member</a>
+						<a class="btn btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
+						   style="height: 38px; min-height: 38px; background: #25D366; color: #ffffff; border: 1px solid #1ebc59; border-radius: 8px; font-weight: 600; font-size: 0.8125rem; padding: 0 1rem;"
+						   target="_blank"
+						   href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $member['mobile']); ?>">
+							<i class="fab fa-whatsapp me-1 text-sm"></i> WhatsApp member
+						</a>
 					<?php endif; ?>
-					<form method="post" action="<?php echo site_url('members/set_status'); ?>" class="d-flex gap-2">
+					<form method="post" action="<?php echo site_url('members/set_status'); ?>" class="d-inline-flex align-items-center gap-2 mb-0">
 						<input type="hidden" name="id" value="<?php echo $member_id; ?>">
-						<select name="status" class="form-select form-select-sm">
+						<select name="status" class="form-select form-select-sm"
+								style="height: 38px; min-height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.8125rem; font-weight: 500; min-width: 120px; width: auto; padding: 0.35rem 2rem 0.35rem 0.75rem;">
 							<?php foreach (array('active', 'inactive', 'blocked', 'pending') as $option): ?>
 								<option value="<?php echo $option; ?>" <?php echo $status === $option ? 'selected' : ''; ?>><?php echo ucfirst($option); ?></option>
 							<?php endforeach; ?>
 						</select>
-						<button type="submit" class="btn btn-outline-dark btn-sm mb-0">Update status</button>
+						<button type="submit" class="btn btn-dark btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
+								style="height: 38px; min-height: 38px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; padding: 0 1rem; border: 1px solid #1e293b;">
+							Update status
+						</button>
 					</form>
-					<form method="post" action="<?php echo site_url('members/delete/' . $member_id); ?>" class="d-inline" onsubmit="return confirm('Delete this member permanently?');">
-						<button type="submit" class="btn btn-outline-danger btn-sm mb-0">Delete member</button>
+					<form method="post" action="<?php echo site_url('members/delete/' . $member_id); ?>" class="d-inline-flex align-items-center mb-0" onsubmit="return confirm('Delete this member permanently?');">
+						<button type="submit" class="btn btn-outline-danger btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
+								style="height: 38px; min-height: 38px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; padding: 0 1rem; border: 1px solid #ef4444;">
+							Delete member
+						</button>
 					</form>
 				</div>
 			</div>

@@ -259,7 +259,7 @@ $is_edit = !empty($is_edit);
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn bg-gradient-info mb-1">Update Member Profile</button>
                             <?php if ($is_edit && $m['status'] !== 'active'): ?>
-                                <button type="submit" class="btn bg-gradient-success mb-1" formaction="<?php echo site_url('members/verify_member'); ?>">✅ Verify & Approve</button>
+                                <button type="submit" class="btn bg-gradient-success mb-1" formaction="<?php echo site_url('members/verify_member'); ?>">Verify & Approve</button>
                             <?php endif; ?>
                             <a href="<?php echo site_url('members'); ?>" class="btn btn-secondary mb-0">Back to Database</a>
                         </div>

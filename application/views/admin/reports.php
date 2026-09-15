@@ -167,61 +167,150 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        var tooltipConfig = {
+            backgroundColor: "#0f172a",
+            titleColor: "#ffffff",
+            bodyColor: "#e2e8f0",
+            borderColor: "rgba(255, 255, 255, 0.08)",
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: { top: 8, bottom: 8, left: 12, right: 12 },
+            displayColors: false,
+            titleFont: { size: 11, weight: "600", family: "'Inter', -apple-system, sans-serif" },
+            bodyFont: { size: 12, weight: "500", family: "'Inter', -apple-system, sans-serif" }
+        };
+
         // --- Donation Trend Chart ---
-        var ctx1 = document.getElementById("donationChart").getContext("2d");
-        new Chart(ctx1, {
-            type: "line",
-            data: {
-                labels: <?php echo $months_js; ?>,
-                datasets: [{
-                    label: "Donations (₹)",
-                    tension: 0.4,
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    borderColor: "#4bb2ff",
-                    backgroundColor: "transparent",
-                    fill: false,
-                    data: <?php echo $donation_trends_js; ?>,
-                    maxBarThickness: 6
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { borderDash: [5, 5], drawBorder: false }, ticks: { padding: 10, color: '#b2b9bf', font: { size: 11 } } },
-                    x: { grid: { display: false }, ticks: { padding: 10, color: '#b2b9bf', font: { size: 11 } } },
+        var elD = document.getElementById("donationChart");
+        if (elD) {
+            var ctx1 = elD.getContext("2d");
+            new Chart(ctx1, {
+                type: "line",
+                data: {
+                    labels: <?php echo $months_js; ?>,
+                    datasets: [{
+                        label: "Donations (₹)",
+                        tension: 0.4,
+                        borderWidth: 2.5,
+                        pointRadius: 3.5,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: "#ffffff",
+                        pointHoverBackgroundColor: "#0d9488",
+                        pointBorderColor: "#0d9488",
+                        pointHoverBorderColor: "#ffffff",
+                        borderColor: "#0d9488",
+                        backgroundColor: function(context) {
+                            var chart = context.chart;
+                            var ctx = chart.ctx;
+                            var chartArea = chart.chartArea;
+                            if (!chartArea) return "rgba(13, 148, 136, 0.1)";
+                            var gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                            gradient.addColorStop(0, "rgba(13, 148, 136, 0.28)");
+                            gradient.addColorStop(0.7, "rgba(13, 148, 136, 0.06)");
+                            gradient.addColorStop(1, "rgba(13, 148, 136, 0.00)");
+                            return gradient;
+                        },
+                        fill: true,
+                        data: <?php echo $donation_trends_js; ?>
+                    }],
                 },
-            },
-        });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: Object.assign({}, tooltipConfig, {
+                            callbacks: {
+                                label: function(c) {
+                                    return "Donations: ₹" + Number(c.raw || 0).toLocaleString("en-IN");
+                                }
+                            }
+                        })
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            beginAtZero: true,
+                            grid: { borderDash: [4, 4], drawBorder: false, color: '#f1f5f9' },
+                            ticks: {
+                                padding: 8,
+                                color: '#94a3b8',
+                                font: { size: 11, family: "'Inter', -apple-system, sans-serif" },
+                                callback: function(val) {
+                                    if (val < 0) return '';
+                                    if (val === 0) return '₹0';
+                                    if (val >= 1000) return '₹' + (val / 1000) + 'k';
+                                    return '₹' + val;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { padding: 8, color: '#94a3b8', font: { size: 11, family: "'Inter', -apple-system, sans-serif" } }
+                        },
+                    },
+                },
+            });
+        }
 
         // --- Member Acquisition Chart ---
-        var ctx2 = document.getElementById("memberChart").getContext("2d");
-        new Chart(ctx2, {
-            type: "bar",
-            data: {
-                labels: <?php echo $months_js; ?>,
-                datasets: [{
-                    label: "Members",
-                    tension: 0.4,
-                    borderWidth: 0,
-                    borderRadius: 4,
-                    borderSkipped: false,
-                    backgroundColor: "#cb0c9f",
-                    data: <?php echo $member_growth_js; ?>,
-                    maxBarThickness: 10
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { borderDash: [5, 5], drawBorder: false }, ticks: { padding: 10, color: '#b2b9bf', font: { size: 11 } } },
-                    x: { grid: { display: false }, ticks: { padding: 10, color: '#b2b9bf', font: { size: 11 } } },
+        var elM = document.getElementById("memberChart");
+        if (elM) {
+            var ctx2 = elM.getContext("2d");
+            new Chart(ctx2, {
+                type: "bar",
+                data: {
+                    labels: <?php echo $months_js; ?>,
+                    datasets: [{
+                        label: "Members",
+                        tension: 0.4,
+                        borderWidth: 0,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        backgroundColor: function(context) {
+                            var chart = context.chart;
+                            var ctx = chart.ctx;
+                            var chartArea = chart.chartArea;
+                            if (!chartArea) return "rgba(26, 104, 91, 0.85)";
+                            var gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                            gradient.addColorStop(0, "rgba(26, 104, 91, 0.95)");
+                            gradient.addColorStop(1, "rgba(26, 104, 91, 0.45)");
+                            return gradient;
+                        },
+                        hoverBackgroundColor: "#134e4a",
+                        data: <?php echo $member_growth_js; ?>,
+                        barThickness: 16,
+                        maxBarThickness: 22
+                    }],
                 },
-            },
-        });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: Object.assign({}, tooltipConfig, {
+                            callbacks: {
+                                label: function(c) {
+                                    var count = Number(c.raw || 0);
+                                    return count + (count === 1 ? " member" : " members");
+                                }
+                            }
+                        })
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            beginAtZero: true,
+                            grid: { borderDash: [4, 4], drawBorder: false, color: '#f1f5f9' },
+                            ticks: { precision: 0, stepSize: 1, padding: 8, color: '#94a3b8', font: { size: 11, family: "'Inter', -apple-system, sans-serif" } }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { padding: 8, color: '#94a3b8', font: { size: 11, family: "'Inter', -apple-system, sans-serif" } }
+                        },
+                    },
+                },
+            });
+        }
     });
 </script>

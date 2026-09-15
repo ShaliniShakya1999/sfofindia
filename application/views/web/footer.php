@@ -129,12 +129,13 @@ if (!isset($cms) || !is_array($cms)) { $cms = array(); }
     border-radius: 12px;
     color: #fff;
     font-size: 1rem;
-    transition: transform .2s ease, border-color .2s ease, background-color .2s ease;
+    transition: border-color .15s ease, background-color .15s ease, opacity .15s ease;
+    opacity: 0.92;
 }
 .footer-social-link:hover {
     color: #fff;
     border-color: transparent;
-    transform: translateY(-3px);
+    opacity: 1;
 }
 .footer-youtube:hover { background: #d32f2f; }
 .footer-facebook:hover { background: #3568b8; }

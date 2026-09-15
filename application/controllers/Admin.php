@@ -11,7 +11,7 @@ if (!class_exists("My_Controller"))
 class Admin extends My_Controller {
 
 	/** @var list<string> */
-	private $public_methods = array('login', 'do_login', 'logout', 'setup_password', 'save_setup_password');
+	private $public_methods = array('login', 'do_login', 'logout', 'setup_password', 'save_setup_password', 'forgot_password', 'send_forgot_otp', 'verify_forgot_otp', 'do_reset_password', 'resend_forgot_otp');
 
 	/** Fixed membership renewal fee, in INR. */
 	const RENEWAL_FEE_INR = 2000;
@@ -162,6 +162,391 @@ class Admin extends My_Controller {
 		$this->session->unset_userdata('admin_setup_token');
 		$this->session->set_flashdata('cms_success', 'Administrator password updated. You can now sign in.');
 		redirect('admin/login');
+	}
+
+	/**
+	 * Render Step 1: Request OTP for password reset
+	 */
+	public function forgot_password()
+	{
+		// If admin is already logged in
+		if ($this->session->userdata('cms_admin_id') && $this->session->userdata('panel_user_type') === 'admin') {
+			redirect('admin');
+		}
+
+		// If member is already logged in
+		if ($this->session->userdata('cms_member_id') && $this->session->userdata('panel_user_type') === 'member') {
+			redirect('admin');
+		}
+
+		$this->load->view('admin/cms/forgot_password', array(
+			'form_action'    => site_url('admin/send_forgot_otp'),
+			'login_title'    => 'Reset Password & Sign In',
+			'login_subtitle' => 'Enter your registered Email, Username, Member ID, or Mobile number to receive a 6-digit OTP code.',
+		));
+	}
+
+	/**
+	 * Send 6-digit OTP to user's registered email
+	 */
+	public function send_forgot_otp()
+	{
+		if (strtoupper((string) $this->input->server('REQUEST_METHOD')) !== 'POST') {
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		$identifier = trim((string) $this->input->post('identifier', true));
+		if ($identifier === '') {
+			$this->session->set_flashdata('forgot_error', 'Please enter your registered Email, Username, Member ID, or Mobile number.');
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		// Rate limit: 1 OTP request every 45 seconds per session
+		$last_sent = (int) $this->session->userdata('forgot_otp_last_sent');
+		if (time() - $last_sent < 45) {
+			$wait = 45 - (time() - $last_sent);
+			$this->session->set_flashdata('forgot_error', "Please wait {$wait} seconds before requesting a new OTP code.");
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		// 1. Search in admin_users
+		$user_type = null;
+		$user_record = null;
+		$target_email = '';
+		$target_name = '';
+
+		$admin_row = $this->admin_user->find_by_identifier($identifier);
+		if ($admin_row) {
+			if (isset($admin_row['status']) && (int) $admin_row['status'] === 0) {
+				$this->session->set_flashdata('forgot_error', 'This administrative account is suspended. Please contact administration.');
+				redirect('admin/forgot_password');
+				return;
+			}
+			$user_type = 'admin';
+			$user_record = $admin_row;
+			$target_email = trim((string) ($admin_row['email'] ?? ''));
+			$target_name = trim((string) ($admin_row['username'] ?? 'Administrator'));
+		} else {
+			// 2. Search in members
+			$member_row = $this->member_m->find_by_identifier($identifier);
+			if ($member_row) {
+				$user_type = 'member';
+				$user_record = $member_row;
+				$target_email = trim((string) ($member_row['email'] ?? ''));
+				$target_name = trim((string) ($member_row['name'] ?? 'Member'));
+			}
+		}
+
+		if (!$user_record || !$user_type) {
+			$this->session->set_flashdata('forgot_error', 'No matching account found with that identifier. Please verify and try again.');
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		if ($target_email === '' || !filter_var($target_email, FILTER_VALIDATE_EMAIL)) {
+			$this->session->set_flashdata('forgot_error', 'No valid email address is linked to this account. Please contact administration for assistance.');
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		// Generate cryptographically secure random 6-digit OTP
+		$otp = (string) random_int(100000, 999999);
+
+		$this->session->set_userdata(array(
+			'forgot_otp_hash'       => password_hash($otp, PASSWORD_DEFAULT),
+			'forgot_otp_user_type'  => $user_type,
+			'forgot_otp_user_id'    => (int) $user_record['id'],
+			'forgot_otp_email'      => $target_email,
+			'forgot_otp_name'       => $target_name,
+			'forgot_otp_expires'    => time() + 900, // 15 minutes
+			'forgot_otp_attempts'   => 0,
+			'forgot_otp_last_sent'  => time(),
+		));
+
+		log_message('info', "Password reset OTP {$otp} generated for {$user_type} (ID: {$user_record['id']}) - Email: {$target_email}");
+
+		// Prepare branded email via Ngom_mailer
+		$this->load->library('Ngom_mailer', array(), 'ngommailer');
+		$site_name = 'Shaheed Foundation of India';
+		if ($this->db->table_exists('site_settings')) {
+			$this->load->model('Site_model');
+			$site_name = $this->Site_model->get_all_flat()['site_name'] ?? $site_name;
+		}
+
+		$subject = 'Your Password Reset Code: ' . $otp . ' - ' . $site_name;
+		$html = '<div style="font-family: Arial, sans-serif; max-width: 540px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 14px; background: #ffffff;">'
+			. '<div style="text-align: center; margin-bottom: 20px;">'
+			. '  <h3 style="color: #1a685b; margin: 0 0 5px 0;">' . html_escape($site_name) . '</h3>'
+			. '  <p style="color: #64748b; font-size: 13px; margin: 0;">Password Reset & Login Authorization</p>'
+			. '</div>'
+			. '<p style="color: #334155; font-size: 14px;">Hello <b>' . html_escape($target_name) . '</b>,</p>'
+			. '<p style="color: #334155; font-size: 14px; line-height: 1.5;">We received a request to set/reset your account password on <b>' . html_escape($site_name) . '</b>. Use the following 6-digit One-Time Password (OTP) to authorize and access your account:</p>'
+			. '<div style="margin: 25px 0; text-align: center;">'
+			. '  <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #1a685b; background: #e6f0ee; padding: 12px 28px; border-radius: 10px; display: inline-block; font-family: monospace; border: 1px solid #b2d8d2;">' . $otp . '</span>'
+			. '</div>'
+			. '<p style="color: #64748b; font-size: 12px; line-height: 1.5;">This verification code is valid for <b>15 minutes</b>. Enter this OTP along with your new password to sign in immediately. If you did not make this request, you can safely ignore this email.</p>'
+			. '<hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;">'
+			. '<p style="color: #94a3b8; font-size: 11px; margin: 0; text-align: center;">' . html_escape($site_name) . ' Security Team</p>'
+			. '</div>';
+
+		$sent = $this->ngommailer->send_html($target_email, $subject, $html, $target_name);
+
+		// Mask email for display: e.g. k***e@gmail.com
+		$parts = explode('@', $target_email);
+		$u_part = $parts[0];
+		$d_part = $parts[1] ?? '';
+		if (strlen($u_part) > 2) {
+			$masked_user = substr($u_part, 0, 1) . str_repeat('*', max(3, strlen($u_part) - 2)) . substr($u_part, -1);
+		} else {
+			$masked_user = $u_part . '***';
+		}
+		$masked_email = $masked_user . '@' . $d_part;
+
+		$success_msg = 'A 6-digit OTP verification code has been sent to your registered email (' . $masked_email . '). Enter it below to set your new password and sign in.';
+		if (!$sent && ENVIRONMENT !== 'production') {
+			$success_msg .= ' (Dev Mode OTP: ' . $otp . ')';
+		}
+
+		$this->session->set_flashdata('forgot_success', $success_msg);
+		redirect('admin/verify_forgot_otp');
+	}
+
+	/**
+	 * Render Step 2: Enter OTP and set new password
+	 */
+	public function verify_forgot_otp()
+	{
+		$email = (string) $this->session->userdata('forgot_otp_email');
+		if ($email === '') {
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		// Mask email for display
+		$parts = explode('@', $email);
+		$u_part = $parts[0];
+		$d_part = $parts[1] ?? '';
+		if (strlen($u_part) > 2) {
+			$masked_user = substr($u_part, 0, 1) . str_repeat('*', max(3, strlen($u_part) - 2)) . substr($u_part, -1);
+		} else {
+			$masked_user = $u_part . '***';
+		}
+		$masked_email = $masked_user . '@' . $d_part;
+
+		$this->load->view('admin/cms/verify_forgot_otp', array(
+			'form_action'   => site_url('admin/do_reset_password'),
+			'resend_action' => site_url('admin/resend_forgot_otp'),
+			'masked_email'  => $masked_email,
+			'login_title'   => 'Verify OTP & Set Password',
+		));
+	}
+
+	/**
+	 * Process OTP verification, update password, and auto-login
+	 */
+	public function do_reset_password()
+	{
+		if (strtoupper((string) $this->input->server('REQUEST_METHOD')) !== 'POST') {
+			redirect('admin/verify_forgot_otp');
+			return;
+		}
+
+		$stored_hash = (string) $this->session->userdata('forgot_otp_hash');
+		$expires     = (int) $this->session->userdata('forgot_otp_expires');
+		$user_type   = (string) $this->session->userdata('forgot_otp_user_type');
+		$user_id     = (int) $this->session->userdata('forgot_otp_user_id');
+		$attempts    = (int) $this->session->userdata('forgot_otp_attempts');
+
+		if ($stored_hash === '' || $user_id < 1 || !in_array($user_type, array('admin', 'member'), true)) {
+			$this->session->set_flashdata('forgot_error', 'Session expired. Please request a new verification code.');
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		if (time() > $expires) {
+			$this->session->unset_userdata(array('forgot_otp_hash', 'forgot_otp_user_type', 'forgot_otp_user_id', 'forgot_otp_email', 'forgot_otp_name', 'forgot_otp_expires', 'forgot_otp_attempts', 'forgot_otp_last_sent'));
+			$this->session->set_flashdata('forgot_error', 'Your OTP verification code has expired. Please request a new one.');
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		if ($attempts >= 5) {
+			$this->session->unset_userdata(array('forgot_otp_hash', 'forgot_otp_user_type', 'forgot_otp_user_id', 'forgot_otp_email', 'forgot_otp_name', 'forgot_otp_expires', 'forgot_otp_attempts', 'forgot_otp_last_sent'));
+			$this->session->set_flashdata('forgot_error', 'Too many invalid attempts. Please request a new verification code.');
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		$submitted_otp = trim((string) $this->input->post('otp', true));
+		$new_password  = (string) $this->input->post('password');
+		$confirm_pass  = (string) $this->input->post('password_confirm');
+
+		// 1. Verify OTP
+		if ($submitted_otp === '' || !password_verify($submitted_otp, $stored_hash)) {
+			$this->session->set_userdata('forgot_otp_attempts', $attempts + 1);
+			$this->session->set_flashdata('forgot_error', 'The 6-digit OTP code you entered is invalid. Please check your email and try again.');
+			redirect('admin/verify_forgot_otp');
+			return;
+		}
+
+		// 2. Validate Password
+		if (strlen($new_password) < 6) {
+			$this->session->set_flashdata('forgot_error', 'Password must be at least 6 characters long.');
+			redirect('admin/verify_forgot_otp');
+			return;
+		}
+
+		if ($new_password !== $confirm_pass) {
+			$this->session->set_flashdata('forgot_error', 'Passwords do not match. Please re-enter.');
+			redirect('admin/verify_forgot_otp');
+			return;
+		}
+
+		// 3. Update Password in Database
+		$new_hash = password_hash($new_password, PASSWORD_DEFAULT);
+
+		if ($user_type === 'admin') {
+			$admin_row = $this->admin_user->find_by_id($user_id);
+			if (!$admin_row) {
+				$this->session->set_flashdata('forgot_error', 'Admin account not found.');
+				redirect('admin/forgot_password');
+				return;
+			}
+
+			$this->admin_user->update_password($user_id, $new_hash);
+
+			// Clear OTP session variables
+			$this->session->unset_userdata(array('forgot_otp_hash', 'forgot_otp_user_type', 'forgot_otp_user_id', 'forgot_otp_email', 'forgot_otp_name', 'forgot_otp_expires', 'forgot_otp_attempts', 'forgot_otp_last_sent', 'login_failures', 'login_locked_until'));
+
+			// Auto-login Admin
+			$this->session->sess_regenerate(true);
+			$admin_role = isset($admin_row['role']) && $admin_row['role'] !== '' ? $admin_row['role'] : 'super_admin';
+			$this->db->where('id', $user_id);
+			$this->db->update('admin_users', array('last_login' => date('Y-m-d H:i:s')));
+			$this->session->set_userdata('panel_user_type', 'admin');
+			$this->session->set_userdata('cms_admin_id', $user_id);
+			$this->session->set_userdata('cms_admin_name', (string) $admin_row['username']);
+			$this->session->set_userdata('cms_admin_role', $admin_role);
+			$this->session->unset_userdata(array('cms_member_id', 'cms_member_user_id', 'member_portal_id', 'member_portal_name'));
+
+			$this->session->set_flashdata('cms_success', 'Password updated successfully. Welcome to the Admin Panel!');
+			redirect('admin');
+			return;
+		}
+
+		if ($user_type === 'member') {
+			$member_row = $this->member_m->find_by_id($user_id);
+			if (!$member_row) {
+				$this->session->set_flashdata('forgot_error', 'Member account not found.');
+				redirect('admin/forgot_password');
+				return;
+			}
+
+			// Update member password
+			$this->member_m->update_member($user_id, array('member_password_hash' => $new_hash));
+
+			// Clear OTP session variables
+			$this->session->unset_userdata(array('forgot_otp_hash', 'forgot_otp_user_type', 'forgot_otp_user_id', 'forgot_otp_email', 'forgot_otp_name', 'forgot_otp_expires', 'forgot_otp_attempts', 'forgot_otp_last_sent', 'login_failures', 'login_locked_until'));
+
+			$member_status = $member_row['status'] ?? '';
+
+			if ($member_status === 'pending') {
+				$this->session->set_flashdata('cms_success', 'Password set successfully! Your membership application is currently under review by the administration. You will be able to log in once approved.');
+				redirect('admin/login');
+				return;
+			}
+
+			// Auto-login Member (active or inactive renewal)
+			$this->session->sess_regenerate(true);
+			$this->session->set_userdata('panel_user_type', 'member');
+			$this->session->set_userdata('cms_admin_id', 'member-' . $user_id);
+			$this->session->set_userdata('cms_admin_name', (string) $member_row['name']);
+			$this->session->set_userdata('cms_admin_role', 'member');
+			$this->session->set_userdata('cms_member_id', $user_id);
+			$this->session->set_userdata('cms_member_user_id', (string) ($member_row['member_user_id'] ?? ''));
+			$this->session->set_userdata('member_portal_id', $user_id);
+			$this->session->set_userdata('member_portal_name', (string) $member_row['name']);
+
+			if ($member_status === 'inactive') {
+				$this->session->set_flashdata('cms_error', 'Password updated. Your membership has expired. Please renew to continue.');
+				redirect('admin/renew');
+				return;
+			}
+
+			$this->session->set_flashdata('cms_success', 'Password set successfully! Welcome to your Member Portal.');
+			redirect('admin');
+			return;
+		}
+	}
+
+	/**
+	 * Resend OTP to user's email
+	 */
+	public function resend_forgot_otp()
+	{
+		$email     = (string) $this->session->userdata('forgot_otp_email');
+		$user_type = (string) $this->session->userdata('forgot_otp_user_type');
+		$user_id   = (int) $this->session->userdata('forgot_otp_user_id');
+		$name      = (string) $this->session->userdata('forgot_otp_name');
+
+		if ($email === '' || $user_id < 1) {
+			redirect('admin/forgot_password');
+			return;
+		}
+
+		$last_sent = (int) $this->session->userdata('forgot_otp_last_sent');
+		if (time() - $last_sent < 45) {
+			$wait = 45 - (time() - $last_sent);
+			$this->session->set_flashdata('forgot_error', "Please wait {$wait} seconds before requesting a new OTP.");
+			redirect('admin/verify_forgot_otp');
+			return;
+		}
+
+		$otp = (string) random_int(100000, 999999);
+		$this->session->set_userdata(array(
+			'forgot_otp_hash'      => password_hash($otp, PASSWORD_DEFAULT),
+			'forgot_otp_expires'   => time() + 900,
+			'forgot_otp_attempts'  => 0,
+			'forgot_otp_last_sent' => time(),
+		));
+
+		log_message('info', "Password reset OTP {$otp} resent for {$user_type} (ID: {$user_id}) - Email: {$email}");
+
+		$this->load->library('Ngom_mailer', array(), 'ngommailer');
+		$site_name = 'Shaheed Foundation of India';
+		if ($this->db->table_exists('site_settings')) {
+			$this->load->model('Site_model');
+			$site_name = $this->Site_model->get_all_flat()['site_name'] ?? $site_name;
+		}
+
+		$subject = 'Your New Password Reset Code: ' . $otp . ' - ' . $site_name;
+		$html = '<div style="font-family: Arial, sans-serif; max-width: 540px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 14px; background: #ffffff;">'
+			. '<div style="text-align: center; margin-bottom: 20px;">'
+			. '  <h3 style="color: #1a685b; margin: 0 0 5px 0;">' . html_escape($site_name) . '</h3>'
+			. '  <p style="color: #64748b; font-size: 13px; margin: 0;">Password Reset & Login Authorization</p>'
+			. '</div>'
+			. '<p style="color: #334155; font-size: 14px;">Hello <b>' . html_escape($name) . '</b>,</p>'
+			. '<p style="color: #334155; font-size: 14px; line-height: 1.5;">Here is your new 6-digit One-Time Password (OTP):</p>'
+			. '<div style="margin: 25px 0; text-align: center;">'
+			. '  <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #1a685b; background: #e6f0ee; padding: 12px 28px; border-radius: 10px; display: inline-block; font-family: monospace; border: 1px solid #b2d8d2;">' . $otp . '</span>'
+			. '</div>'
+			. '<p style="color: #64748b; font-size: 12px; line-height: 1.5;">This verification code is valid for <b>15 minutes</b>.</p>'
+			. '<hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;">'
+			. '<p style="color: #94a3b8; font-size: 11px; margin: 0; text-align: center;">' . html_escape($site_name) . ' Security Team</p>'
+			. '</div>';
+
+		$sent = $this->ngommailer->send_html($email, $subject, $html, $name);
+
+		$success_msg = 'A new 6-digit OTP verification code has been sent to your email.';
+		if (!$sent && ENVIRONMENT !== 'production') {
+			$success_msg .= ' (Dev Mode OTP: ' . $otp . ')';
+		}
+
+		$this->session->set_flashdata('forgot_success', $success_msg);
+		redirect('admin/verify_forgot_otp');
 	}
 
 	public function do_login()
@@ -410,11 +795,96 @@ class Admin extends My_Controller {
 
 	public function profile()
 	{
+		if ($this->panel_user_type() === 'admin') {
+			$admin_id = (int) $this->session->userdata('cms_admin_id');
+			$admin_user = $this->admin_user->find_by_id($admin_id);
+			if (!$admin_user) {
+				$this->session->set_flashdata('cms_error', 'Admin user account not found.');
+				redirect('admin');
+				return;
+			}
+			$data = array(
+				'admin_user' => $admin_user,
+				'title' => 'Admin Profile',
+			);
+			$this->adminloadview('admin/admin_profile', $data);
+			return;
+		}
+
 		$member = $this->require_member_panel(true);
 		if (!$member) {
 			return;
 		}
 		$this->adminloadview('admin/member_profile', array('member' => $member));
+	}
+
+	public function update_admin_profile()
+	{
+		if ($this->panel_user_type() !== 'admin') {
+			redirect('admin/login');
+			return;
+		}
+		if (!$this->require_post()) {
+			return;
+		}
+
+		$admin_id = (int) $this->session->userdata('cms_admin_id');
+		$admin_user = $this->admin_user->find_by_id($admin_id);
+		if (!$admin_user) {
+			$this->session->set_flashdata('cms_error', 'Admin user account not found.');
+			redirect('admin');
+			return;
+		}
+
+		$action = trim((string) $this->input->post('action'));
+
+		if ($action === 'update_info') {
+			$email = trim((string) $this->input->post('email', true));
+			if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				$this->session->set_flashdata('cms_error', 'Please provide a valid email address.');
+				redirect('admin/profile');
+				return;
+			}
+			$this->admin_user->update_email($admin_id, $email);
+			$this->session->set_userdata('cms_admin_email', $email);
+			$this->session->set_flashdata('cms_success', 'Profile information updated successfully.');
+			redirect('admin/profile');
+			return;
+		}
+
+		if ($action === 'change_password') {
+			$current_password = (string) $this->input->post('current_password');
+			$new_password = (string) $this->input->post('new_password');
+			$confirm_password = (string) $this->input->post('confirm_password');
+
+			if ($new_password === '' || strlen($new_password) < 6) {
+				$this->session->set_flashdata('cms_error', 'New password must be at least 6 characters long.');
+				redirect('admin/profile');
+				return;
+			}
+
+			if ($new_password !== $confirm_password) {
+				$this->session->set_flashdata('cms_error', 'New password and confirmation do not match.');
+				redirect('admin/profile');
+				return;
+			}
+
+			if (!empty($admin_user['password_hash'])) {
+				if (!password_verify($current_password, $admin_user['password_hash'])) {
+					$this->session->set_flashdata('cms_error', 'Current password is incorrect.');
+					redirect('admin/profile');
+					return;
+				}
+			}
+
+			$new_hash = password_hash($new_password, PASSWORD_DEFAULT);
+			$this->admin_user->update_password($admin_id, $new_hash);
+			$this->session->set_flashdata('cms_success', 'Password updated successfully.');
+			redirect('admin/profile');
+			return;
+		}
+
+		redirect('admin/profile');
 	}
 
 	/**
@@ -1102,50 +1572,57 @@ class Admin extends My_Controller {
 		$member = $this->require_member_panel();
 		if (!$member) return;
 
-		$this->load->model('Donation_model', 'donations_m');
-		$recent_donations = $this->donations_m->list_by_email($member['email'], 5);
+		$this->load->model('Member_model', 'member_m');
+		$notifications = $this->member_m->get_member_notifications($member);
 
-		$notifications = array();
-
-		// Birthday notification
-		if (!empty($member['dob']) && $member['dob'] !== '0000-00-00') {
-			if (date('m-d', strtotime($member['dob'])) === date('m-d')) {
-				$notifications[] = array(
-					'icon' => 'cake',
-					'color' => 'warning',
-					'title' => 'Happy Birthday!',
-					'body' => 'The entire NGO team wishes you a wonderful birthday! 🎂',
-					'time' => 'Today'
-				);
-			}
-		}
-
-		// Donations notifications
-		foreach ($recent_donations as $don) {
-			if ($don['status'] === 'paid') {
-				$notifications[] = array(
-					'icon' => 'payments',
-					'color' => 'success',
-					'title' => 'Donation Successful',
-					'body' => 'Your donation of ₹' . number_format($don['amount'], 0) . ' was received. Receipt: ' . $don['receipt_no'],
-					'time' => date('d M Y', strtotime($don['created_at']))
-				);
-			}
-		}
-
-		// Welcome notification
-		$notifications[] = array(
-			'icon' => 'verified',
-			'color' => 'primary',
-			'title' => 'Account Verified',
-			'body' => 'Welcome to Shaheed Foundation! Your member account is active.',
-			'time' => !empty($member['verified_at']) ? date('d M Y', strtotime($member['verified_at'])) : 'Recently'
+		// Calculate category counts
+		$counts = array(
+			'all'       => count($notifications),
+			'account'   => 0,
+			'donations' => 0,
+			'campaigns' => 0,
+			'events'    => 0,
+			'updates'   => 0,
 		);
+		foreach ($notifications as $n) {
+			$cat = $n['category'] ?? 'account';
+			if (isset($counts[$cat])) {
+				$counts[$cat]++;
+			}
+		}
 
 		$this->adminloadview('admin/member_notifications', array(
-			'member' => $member,
-			'notifications' => $notifications
+			'member'        => $member,
+			'notifications' => $notifications,
+			'counts'        => $counts,
 		));
+	}
+
+	public function member_unread_count()
+	{
+		$member = $this->require_member_panel();
+		if (!$member) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(array('status' => 'error', 'message' => 'Unauthorized')));
+			return;
+		}
+
+		$this->load->model('Member_model', 'member_m');
+		$notifications = $this->member_m->get_member_notifications($member);
+		$unread_count = 0;
+		foreach ($notifications as $n) {
+			if (!empty($n['is_new'])) {
+				$unread_count++;
+			}
+		}
+
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(array(
+				'status'       => 'ok',
+				'unread_count' => $unread_count
+			)));
 	}
 
 	public function activity()

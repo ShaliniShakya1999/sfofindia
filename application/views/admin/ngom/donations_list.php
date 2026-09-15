@@ -264,10 +264,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 tension: 0.4,
                 borderWidth: 0,
                 pointRadius: 2,
-                pointBackgroundColor: "#cb0c9f",
-                borderColor: "#cb0c9f",
-                borderWidth: 3,
-                backgroundColor: 'rgba(203, 12, 159, 0.2)',
+                pointBackgroundColor: "#059669",
+                borderColor: "#059669",
+                borderWidth: 2.5,
+                backgroundColor: 'rgba(5, 150, 105, 0.1)',
                 fill: true,
                 data: chartData,
                 maxBarThickness: 6
@@ -276,7 +276,24 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#0f172a",
+                    titleColor: "#ffffff",
+                    bodyColor: "#e2e8f0",
+                    borderColor: "rgba(255, 255, 255, 0.08)",
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: { top: 6, bottom: 6, left: 10, right: 10 },
+                    displayColors: false,
+                    callbacks: {
+                        label: function(c) {
+                            return "Revenue: ₹" + Number(c.raw || 0).toLocaleString("en-IN");
+                        }
+                    }
+                }
+            },
             interaction: { intersect: false, mode: 'index' },
             scales: {
                 y: {

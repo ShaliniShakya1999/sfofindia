@@ -16,12 +16,12 @@
                             <div class="col-md-4">
                                 <div class="card border-0 shadow-sm h-100" style="border-radius:12px; overflow:hidden;">
                                     <div class="card-body p-4">
-                                        <div class="bg-gradient-primary border-radius-md p-3 mb-3 d-inline-block">
+                                        <div class="border-radius-md p-3 mb-3 d-inline-block" style="background: linear-gradient(135deg, #134e4a 0%, #1a685b 100%); color: #fff; box-shadow: 0 4px 10px rgba(26, 104, 91, 0.25);">
                                             <i class="material-symbols-rounded text-white">campaign</i>
                                         </div>
                                         <h6 class="font-weight-bolder mb-1"><?php echo html_escape($camp['title'] ?? 'Campaign'); ?></h6>
                                         <p class="text-xs text-muted mb-3"><?php echo html_escape($camp['description'] ?? 'Support this cause.'); ?></p>
-                                        <a href="<?php echo site_url('donation'); ?>" class="btn btn-sm btn-primary w-100 rounded-pill">Donate Now 💰</a>
+                                        <a href="<?php echo site_url('donation'); ?>" class="btn btn-sm w-100 rounded-pill" style="background: #1a685b; color: #fff; border: none; box-shadow: 0 2px 6px rgba(26, 104, 91, 0.25);">Donate Now</a>
                                     </div>
                                 </div>
                             </div>

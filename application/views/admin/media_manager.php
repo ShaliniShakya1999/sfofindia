@@ -141,18 +141,16 @@ function copyToClipboard(id) {
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 .glass-folder:hover {
-    transform: translateY(-5px);
     background: white !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06) !important;
 }
 
 .media-card {
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
     border-radius: 12px;
 }
 .media-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
 }
 
 .media-canvas {

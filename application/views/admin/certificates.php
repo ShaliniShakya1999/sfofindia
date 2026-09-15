@@ -2,7 +2,7 @@
 <div class="container-fluid py-4 min-vh-80">
     <div class="row align-items-center mb-4">
         <div class="col-12">
-            <h4 class="mb-0 font-weight-bolder">Generate Certificates 📜</h4>
+            <h4 class="mb-0 font-weight-bolder">Generate Certificates</h4>
             <p class="text-sm text-muted mb-0">Create custom ad-hoc certificates for volunteers, donors, or guests instantly.</p>
         </div>
     </div>

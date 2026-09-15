@@ -353,6 +353,15 @@ class Members extends My_Controller {
 			redirect('members');
 		}
 		$ok = $this->members->insert_member($fields);
+		if ($ok) {
+			$new_id = (int)$this->db->insert_id();
+			ngom_notify(
+				'New Member Registered',
+				$fields['name'] . ' was registered as a member.',
+				'info',
+				$new_id > 0 ? 'members/form/' . $new_id : 'members'
+			);
+		}
 		$this->session->set_flashdata($ok ? 'success' : 'error', $ok ? 'Member created.' : 'Could not create (check referral code).');
 		redirect('members');
 	}
@@ -438,6 +447,13 @@ class Members extends My_Controller {
 				log_message('error', 'Member verification WhatsApp notice error: ' . $we->getMessage());
 			}
 		}
+
+		ngom_notify(
+			'Member Verified',
+			$member_updated['name'] . ' has been approved and verified as an active member.',
+			'success',
+			'members/form/' . $id
+		);
 
 		$this->session->set_flashdata('success', $mail_note);
 		redirect('members/form/' . $id);
