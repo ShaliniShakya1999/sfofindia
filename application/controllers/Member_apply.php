@@ -137,7 +137,7 @@ class Member_apply extends My_Controller {
 			'donation_amount' => (float) $this->input->post('donation_amount', true),
 			'address' => trim((string) $this->input->post('address', true)),
 			'pin_code' => trim((string) $this->input->post('pin_code', true)),
-			'email' => trim((string) $this->input->post('email', true)),
+			'email' => strtolower(trim((string) $this->input->post('email', true))),
 			'id_type' => trim((string) $this->input->post('id_type', true)),
 			'payment_mode' => trim((string) $this->input->post('payment_mode', true)),
 			'role' => 'member',
@@ -151,6 +151,25 @@ class Member_apply extends My_Controller {
 		if ($fields['name'] === '' || $fields['gender'] === '' || $fields['mobile'] === '' || $fields['address'] === '') {
 			$this->session->set_flashdata('error', 'Please fill all required fields.');
 			redirect('join-us');
+			return;
+		}
+
+		if ($fields['email'] === '') {
+			$this->session->set_flashdata('error', 'Email address is required.');
+			redirect('join-us');
+			return;
+		}
+
+		if (!filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) {
+			$this->session->set_flashdata('error', 'Please provide a valid email address.');
+			redirect('join-us');
+			return;
+		}
+
+		if ($this->members->email_exists($fields['email'])) {
+			$this->session->set_flashdata('error', 'This email address is already registered. Each member must have a unique email address.');
+			redirect('join-us');
+			return;
 		}
 
 		// Handle uploads — one field per document type, matching the
@@ -251,5 +270,31 @@ class Member_apply extends My_Controller {
 			return false;
 		}
 		return 'uploads/members/' . $data['file_name'];
+	}
+
+	public function check_email()
+	{
+		$email = strtolower(trim((string) $this->input->post_get('email', true)));
+		if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(array(
+					'status' => 'error',
+					'available' => false,
+					'message' => 'Please enter a valid email address.'
+				)));
+			return;
+		}
+
+		$exists = $this->members->email_exists($email);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(array(
+				'status' => 'success',
+				'available' => !$exists,
+				'message' => $exists
+					? 'This email address is already registered.'
+					: 'Email address is available.'
+			)));
 	}
 }

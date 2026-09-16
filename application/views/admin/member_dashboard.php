@@ -474,22 +474,22 @@ if ($is_expired || $status_raw === 'inactive') {
 </div>
 
 <style>
-.bg-light-hover { transition: background 0.2s; }
+.bg-light-hover { transition: none !important; }
 .bg-light-hover:hover { background: #f8f9fa; }
-.transition-all { transition: all 0.2s; }
+.transition-all { transition: none !important; }
 
 /* Grounded Stat Cards without Jumping */
 .stat-card-interactive {
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: none !important;
     cursor: pointer;
     border: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 .stat-card-interactive:hover {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07) !important;
     border-color: rgba(0, 0, 0, 0.12) !important;
 }
 .stat-card-interactive .stat-arrow-badge {
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: none !important;
 }
 .stat-card-interactive:hover .stat-arrow-badge {
     background-color: #1e293b !important;
@@ -498,21 +498,21 @@ if ($is_expired || $status_raw === 'inactive') {
 
 /* Grounded Welcome Banner */
 .welcome-banner-interactive {
-    transition: box-shadow 0.2s ease !important;
+    transition: none !important;
 }
 .welcome-banner-interactive:hover {
-    box-shadow: 0 8px 24px rgba(26, 104, 91, 0.22) !important;
+    box-shadow: 0 4px 14px rgba(26, 104, 91, 0.18) !important;
 }
 .welcome-banner-interactive:hover .banner-profile-btn {
     background: #ffffff !important;
 }
 .banner-profile-btn {
-    transition: background 0.2s ease;
+    transition: none !important;
 }
 
 /* Clean Event & Campaign Items */
 .event-clickable-item, .campaign-clickable-item {
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    transition: none !important;
     border: 1px solid transparent !important;
 }
 .event-clickable-item:hover, .campaign-clickable-item:hover {
@@ -526,7 +526,7 @@ if ($is_expired || $status_raw === 'inactive') {
     background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.07) !important;
     border-radius: 14px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: none !important;
 }
 .doc-item-card:hover {
     border-color: rgba(0, 0, 0, 0.15) !important;

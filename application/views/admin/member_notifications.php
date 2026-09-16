@@ -259,12 +259,12 @@
 
 /* Stat card interactions */
 .stat-filter-btn {
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    transition: none;
     cursor: pointer;
 }
 .stat-filter-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.07) !important;
+    transform: none !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07) !important;
 }
 .stat-filter-btn.active-filter {
     border-color: rgba(26,104,91,0.5) !important;

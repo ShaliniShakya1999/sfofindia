@@ -348,12 +348,12 @@
             outline: none;
           }
           .stat-card-link .card {
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            transition: none;
           }
           .stat-card-link:hover .card,
           .stat-card-link:focus .card {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+            transform: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
             border-color: rgba(79, 70, 229, 0.3) !important;
           }
           .stat-card-link:hover .stat-card-action {

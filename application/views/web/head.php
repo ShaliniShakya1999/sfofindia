@@ -32,4 +32,19 @@ if (!isset($cms) || !is_array($cms)) {
 
     <!-- Template Stylesheet -->
     <link href="<?php echo html_escape(web_asset('css/style.css')); ?>" rel="stylesheet">
+
+    <style>
+        /* Minimized transitions and eliminated cursor hover animations */
+        html, body {
+            scroll-behavior: auto !important;
+        }
+        *, *::before, *::after {
+            transition-duration: 0.04s !important;
+            transition-delay: 0s !important;
+            animation-duration: 0.04s !important;
+        }
+        .btn:hover, a:hover, .card:hover, .doc-card:hover, .doc-img-wrap:hover, .blog-item:hover, .blog-item:hover .blog-img img, .btn-submit-premium:hover {
+            transform: none !important;
+        }
+    </style>
 </head>

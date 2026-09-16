@@ -66,6 +66,16 @@ class Member_model extends CI_Model {
 			}
 		}
 
+		// Ensure index on email for quick uniqueness checks
+		try {
+			$idx_check = $this->db->query("SHOW INDEX FROM `members` WHERE Key_name = 'idx_email'")->num_rows();
+			if ($idx_check === 0 && $this->db->field_exists('email', 'members')) {
+				$this->db->query("ALTER TABLE `members` ADD INDEX `idx_email` (`email`)");
+			}
+		} catch (Throwable $e) {
+			// Ignore if index already exists or schema modification is restricted
+		}
+
 		return true;
 	}
 
@@ -203,6 +213,34 @@ class Member_model extends CI_Model {
 		return $this->db->count_all_results('members') > 0;
 	}
 
+	public function email_exists($email, $exclude_id = null)
+	{
+		if (!$this->table_exists()) {
+			return false;
+		}
+		$clean = strtolower(trim((string) $email));
+		if ($clean === '') {
+			return false;
+		}
+		$this->db->where('LOWER(email)', $clean);
+		if ($exclude_id !== null) {
+			$this->db->where('id !=', (int) $exclude_id);
+		}
+		return $this->db->count_all_results('members') > 0;
+	}
+
+	public function find_by_email($email)
+	{
+		if (!$this->table_exists() || trim((string) $email) === '') {
+			return null;
+		}
+		$clean = strtolower(trim((string) $email));
+		$this->db->where('LOWER(email)', $clean);
+		$q = $this->db->get('members', 1);
+		$r = $q->row_array();
+		return $r ?: null;
+	}
+
 	private function generate_public_id()
 	{
 		return bin2hex(random_bytes(16));
@@ -230,6 +268,12 @@ class Member_model extends CI_Model {
 		if (!$this->table_exists()) {
 			return false;
 		}
+		if (isset($data['email'])) {
+			$data['email'] = strtolower(trim((string) $data['email']));
+			if ($data['email'] !== '' && $this->email_exists($data['email'])) {
+				return false;
+			}
+		}
 		$data['public_id'] = $this->generate_public_id();
 		if (empty($data['member_id_code'])) {
 			$data['member_id_code'] = $this->generate_member_id_code();
@@ -246,6 +290,12 @@ class Member_model extends CI_Model {
 	{
 		if (!$this->table_exists()) {
 			return false;
+		}
+		if (isset($data['email'])) {
+			$data['email'] = strtolower(trim((string) $data['email']));
+			if ($data['email'] !== '' && $this->email_exists($data['email'], $id)) {
+				return false;
+			}
 		}
 		if (isset($data['referral_code'])) {
 			if ($this->referral_exists($data['referral_code'], $id)) {

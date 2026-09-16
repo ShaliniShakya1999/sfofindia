@@ -101,28 +101,41 @@ $is_member_panel = ($panel_user_type === 'member');
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
-      scroll-behavior: smooth;
+      scroll-behavior: auto !important;
     }
 
-    /* --- Clean Entry Animations --- */
-    <?php if ($is_member_panel): ?>
-    /* Member Panel: Strict Zero Jumping / Cursor Animation Elimination */
+    /* --- Strict Zero Jumping / Cursor Animation & Transition Elimination --- */
+    *, *::before, *::after {
+      transition-duration: 0.04s !important;
+      transition-delay: 0s !important;
+    }
+
     .stagger-item {
       opacity: 1 !important;
       animation: none !important;
       transform: none !important;
     }
-    <?php else: ?>
-    @keyframes slideInUp {
-      from { transform: translateY(6px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
 
-    .stagger-item {
-      opacity: 0;
-      animation: slideInUp 0.3s ease-out forwards;
+    /* Eliminate cursor hover jumping and moving elements */
+    .card:hover,
+    .btn:hover,
+    .nav-link:hover,
+    .stat-card-link:hover,
+    .stat-card-link:hover .card,
+    .stat-card-link:focus .card,
+    .stat-filter-btn:hover,
+    .doc-card:hover,
+    .doc-img-wrap:hover,
+    .btn-submit-premium:hover,
+    .welcome-banner-interactive:hover,
+    .chart-card:hover,
+    .notif-item:hover,
+    .event-clickable-item:hover,
+    .campaign-clickable-item:hover,
+    .doc-item-card:hover,
+    .admin-profile-pill:hover {
+      transform: none !important;
     }
-    <?php endif; ?>
 
     /* --- Sidebar Glass --- */
     #sidenav-main {
@@ -130,7 +143,7 @@ $is_member_panel = ($panel_user_type === 'member');
       background: var(--glass-bg) !important;
       backdrop-filter: blur(14px) saturate(180%);
       box-shadow: var(--admin-shadow) !important;
-      transition: all 0.3s ease;
+      transition: none !important;
     }
 
     #sidenav-main .navbar-nav .nav-link {

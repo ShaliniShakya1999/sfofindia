@@ -158,7 +158,7 @@
                     <p class="text-white-50 mb-0">Become a certified member of Shaheed Foundation India</p>
                 </div>
 
-                <form method="post" enctype="multipart/form-data" action="<?php echo site_url('join-us/submit'); ?>" class="member-apply-card p-4 p-lg-5">
+                <form method="post" enctype="multipart/form-data" action="<?php echo site_url('join-us/submit'); ?>" class="member-apply-card p-4 p-lg-5" id="memberApplyForm">
                     <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;">
                     
                     <!-- Section 1: Manual identity details (external Aadhaar API is disabled) -->
@@ -249,31 +249,49 @@
                             <label class="form-label">Full Name *</label>
                             <input type="text" name="name" id="name" class="form-control" placeholder="As per documents" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label class="form-label">Gender *</label>
-                            <select name="gender" id="gender" class="form-select" required>
+                            <select name="gender" class="form-select" required>
                                 <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Date of Birth *</label>
-                            <input type="date" name="dob" id="dob" class="form-control" required>
+                        <div class="col-md-3">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" name="dob" id="dob" class="form-control">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Relation</label>
+                        <div class="col-md-3">
+                            <label class="form-label">Relation Type</label>
                             <select name="relation_type" class="form-select">
-                                <option value="">Select</option>
-                                <option value="S/O">Son of</option>
-                                <option value="D/O">Daughter of</option>
-                                <option value="W/O">Wife of</option>
+                                <option value="S/O">Son Of (S/O)</option>
+                                <option value="D/O">Daughter Of (D/O)</option>
+                                <option value="W/O">Wife Of (W/O)</option>
+                                <option value="C/O">Care Of (C/O)</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">Relation Name</label>
                             <input type="text" name="relation_name" class="form-control" placeholder="Father/Husband Name">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Profession</label>
+                            <input type="text" name="profession" class="form-control" placeholder="e.g. Engineer, Business">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Blood Group</label>
+                            <select name="blood_group" class="form-select">
+                                <option value="">Select Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
                         </div>
                     </div>
 
@@ -287,8 +305,9 @@
                             <input type="text" name="mobile" class="form-control" placeholder="+91" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-control" placeholder="example@mail.com">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" name="email" id="member_email" class="form-control" placeholder="example@mail.com" required autocomplete="email">
+                            <div id="email_feedback" class="small mt-1" style="display:none;"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Residential Address *</label>
@@ -422,6 +441,99 @@
                         preview.html('<img src="' + e.target.result + '" style="max-height:100%">');
                     };
                     reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // --- Unique Email Real-time Verification ---
+            var emailInput = $('#member_email');
+            var emailFeedback = $('#email_feedback');
+            var emailAvailable = true;
+            var emailTimer = null;
+
+            function validateEmailFormat(email) {
+                var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            function checkEmailUniqueness(callback) {
+                var email = $.trim(emailInput.val());
+                if (!email) {
+                    emailFeedback.hide().removeClass('text-danger text-success text-muted').text('');
+                    emailInput.removeClass('is-invalid is-valid');
+                    emailAvailable = false;
+                    if (typeof callback === 'function') callback(false);
+                    return;
+                }
+                if (!validateEmailFormat(email)) {
+                    emailFeedback.show().removeClass('text-success text-muted').addClass('text-danger').html('<i class="fas fa-exclamation-circle me-1"></i> Please enter a valid email format.');
+                    emailInput.removeClass('is-valid').addClass('is-invalid');
+                    emailAvailable = false;
+                    if (typeof callback === 'function') callback(false);
+                    return;
+                }
+
+                emailFeedback.show().removeClass('text-danger text-success').addClass('text-muted').html('<i class="fas fa-spinner fa-spin me-1"></i> Checking email availability...');
+
+                $.ajax({
+                    url: '<?php echo site_url("join-us/check-email"); ?>',
+                    type: 'GET',
+                    data: { email: email },
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res && res.status === 'success') {
+                            if (res.available) {
+                                emailFeedback.show().removeClass('text-danger text-muted').addClass('text-success').html('<i class="fas fa-check-circle me-1"></i> ' + res.message);
+                                emailInput.removeClass('is-invalid').addClass('is-valid');
+                                emailAvailable = true;
+                                if (typeof callback === 'function') callback(true);
+                            } else {
+                                emailFeedback.show().removeClass('text-success text-muted').addClass('text-danger').html('<i class="fas fa-times-circle me-1"></i> ' + res.message);
+                                emailInput.removeClass('is-valid').addClass('is-invalid');
+                                emailAvailable = false;
+                                if (typeof callback === 'function') callback(false);
+                            }
+                        } else {
+                            emailFeedback.show().removeClass('text-success text-muted').addClass('text-danger').html('<i class="fas fa-exclamation-circle me-1"></i> ' + (res.message || 'Error checking email.'));
+                            emailInput.removeClass('is-valid').addClass('is-invalid');
+                            emailAvailable = false;
+                            if (typeof callback === 'function') callback(false);
+                        }
+                    },
+                    error: function() {
+                        emailFeedback.hide();
+                        if (typeof callback === 'function') callback(true);
+                    }
+                });
+            }
+
+            emailInput.on('blur', function() {
+                checkEmailUniqueness();
+            });
+
+            emailInput.on('input', function() {
+                clearTimeout(emailTimer);
+                emailTimer = setTimeout(checkEmailUniqueness, 500);
+            });
+
+            $('#memberApplyForm').on('submit', function(e) {
+                var email = $.trim(emailInput.val());
+                if (!email) {
+                    e.preventDefault();
+                    alert('Please enter your email address.');
+                    emailInput.focus();
+                    return false;
+                }
+                if (!validateEmailFormat(email)) {
+                    e.preventDefault();
+                    alert('Please enter a valid email address.');
+                    emailInput.focus();
+                    return false;
+                }
+                if (!emailAvailable) {
+                    e.preventDefault();
+                    alert('The email address you entered is already registered. Each member must have a unique email address.');
+                    emailInput.focus();
+                    return false;
                 }
             });
 

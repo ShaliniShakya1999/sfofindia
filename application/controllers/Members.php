@@ -299,6 +299,20 @@ class Members extends My_Controller {
 		if ($fields['name'] === '') {
 			$this->session->set_flashdata('error', 'Name is required.');
 			redirect($id ? 'members/form/' . $id : 'members/form');
+			return;
+		}
+		if (!empty($fields['email'])) {
+			$fields['email'] = strtolower(trim((string) $fields['email']));
+			if (!filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) {
+				$this->session->set_flashdata('error', 'Please enter a valid email address.');
+				redirect($id ? 'members/form/' . $id : 'members/form');
+				return;
+			}
+			if ($this->members->email_exists($fields['email'], $id > 0 ? $id : null)) {
+				$this->session->set_flashdata('error', 'This email address is already registered to another member. Every member must have a unique email address.');
+				redirect($id ? 'members/form/' . $id : 'members/form');
+				return;
+			}
 		}
 		if ($fields['referral_code'] === '') {
 			unset($fields['referral_code']);
@@ -349,7 +363,7 @@ class Members extends My_Controller {
 			}
 			unset($fields['added_by']);
 			$ok = $this->members->update_member($id, $fields);
-			$this->session->set_flashdata($ok ? 'success' : 'error', $ok ? 'Member updated.' : 'Could not update (check referral code unique).');
+			$this->session->set_flashdata($ok ? 'success' : 'error', $ok ? 'Member updated.' : 'Could not update (check that email and referral code are unique).');
 			redirect('members');
 		}
 		$ok = $this->members->insert_member($fields);
@@ -362,7 +376,7 @@ class Members extends My_Controller {
 				$new_id > 0 ? 'members/form/' . $new_id : 'members'
 			);
 		}
-		$this->session->set_flashdata($ok ? 'success' : 'error', $ok ? 'Member created.' : 'Could not create (check referral code).');
+		$this->session->set_flashdata($ok ? 'success' : 'error', $ok ? 'Member created.' : 'Could not create (check that email and referral code are unique).');
 		redirect('members');
 	}
 
@@ -708,5 +722,32 @@ class Members extends My_Controller {
 			$out .= $chars[random_int(0, strlen($chars) - 1)];
 		}
 		return $out;
+	}
+
+	public function check_email()
+	{
+		$email = strtolower(trim((string) $this->input->post_get('email', true)));
+		$exclude_id = (int) $this->input->post_get('exclude_id', true);
+		if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(array(
+					'status' => 'error',
+					'available' => false,
+					'message' => 'Please enter a valid email address.'
+				)));
+			return;
+		}
+
+		$exists = $this->members->email_exists($email, $exclude_id > 0 ? $exclude_id : null);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(array(
+				'status' => 'success',
+				'available' => !$exists,
+				'message' => $exists
+					? 'This email address is already registered to another member.'
+					: 'Email address is available.'
+			)));
 	}
 }

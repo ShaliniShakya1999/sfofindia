@@ -503,6 +503,9 @@ $config['csrf_exclude_uris'] = array(
 	'gallery_manager/upload',
 	'automation/daily',
 	'admin/send_profile_otp',
+	'join-us/check-email',
+	'member_apply/check_email',
+	'members/check_email',
 );
 
 /*

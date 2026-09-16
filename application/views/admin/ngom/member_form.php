@@ -99,8 +99,9 @@ $is_edit = !empty($is_edit);
                                 <input type="text" name="mobile" class="form-control px-3 border" value="<?php echo html_escape($m['mobile'] ?? ''); ?>">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-xs font-weight-bold">Email Address</label>
-                                <input type="email" name="email" class="form-control px-3 border" value="<?php echo html_escape($m['email'] ?? ''); ?>">
+                                <label class="form-label text-xs font-weight-bold">Email Address <span class="text-muted font-weight-normal">(Must be unique)</span></label>
+                                <input type="email" name="email" id="admin_member_email" class="form-control px-3 border" value="<?php echo html_escape($m['email'] ?? ''); ?>">
+                                <div id="admin_email_feedback" class="text-xxs mt-1" style="display:none;"></div>
                             </div>
                             <div class="col-md-8">
                                 <label class="form-label text-xs font-weight-bold">Aadhar Card Number</label>
@@ -285,6 +286,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 reader.readAsDataURL(this.files[0]);
             }
+        });
+    }
+
+    // Dynamic unique email verification
+    const emailInput = document.getElementById('admin_member_email');
+    const emailFeedback = document.getElementById('admin_email_feedback');
+    const excludeId = <?php echo (int)($m['id'] ?? 0); ?>;
+    let emailTimer = null;
+
+    function checkAdminEmail() {
+        if (!emailInput || !emailFeedback) return;
+        const val = emailInput.value.trim();
+        if (!val) {
+            emailFeedback.style.display = 'none';
+            emailFeedback.innerText = '';
+            emailInput.classList.remove('is-invalid', 'is-valid');
+            return;
+        }
+
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!re.test(val)) {
+            emailFeedback.style.display = 'block';
+            emailFeedback.className = 'text-xxs mt-1 text-danger';
+            emailFeedback.innerHTML = '<i class="material-symbols-rounded text-xs align-middle">error</i> Invalid email format';
+            emailInput.classList.remove('is-valid');
+            emailInput.classList.add('is-invalid');
+            return;
+        }
+
+        fetch('<?php echo site_url("members/check_email"); ?>?email=' + encodeURIComponent(val) + '&exclude_id=' + excludeId)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.status === 'success') {
+                    if (data.available) {
+                        emailFeedback.style.display = 'block';
+                        emailFeedback.className = 'text-xxs mt-1 text-success';
+                        emailFeedback.innerHTML = '<i class="material-symbols-rounded text-xs align-middle">check_circle</i> ' + data.message;
+                        emailInput.classList.remove('is-invalid');
+                        emailInput.classList.add('is-valid');
+                    } else {
+                        emailFeedback.style.display = 'block';
+                        emailFeedback.className = 'text-xxs mt-1 text-danger';
+                        emailFeedback.innerHTML = '<i class="material-symbols-rounded text-xs align-middle">cancel</i> ' + data.message;
+                        emailInput.classList.remove('is-valid');
+                        emailInput.classList.add('is-invalid');
+                    }
+                }
+            })
+            .catch(() => {
+                emailFeedback.style.display = 'none';
+            });
+    }
+
+    if (emailInput) {
+        emailInput.addEventListener('blur', checkAdminEmail);
+        emailInput.addEventListener('input', function() {
+            clearTimeout(emailTimer);
+            emailTimer = setTimeout(checkAdminEmail, 500);
         });
     }
 });
