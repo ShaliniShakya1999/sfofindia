@@ -29,21 +29,23 @@ $masked_aadhaar = strlen($masked_aadhaar) >= 4 ? 'XXXX-XXXX-' . substr($masked_a
 			<p class="text-sm text-muted mb-0">Review the member record and available actions.</p>
 		</div>
 		<div class="d-flex flex-wrap gap-2">
-			<a class="btn btn-primary btn-sm mb-0" href="<?php echo site_url('members/form/' . $member_id); ?>">
-				<i class="material-symbols-rounded align-middle me-1" style="font-size:16px;">edit</i> Edit member
+			<a class="btn btn-sm mb-0 d-inline-flex align-items-center gap-1 shadow-sm text-white" href="<?php echo site_url('members/form/' . $member_id); ?>" style="background-color: #1a685b; border-radius: 8px; font-weight: 600;">
+				<i class="material-symbols-rounded align-middle" style="font-size:16px;">edit</i> Edit member
 			</a>
 			<?php if ($status === 'active'): ?>
-				<a class="btn btn-warning btn-sm mb-0" href="<?php echo site_url('members/document_view/' . $member_id . '/id-card'); ?>">
-					<i class="material-symbols-rounded align-middle me-1" style="font-size:16px;">badge</i> ID Card
+				<a class="btn btn-outline-warning btn-sm mb-0 d-inline-flex align-items-center gap-1" href="<?php echo site_url('members/document_view/' . $member_id . '/id-card'); ?>" style="border-radius: 8px;">
+					<i class="material-symbols-rounded align-middle" style="font-size:16px;">badge</i> ID Card
 				</a>
-				<a class="btn btn-info btn-sm mb-0" href="<?php echo site_url('members/document_view/' . $member_id . '/appointment-letter'); ?>">
-					<i class="material-symbols-rounded align-middle me-1" style="font-size:16px;">description</i> Appointment Letter
+				<a class="btn btn-outline-info btn-sm mb-0 d-inline-flex align-items-center gap-1" href="<?php echo site_url('members/document_view/' . $member_id . '/appointment-letter'); ?>" style="border-radius: 8px;">
+					<i class="material-symbols-rounded align-middle" style="font-size:16px;">description</i> Appointment Letter
 				</a>
-				<a class="btn btn-secondary btn-sm mb-0" href="<?php echo site_url('members/document_view/' . $member_id . '/certificate'); ?>">
-					<i class="material-symbols-rounded align-middle me-1" style="font-size:16px;">workspace_premium</i> Certificate
+				<a class="btn btn-outline-secondary btn-sm mb-0 d-inline-flex align-items-center gap-1" href="<?php echo site_url('members/document_view/' . $member_id . '/certificate'); ?>" style="border-radius: 8px;">
+					<i class="material-symbols-rounded align-middle" style="font-size:16px;">workspace_premium</i> Certificate
 				</a>
 			<?php else: ?>
-				<a class="btn btn-success btn-sm mb-0" href="<?php echo site_url('members/form/' . $member_id); ?>">Review / verify</a>
+				<a class="btn btn-sm mb-0 d-inline-flex align-items-center gap-1 shadow-sm text-white" href="<?php echo site_url('members/form/' . $member_id); ?>" style="background-color: #0f766e; border-radius: 8px; font-weight: 600;">
+					<i class="material-symbols-rounded align-middle" style="font-size:16px;">verified</i> Review / verify
+				</a>
 			<?php endif; ?>
 		</div>
 	</div>
@@ -126,15 +128,15 @@ $masked_aadhaar = strlen($masked_aadhaar) >= 4 ? 'XXXX-XXXX-' . substr($masked_a
 					</div>
 				</div>
 			</div>
-			<div class="card border-0 shadow-sm">
+			<div class="card border-0 shadow-sm" style="border-radius: 12px;">
 				<div class="card-header pb-0"><h6>Quick actions</h6></div>
 				<div class="card-body d-flex flex-wrap align-items-center gap-2 pt-2">
 					<?php if ($member['mobile'] ?? ''): ?>
 						<a class="btn btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
-						   style="height: 38px; min-height: 38px; background: #25D366; color: #ffffff; border: 1px solid #1ebc59; border-radius: 8px; font-weight: 600; font-size: 0.8125rem; padding: 0 1rem;"
+						   style="height: 38px; min-height: 38px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 8px; font-weight: 600; font-size: 0.8125rem; padding: 0 1rem; transition: all 0.2s;"
 						   target="_blank"
 						   href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $member['mobile']); ?>">
-							<i class="fab fa-whatsapp me-1 text-sm"></i> WhatsApp member
+							<i class="fab fa-whatsapp me-1" style="color: #16a34a; font-size: 15px;"></i> WhatsApp member
 						</a>
 					<?php endif; ?>
 					<form method="post" action="<?php echo site_url('members/set_status'); ?>" class="d-inline-flex align-items-center gap-2 mb-0">
@@ -145,15 +147,15 @@ $masked_aadhaar = strlen($masked_aadhaar) >= 4 ? 'XXXX-XXXX-' . substr($masked_a
 								<option value="<?php echo $option; ?>" <?php echo $status === $option ? 'selected' : ''; ?>><?php echo ucfirst($option); ?></option>
 							<?php endforeach; ?>
 						</select>
-						<button type="submit" class="btn btn-dark btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
-								style="height: 38px; min-height: 38px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; padding: 0 1rem; border: 1px solid #1e293b;">
-							Update status
+						<button type="submit" class="btn btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-sm text-white"
+								style="height: 38px; min-height: 38px; background-color: #1a685b; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; padding: 0 1rem; border: none;">
+							<i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">sync</i> Update status
 						</button>
 					</form>
 					<form method="post" action="<?php echo site_url('members/delete/' . $member_id); ?>" class="d-inline-flex align-items-center mb-0" onsubmit="return confirm('Delete this member permanently?');">
-						<button type="submit" class="btn btn-outline-danger btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
-								style="height: 38px; min-height: 38px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; padding: 0 1rem; border: 1px solid #ef4444;">
-							Delete member
+						<button type="submit" class="btn btn-sm mb-0 text-nowrap d-inline-flex align-items-center justify-content-center shadow-none"
+								style="height: 38px; min-height: 38px; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; padding: 0 1rem;">
+							<i class="material-symbols-rounded align-middle me-1" style="font-size: 16px;">delete</i> Delete member
 						</button>
 					</form>
 				</div>

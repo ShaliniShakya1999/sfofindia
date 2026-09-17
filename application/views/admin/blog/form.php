@@ -72,7 +72,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label font-weight-bold text-dark text-xs">Posted By</label>
-                            <input type="text" name="postedBy" class="form-control border shadow-xs" value="<?php echo html_escape($blog['postedBy']); ?>">
+                            <input type="text" name="postedBy" class="form-control border shadow-xs" placeholder="e.g. Admin, Editorial Team" value="<?php echo html_escape($blog['postedBy']); ?>">
                         </div>
                         <div class="mb-0">
                             <label class="form-label font-weight-bold text-dark text-xs">Posted Date</label>

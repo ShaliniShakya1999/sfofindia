@@ -9,17 +9,50 @@ $manager_users = isset($manager_users) ? $manager_users : array();
 $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 ?>
 <style>
-	.members-action-menu { position: relative; display: inline-block; }
-	.members-action-menu summary { list-style: none; cursor: pointer; }
-	.members-action-menu summary::-webkit-details-marker { display: none; }
-	.members-action-menu[open] summary { background-color: #344767; color: #fff; }
-	.members-action-dropdown { position: absolute; right: 0; top: calc(100% + 0.35rem); z-index: 10; min-width: 190px; padding: 0.4rem; background: #fff; border-radius: 0.65rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14); text-align: left; }
-	.members-action-dropdown a { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.65rem; color: #344767; border-radius: 0.4rem; font-size: 0.8rem; text-decoration: none; white-space: nowrap; }
-	.members-action-dropdown a:hover { background: #f1f3f5; }
-	.members-action-dropdown a.text-danger:hover { background: #fff1f2; }
-	.members-action-dropdown i { font-size: 16px; }
+	.card-body { position: relative; }
+	.card .table-responsive {
+		overflow: visible !important;
+	}
+	@media (max-width: 991px) {
+		.card .table-responsive {
+			overflow-x: auto !important;
+			padding-bottom: 120px;
+		}
+	}
 	.member-row-link { cursor: pointer; }
 	.member-row-link:hover { background-color: rgba(79, 70, 229, 0.04); }
+	.member-action-btn:focus,
+	.member-action-btn:active {
+		box-shadow: none !important;
+	}
+	.members-dropdown-menu {
+		min-width: 200px;
+		border-radius: 12px;
+		border: 1px solid rgba(0,0,0,0.08) !important;
+		padding: 6px;
+		z-index: 1060 !important;
+	}
+	.members-dropdown-menu .dropdown-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 8px;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: #344767;
+	}
+	.members-dropdown-menu .dropdown-item:hover {
+		background-color: #f8f9fa;
+		color: #1a685b;
+	}
+	.members-dropdown-menu .dropdown-item.text-danger:hover {
+		background-color: #fff5f5;
+		color: #dc3545;
+	}
+	.members-dropdown-menu i {
+		font-size: 18px;
+	}
 </style>
 <div class="container-fluid py-4">
 	<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
@@ -183,29 +216,36 @@ $coordinator_users = isset($coordinator_users) ? $coordinator_users : array();
 								<?php endif; ?>
 								<td class="text-end" onclick="event.stopPropagation();">
 									<div class="d-flex gap-2 justify-content-end align-items-center">
-										<a class="btn btn-sm btn-outline-primary mb-0" href="<?php echo site_url('members/view/' . (int) $m['id']); ?>">
+										<a class="btn btn-sm btn-outline-primary mb-0 d-inline-flex align-items-center" href="<?php echo site_url('members/view/' . (int) $m['id']); ?>">
 											<i class="material-symbols-rounded align-middle me-1" style="font-size:15px;">visibility</i> View
 										</a>
-										<details class="members-action-menu" onclick="event.stopPropagation();">
-											<summary class="btn btn-sm btn-outline-secondary mb-0">Actions <i class="material-symbols-rounded align-middle ms-1" style="font-size:15px;">expand_more</i></summary>
-											<div class="members-action-dropdown">
+										<div class="dropdown d-inline-block" onclick="event.stopPropagation();">
+											<button class="btn btn-sm btn-outline-secondary mb-0 dropdown-toggle member-action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+												Actions
+											</button>
+											<ul class="dropdown-menu dropdown-menu-end shadow-lg members-dropdown-menu">
 												<?php if ($m['status'] !== 'active'): ?>
-													<a href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-success">verified</i> Review / verify</a>
-													<a href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-primary">edit</i> Edit member</a>
+													<li><a class="dropdown-item" href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-success">verified</i> Review / verify</a></li>
+													<li><a class="dropdown-item" href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-primary">edit</i> Edit member</a></li>
 												<?php else: ?>
-													<a href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/id-card'); ?>"><i class="material-symbols-rounded text-warning">badge</i> ID card</a>
-													<a href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/appointment-letter'); ?>"><i class="material-symbols-rounded text-info">description</i> Appointment letter</a>
-													<a href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/certificate'); ?>"><i class="material-symbols-rounded text-secondary">workspace_premium</i> Certificate</a>
-													<a href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-primary">edit</i> Edit member</a>
+													<li><a class="dropdown-item" href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/id-card'); ?>"><i class="material-symbols-rounded text-warning">badge</i> ID card</a></li>
+													<li><a class="dropdown-item" href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/appointment-letter'); ?>"><i class="material-symbols-rounded text-info">description</i> Appointment letter</a></li>
+													<li><a class="dropdown-item" href="<?php echo site_url('members/document_view/' . (int) $m['id'] . '/certificate'); ?>"><i class="material-symbols-rounded text-secondary">workspace_premium</i> Certificate</a></li>
+													<li><a class="dropdown-item" href="<?php echo site_url('members/form/' . (int) $m['id']); ?>"><i class="material-symbols-rounded text-primary">edit</i> Edit member</a></li>
 													<?php if (!empty($m['mobile'])): ?>
-														<a target="_blank" href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $m['mobile']); ?>"><i class="fab fa-whatsapp text-success"></i> WhatsApp member</a>
+														<li><a class="dropdown-item" target="_blank" href="https://wa.me/<?php echo preg_replace('/\D+/', '', (string) $m['mobile']); ?>"><i class="fab fa-whatsapp text-success"></i> WhatsApp member</a></li>
 													<?php endif; ?>
 												<?php endif; ?>
-												<form method="post" action="<?php echo site_url('members/delete/' . (int) $m['id']); ?>" onsubmit="return confirm('Delete permanently?');">
-													<button type="submit" class="dropdown-item text-danger"><i class="material-symbols-rounded">delete</i> Delete member</button>
-												</form>
-											</div>
-										</details>
+												<li><hr class="dropdown-divider my-1"></li>
+												<li>
+													<form method="post" action="<?php echo site_url('members/delete/' . (int) $m['id']); ?>" onsubmit="return confirm('Delete permanently?');" class="m-0 p-0">
+														<button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+															<i class="material-symbols-rounded text-danger">delete</i> Delete member
+														</button>
+													</form>
+												</li>
+											</ul>
+										</div>
 									</div>
 								</td>
 							</tr>
@@ -231,7 +271,7 @@ document.querySelectorAll('.member-photo').forEach(function (photo) {
 });
 document.querySelectorAll('.member-row-link').forEach(function (row) {
 	row.addEventListener('click', function (event) {
-		if (event.target.closest('a, button, input, select, textarea, form, summary, .members-action-menu')) {
+		if (event.target.closest('a, button, input, select, textarea, form, .dropdown, .dropdown-menu, .dropdown-toggle')) {
 			return;
 		}
 		window.location.href = row.getAttribute('data-member-url');
@@ -241,21 +281,6 @@ document.querySelectorAll('.member-row-link').forEach(function (row) {
 			event.preventDefault();
 			window.location.href = row.getAttribute('data-member-url');
 		}
-	});
-});
-document.querySelectorAll('.members-action-menu').forEach(function (menu) {
-	menu.addEventListener('click', function (event) {
-		event.stopPropagation();
-	});
-	menu.addEventListener('toggle', function () {
-		if (!menu.open) {
-			return;
-		}
-		document.querySelectorAll('.members-action-menu[open]').forEach(function (otherMenu) {
-			if (otherMenu !== menu) {
-				otherMenu.removeAttribute('open');
-			}
-		});
 	});
 });
 </script>

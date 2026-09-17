@@ -66,9 +66,11 @@ $route['team'] = 'welcome/team';
 $route['join-us'] = 'member_apply/index';
 $route['join-us/submit'] = 'member_apply/submit';
 $route['join-us/check-email'] = 'member_apply/check_email';
-// Aadhaar OTP API disabled; member identity is reviewed manually.
-// $route['join-us/send_aadhaar_otp'] = 'member_apply/send_aadhaar_otp';
-// $route['join-us/verify_aadhaar_otp'] = 'member_apply/verify_aadhaar_otp';
+$route['join-us/check-mobile'] = 'member_apply/check_mobile';
+$route['join-us/check-aadhar'] = 'member_apply/check_aadhar';
+// Aadhaar OTP Verification routes (PaySprint API)
+$route['join-us/send_aadhaar_otp'] = 'member_apply/send_aadhaar_otp';
+$route['join-us/verify_aadhaar_otp'] = 'member_apply/verify_aadhaar_otp';
 $route['member-login'] = 'admin/login';
 $route['member-login/submit'] = 'admin/do_login';
 $route['forgot-password'] = 'admin/forgot_password';

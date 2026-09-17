@@ -15,7 +15,7 @@ class Member_apply extends My_Controller {
 		parent::__construct();
 		$this->load->database();
 		$this->load->library('session');
-		$this->load->helper(array('form', 'url'));
+		$this->load->helper(array('form', 'url', 'cms'));
 		$this->load->model('Member_model', 'members');
 		// Make sure every column the form/submit() relies on actually exists,
 		// even on a freshly restored/older copy of the database.
@@ -31,52 +31,139 @@ class Member_apply extends My_Controller {
 	}
 
 	// =====================================================================
-	// PAYSPRINT AADHAAR API - TEMPORARILY DISABLED
-	// Uncomment below functions when Paysprint API credentials are ready.
-	// The form already posts aadhar_no / aadhar_verified / aadhar_data
-	// hidden fields, so wiring this back in is just a matter of enabling
-	// the endpoints and pointing the frontend JS at them.
+	// PAYSPRINT AADHAAR VERIFICATION API
 	// =====================================================================
-	/*
+
 	public function send_aadhaar_otp()
 	{
-		if (!$this->input->is_ajax_request()) { show_404(); }
-		$id_number = trim((string) $this->input->post('id_number', true));
+		if (!$this->input->is_ajax_request() && strtoupper((string)$this->input->server('REQUEST_METHOD')) !== 'POST') {
+			show_404();
+		}
+		$id_number = preg_replace('/\D+/', '', (string) $this->input->post('id_number', true));
 		if (strlen($id_number) !== 12) {
-			echo json_encode(array('status' => false, 'message' => 'Invalid Aadhaar Number'));
+			$this->output->set_content_type('application/json')->set_output(json_encode(array(
+				'status' => false,
+				'statuscode' => 422,
+				'message' => 'Please enter a valid 12-digit Aadhaar number.'
+			)));
+			return;
+		}
+
+		if ($this->members->aadhar_exists($id_number)) {
+			$this->output->set_content_type('application/json')->set_output(json_encode(array(
+				'status' => false,
+				'statuscode' => 409,
+				'message' => 'This Aadhaar card number is already registered with an existing member. Each member must have a unique Aadhaar number.'
+			)));
 			return;
 		}
 
 		$response = $this->call_paysprint_api('verification/aadhaar_sendotp', array('id_number' => $id_number));
-		echo json_encode($response);
+		$this->output->set_content_type('application/json')->set_output(json_encode($response));
 	}
 
 	public function verify_aadhaar_otp()
 	{
-		if (!$this->input->is_ajax_request()) { show_404(); }
-		$client_id = $this->input->post('client_id', true);
-		$otp = $this->input->post('otp', true);
+		if (!$this->input->is_ajax_request() && strtoupper((string)$this->input->server('REQUEST_METHOD')) !== 'POST') {
+			show_404();
+		}
+		$client_id = trim((string) $this->input->post('client_id', true));
+		$otp = trim((string) $this->input->post('otp', true));
+		$refid = trim((string) $this->input->post('refid', true)) ?: (string) time();
+
 		if (!$client_id || !$otp) {
-			echo json_encode(array('status' => false, 'message' => 'Missing client_id or OTP'));
+			$this->output->set_content_type('application/json')->set_output(json_encode(array(
+				'status' => false,
+				'statuscode' => 422,
+				'message' => 'Missing client_id or OTP'
+			)));
 			return;
 		}
 
 		$response = $this->call_paysprint_api('verification/aadhaar_verifyotp', array(
 			'client_id' => $client_id,
 			'otp' => $otp,
-			'refid' => time()
+			'refid' => $refid
 		));
-		echo json_encode($response);
+		$this->output->set_content_type('application/json')->set_output(json_encode($response));
+	}
+
+	private function get_paysprint_token()
+	{
+		$secret = (string) $this->config->item('pay_sprint_secret');
+		$partner_id = (string) ($this->config->item('pay_sprint_partner_id') ?: $this->config->item('pay_sprint_ua'));
+
+		// Dynamically generate HS256 JWT if partner secret is configured
+		if (!empty($secret) && !empty($partner_id)) {
+			$header = json_encode(array('alg' => 'HS256', 'typ' => 'JWT'));
+			$payload = json_encode(array(
+				'timestamp' => time(),
+				'partnerId' => $partner_id,
+				'reqid' => (string) (time() . mt_rand(100, 999))
+			));
+
+			$b64Header = rtrim(strtr(base64_encode($header), '+/', '-_'), '=');
+			$b64Payload = rtrim(strtr(base64_encode($payload), '+/', '-_'), '=');
+			$sig = rtrim(strtr(base64_encode(hash_hmac('sha256', "$b64Header.$b64Payload", $secret, true)), '+/', '-_'), '=');
+
+			return "$b64Header.$b64Payload.$sig";
+		}
+
+		return (string) $this->config->item('pay_sprint_token');
 	}
 
 	private function call_paysprint_api($endpoint, $data)
 	{
-		$url = 'https://uat.paysprint.in/sprintverify-uat/api/v1/' . $endpoint;
+		// Optional sandbox/mock mode for testing UI and form auto-fill without live API
+		if ($this->config->item('pay_sprint_mock_mode') === true) {
+			if (strpos($endpoint, 'aadhaar_sendotp') !== false) {
+				return array(
+					'status' => true,
+					'statuscode' => 200,
+					'message' => 'OTP sent successfully to registered mobile number.',
+					'data' => array(
+						'client_id' => 'aadhaar_v3_DEMO_' . time(),
+						'otp_sent' => true,
+						'if_number' => true,
+						'valid_aadhaar' => true
+					)
+				);
+			} elseif (strpos($endpoint, 'aadhaar_verifyotp') !== false) {
+				return array(
+					'status' => true,
+					'statuscode' => 200,
+					'message' => 'Aadhaar verified successfully',
+					'data' => array(
+						'client_id' => $data['client_id'] ?? 'aadhaar_v3_demo',
+						'full_name' => 'Demo Applicant',
+						'dob' => '1995-05-20',
+						'gender' => 'M',
+						'zip' => '110001',
+						'address' => array(
+							'house' => 'House No. 12',
+							'street' => 'Parliament Street',
+							'loc' => 'Connaught Place',
+							'vtc' => 'New Delhi',
+							'dist' => 'Central Delhi',
+							'state' => 'Delhi'
+						)
+					)
+				);
+			}
+		}
+
+		$base_url = (string) ($this->config->item('pay_sprint_base_url') ?: 'https://sit.paysprint.in/sprintverify-uat/api/v1/');
+		$url = rtrim($base_url, '/') . '/' . ltrim($endpoint, '/');
+
+		$token = $this->get_paysprint_token();
+		$key = (string) $this->config->item('pay_sprint_key');
+		$ua = (string) ($this->config->item('pay_sprint_ua') ?: 'CORP00001');
+
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false, // Required for some UAT environments
+			CURLOPT_SSL_VERIFYPEER => false, // Required for UAT environments
 			CURLOPT_ENCODING => '',
 			CURLOPT_MAXREDIRS => 10,
 			CURLOPT_TIMEOUT => 30,
@@ -85,9 +172,9 @@ class Member_apply extends My_Controller {
 			CURLOPT_CUSTOMREQUEST => 'POST',
 			CURLOPT_POSTFIELDS => json_encode($data),
 			CURLOPT_HTTPHEADER => array(
-				'Token: ' . $this->config->item('pay_sprint_token'),
-				'Authorisedkey: ' . $this->config->item('pay_sprint_key'),
-				'User-Agent: ' . $this->config->item('pay_sprint_ua'),
+				'Token: ' . $token,
+				'Authorisedkey: ' . $key,
+				'User-Agent: ' . $ua,
 				'Content-Type: application/json'
 			),
 		));
@@ -96,11 +183,17 @@ class Member_apply extends My_Controller {
 		$err = curl_error($curl);
 		curl_close($curl);
 
-		if ($err) { return array('status' => false, 'statuscode' => 500, 'message' => 'CURL Error: ' . $err); }
-		$res = json_decode((string)$response, true);
-		return $res ?: array('status' => false, 'statuscode' => 500, 'message' => 'Invalid API Response');
+		if ($err) {
+			return array('status' => false, 'statuscode' => 500, 'message' => 'CURL Error: ' . $err);
+		}
+
+		$res = json_decode((string) $response, true);
+		if (!$res) {
+			return array('status' => false, 'statuscode' => 500, 'message' => 'Invalid API Response from server');
+		}
+
+		return $res;
 	}
-	*/
 
 	public function submit()
 	{
@@ -146,6 +239,7 @@ class Member_apply extends My_Controller {
 			'join_source' => 'website',
 			'notes' => $this->input->post('notes', false),
 			'added_by' => null,
+			'photo' => null,
 		);
 
 		if ($fields['name'] === '' || $fields['gender'] === '' || $fields['mobile'] === '' || $fields['address'] === '') {
@@ -170,6 +264,48 @@ class Member_apply extends My_Controller {
 			$this->session->set_flashdata('error', 'This email address is already registered. Each member must have a unique email address.');
 			redirect('join-us');
 			return;
+		}
+
+		if (!empty($fields['mobile']) && $this->members->mobile_exists($fields['mobile'])) {
+			$this->session->set_flashdata('error', 'This contact number is already registered with an existing member. Each member must have a unique mobile number.');
+			redirect('join-us');
+			return;
+		}
+
+		if (!empty($fields['aadhar_no']) && $this->members->aadhar_exists($fields['aadhar_no'])) {
+			$this->session->set_flashdata('error', 'This Aadhaar card number is already registered with an existing member. Each member must have a unique Aadhaar number.');
+			redirect('join-us');
+			return;
+		}
+
+		if (strtolower(trim((string)$fields['payment_mode'])) === 'cash') {
+			$this->session->set_flashdata('error', 'Cash payment mode is only accepted for in-person administrative applications. Please select an online or bank payment mode.');
+			redirect('join-us');
+			return;
+		}
+
+		$this->load->model('Site_model');
+		$cms_data = $this->Site_model->get_all_flat();
+		$min_fee = (float) (cms_val($cms_data, 'membership_fee', '5000') ?: 5000);
+		if ($fields['donation_amount'] < $min_fee) {
+			$this->session->set_flashdata('error', 'A fixed membership fee of ₹' . number_format($min_fee) . ' is required to register as a member.');
+			redirect('join-us');
+			return;
+		}
+
+		// Ready block: Capture UTR reference or online gateway payment ID if submitted
+		$utr = trim((string) ($this->input->post('upi_utr', true) ?: $this->input->post('bank_utr', true)));
+		$razorpay_payment_id = trim((string) $this->input->post('razorpay_payment_id', true));
+		$extra_notes = array();
+		if ($utr !== '') {
+			$extra_notes[] = 'UTR / Ref No: ' . $utr;
+		}
+		if ($razorpay_payment_id !== '') {
+			$extra_notes[] = 'Online Payment ID: ' . $razorpay_payment_id;
+		}
+		if (!empty($extra_notes)) {
+			$existing = (string) ($fields['notes'] ?? '');
+			$fields['notes'] = trim($existing . "\n" . implode("\n", $extra_notes));
 		}
 
 		// Handle uploads — one field per document type, matching the
@@ -295,6 +431,60 @@ class Member_apply extends My_Controller {
 				'message' => $exists
 					? 'This email address is already registered.'
 					: 'Email address is available.'
+			)));
+	}
+
+	public function check_mobile()
+	{
+		$mobile = trim((string) $this->input->post_get('mobile', true));
+		$digits = preg_replace('/\D+/', '', $mobile);
+		if (strlen($digits) < 10) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(array(
+					'status' => 'error',
+					'available' => false,
+					'message' => 'Please enter a valid 10-digit mobile number.'
+				)));
+			return;
+		}
+
+		$exists = $this->members->mobile_exists($mobile);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(array(
+				'status' => 'success',
+				'available' => !$exists,
+				'message' => $exists
+					? 'This contact number is already registered.'
+					: 'Contact number is available.'
+			)));
+	}
+
+	public function check_aadhar()
+	{
+		$aadhar = trim((string) $this->input->post_get('aadhar_no', true));
+		$digits = preg_replace('/\D+/', '', $aadhar);
+		if (strlen($digits) !== 12) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(array(
+					'status' => 'error',
+					'available' => false,
+					'message' => 'Please enter a valid 12-digit Aadhaar number.'
+				)));
+			return;
+		}
+
+		$exists = $this->members->aadhar_exists($digits);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(array(
+				'status' => 'success',
+				'available' => !$exists,
+				'message' => $exists
+					? 'This Aadhaar card number is already registered.'
+					: 'Aadhaar number is available.'
 			)));
 	}
 }

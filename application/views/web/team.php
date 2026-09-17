@@ -96,10 +96,6 @@
             $team_display = $fallback_team;
         }
 
-        $fb_url = !empty($cms['social_facebook']) ? $cms['social_facebook'] : '#!';
-        $tw_url = !empty($cms['social_twitter']) ? $cms['social_twitter'] : '#!';
-        $ig_url = !empty($cms['social_instagram']) ? $cms['social_instagram'] : '#!';
-        $yt_url = !empty($cms['social_youtube']) ? $cms['social_youtube'] : '#!';
         ?>
         <div class="container-fluid py-5">
             <div class="container">
@@ -118,18 +114,15 @@
                             : web_asset('img/team-' . (($index % 3) + 1) . '.jpg');
                         ?>
                         <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="<?php echo $delay; ?>">
-                            <div class="team-item d-flex h-100 p-4 shadow-sm border-radius-lg">
-                                <div class="team-detail pe-4 flex-grow-1">
-                                    <img class="img-fluid mb-4 rounded" style="height: 180px; width: 100%; object-fit: cover;" src="<?php echo html_escape($photo_url); ?>" alt="<?php echo html_escape($member['name']); ?>" onerror="this.src='<?php echo web_asset('img/team-' . (($index % 3) + 1) . '.jpg'); ?>';">
-                                    <h4 class="mb-1"><?php echo html_escape($member['name']); ?></h4>
-                                    <span class="text-primary font-weight-bold text-sm"><?php echo html_escape($member['role']); ?></span>
+                            <div class="card h-100 border-0 shadow-sm text-center p-4 rounded-4 bg-white" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                <div class="position-relative d-inline-block mx-auto mb-3">
+                                    <img class="rounded-circle shadow-sm" style="width: 140px; height: 140px; object-fit: cover; border: 4px solid #f8f9fa;" src="<?php echo html_escape($photo_url); ?>" alt="<?php echo html_escape($member['name']); ?>" onerror="this.src='<?php echo web_asset('img/team-' . (($index % 3) + 1) . '.jpg'); ?>';">
+                                    <span class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle p-1 d-flex align-items-center justify-content-center shadow-sm" style="width: 28px; height: 28px; border: 2px solid #fff;" title="Verified">
+                                        <i class="fas fa-check" style="font-size: 13px;"></i>
+                                    </span>
                                 </div>
-                                <div class="team-social bg-light d-flex flex-column justify-content-center flex-shrink-0 p-3 rounded">
-                                    <a class="btn btn-square btn-primary my-1" href="<?php echo html_escape($fb_url); ?>" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                                    <a class="btn btn-square btn-primary my-1" href="<?php echo html_escape($tw_url); ?>" target="_blank"><i class="fab fa-x-twitter"></i></a>
-                                    <a class="btn btn-square btn-primary my-1" href="<?php echo html_escape($ig_url); ?>" target="_blank"><i class="fab fa-instagram"></i></a>
-                                    <a class="btn btn-square btn-primary my-1" href="<?php echo html_escape($yt_url); ?>" target="_blank"><i class="fab fa-youtube"></i></a>
-                                </div>
+                                <h5 class="mb-1 text-dark fw-bold"><?php echo html_escape($member['name']); ?></h5>
+                                <p class="text-primary font-weight-bold text-sm mb-0"><?php echo html_escape($member['role']); ?></p>
                             </div>
                         </div>
                     <?php endforeach; ?>

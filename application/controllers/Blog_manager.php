@@ -30,7 +30,7 @@ class Blog_manager extends My_Controller {
         
         $row = [
             'slug' => '', 'metaTitle' => '', 'metaDescription' => '', 'metaKeyword' => '',
-            'heading' => '', 'description' => '', 'postedBy' => 'Admin', 'postedDate' => date('Y-m-d'),
+            'heading' => '', 'description' => '', 'postedBy' => '', 'postedDate' => date('Y-m-d'),
             'image' => '', 'status' => 'Active'
         ];
 
@@ -64,7 +64,7 @@ class Blog_manager extends My_Controller {
             'metaKeyword' => $pdata['metaKeyword'],
             'heading' => $pdata['heading'],
             'description' => $pdata['description'],
-            'postedBy' => $pdata['postedBy'],
+            'postedBy' => !empty($pdata['postedBy']) ? trim($pdata['postedBy']) : 'Admin',
             'postedDate' => $pdata['postedDate'],
             'status' => $pdata['status'],
         ];

@@ -89,27 +89,27 @@
                                 <div class="row g-3">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">Bank Name</label>
-                                        <input type="text" name="bank_name" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'bank_name', 'AXIS BANK')); ?>" placeholder="e.g. AXIS BANK">
+                                        <input type="text" name="bank_name" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'bank_name', '')); ?>" placeholder="e.g. AXIS BANK">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">Account Holder Name</label>
-                                        <input type="text" name="bank_account_name" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'bank_account_name', 'SHAHEED FOUNDATION')); ?>" placeholder="e.g. SHAHEED FOUNDATION">
+                                        <input type="text" name="bank_account_name" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'bank_account_name', '')); ?>" placeholder="e.g. SHAHEED FOUNDATION">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">Account Number</label>
-                                        <input type="text" name="bank_account_no" class="form-control px-3 border font-monospace" value="<?php echo html_escape(cms_val($cms, 'bank_account_no', '925010034361992')); ?>" placeholder="e.g. 925010034361992">
+                                        <input type="text" name="bank_account_no" class="form-control px-3 border font-monospace" value="<?php echo html_escape(cms_val($cms, 'bank_account_no', '')); ?>" placeholder="e.g. 925010034361992">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">IFSC Code</label>
-                                        <input type="text" name="bank_ifsc" class="form-control px-3 border font-monospace" value="<?php echo html_escape(cms_val($cms, 'bank_ifsc', 'UTIB0001970')); ?>" placeholder="e.g. UTIB0001970">
+                                        <input type="text" name="bank_ifsc" class="form-control px-3 border font-monospace" value="<?php echo html_escape(cms_val($cms, 'bank_ifsc', '')); ?>" placeholder="e.g. UTIB0001970">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">Branch Address</label>
-                                        <input type="text" name="bank_branch" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'bank_branch', 'Sector 29, Gurgaon, Haryana 122001')); ?>" placeholder="e.g. Sector 29, Gurgaon, Haryana 122001">
+                                        <input type="text" name="bank_branch" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'bank_branch', '')); ?>" placeholder="e.g. Sector 29, Gurgaon, Haryana 122001">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">UPI ID / VPA</label>
-                                        <input type="text" name="bank_upi_id" class="form-control px-3 border font-monospace" value="<?php echo html_escape(cms_val($cms, 'bank_upi_id', 'shaheedfoundation@axisbank')); ?>" placeholder="e.g. shaheedfoundation@axisbank">
+                                        <input type="text" name="bank_upi_id" class="form-control px-3 border font-monospace" value="<?php echo html_escape(cms_val($cms, 'bank_upi_id', '')); ?>" placeholder="e.g. shaheedfoundation@axisbank">
                                     </div>
                                 </div>
                             </div>
@@ -127,7 +127,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark"><i class="fab fa-youtube me-1 text-danger"></i> YouTube Channel URL</label>
-                                        <input type="url" name="social_youtube" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'social_youtube', 'https://youtube.com/@sfofindia')); ?>" placeholder="https://youtube.com/@...">
+                                        <input type="url" name="social_youtube" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'social_youtube', '')); ?>" placeholder="https://youtube.com/@...">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark"><i class="fab fa-linkedin me-1 text-info"></i> LinkedIn Page URL</label>
@@ -139,7 +139,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark"><i class="material-symbols-rounded me-1 align-middle text-sm">schedule</i> Office Hours / Timings</label>
-                                        <input type="text" name="office_hours" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'office_hours', 'Mon - Sat: 9:00 AM - 6:00 PM')); ?>" placeholder="Mon - Sat: 9:00 AM - 6:00 PM">
+                                        <input type="text" name="office_hours" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'office_hours', '')); ?>" placeholder="Mon - Sat: 9:00 AM - 6:00 PM">
                                     </div>
                                 </div>
                             </div>
@@ -243,11 +243,11 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">Donation Template Name <small class="text-muted fw-normal">(Optional for Meta Cloud API)</small></label>
-                                        <input type="text" name="whatsapp_template_donation" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'whatsapp_template_donation', 'donation_receipt')); ?>" placeholder="donation_receipt">
+                                        <input type="text" name="whatsapp_template_donation" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'whatsapp_template_donation', '')); ?>" placeholder="donation_receipt">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label font-weight-bold text-dark">Welcome/Verification Template Name <small class="text-muted fw-normal">(Optional for Meta Cloud API)</small></label>
-                                        <input type="text" name="whatsapp_template_welcome" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'whatsapp_template_welcome', 'member_welcome')); ?>" placeholder="member_welcome">
+                                        <input type="text" name="whatsapp_template_welcome" class="form-control px-3 border" value="<?php echo html_escape(cms_val($cms, 'whatsapp_template_welcome', '')); ?>" placeholder="member_welcome">
                                     </div>
                                 </div>
                             </div>

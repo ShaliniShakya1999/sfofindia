@@ -94,6 +94,10 @@ class Notifications extends My_Controller {
                 `is_read` TINYINT(1) NOT NULL DEFAULT 0,
                 `created_at` DATETIME NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        } else {
+            if (!$this->db->field_exists('link', 'ngom_notifications')) {
+                $this->db->query("ALTER TABLE `ngom_notifications` ADD COLUMN `link` VARCHAR(255) NULL AFTER `message`");
+            }
         }
 
         // 1. Sync Paid Donations

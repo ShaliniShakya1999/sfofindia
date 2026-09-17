@@ -134,16 +134,26 @@ $is_edit = !empty($is_edit);
                     </div>
                     <div class="card-body p-3">
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label text-xs font-weight-bold">Role Title</label>
-                                <input type="text" name="role" class="form-control px-3 border" placeholder="member / volunteer / manager" value="<?php echo html_escape($m['role'] ?? 'member'); ?>">
+                                <input type="text" name="role" class="form-control px-3 border" placeholder="e.g. member, volunteer, manager" value="<?php echo html_escape($m['role'] ?? ''); ?>">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label text-xs font-weight-bold">Current Status</label>
                                 <select name="status" class="form-select px-3 border">
                                     <?php foreach (array('pending', 'active', 'blocked', 'inactive') as $st): ?>
                                         <option value="<?php echo $st; ?>" <?php echo (($m['status'] ?? 'active') === $st) ? 'selected' : ''; ?>><?php echo ucfirst($st); ?></option>
                                     <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-xs font-weight-bold">Payment Mode <span class="badge bg-gradient-info text-xxs ms-1">Admin</span></label>
+                                <select name="payment_mode" class="form-select px-3 border">
+                                    <option value="">Select Payment Mode</option>
+                                    <option value="Cash" <?php echo (strcasecmp($m['payment_mode'] ?? '', 'Cash') === 0) ? 'selected' : ''; ?>>Cash (Admin Only)</option>
+                                    <option value="UPI / QR Code" <?php echo (stripos($m['payment_mode'] ?? '', 'UPI') !== false) ? 'selected' : ''; ?>>UPI / QR Code</option>
+                                    <option value="Bank Transfer" <?php echo (stripos($m['payment_mode'] ?? '', 'Bank') !== false) ? 'selected' : ''; ?>>Bank Transfer (NEFT/RTGS/IMPS)</option>
+                                    <option value="Online Gateway" <?php echo (stripos($m['payment_mode'] ?? '', 'Online') !== false) ? 'selected' : ''; ?>>Online Gateway / Net Banking</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
@@ -253,16 +263,30 @@ $is_edit = !empty($is_edit);
                     </div>
                 </div>
 
-                <!-- Action Hub -->
-                <div class="card shadow-primary bg-gradient-dark">
+                <!-- Verification & Action Hub -->
+                <div class="card border-0 shadow-sm" style="border-radius: 12px; border: 1px solid #e2e8f0 !important;">
                     <div class="card-body p-3">
-                        <h6 class="text-white mb-3">Verification Hub</h6>
+                        <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 32px; height: 32px; background: #e6f4f1; color: #1a685b;">
+                                <i class="material-symbols-rounded" style="font-size: 18px;">verified_user</i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 text-sm font-weight-bold" style="color: #1e293b;">Verification Hub</h6>
+                                <p class="text-xxs text-muted mb-0">Save details or approve status</p>
+                            </div>
+                        </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn bg-gradient-info mb-1">Update Member Profile</button>
+                            <button type="submit" class="btn mb-1 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #1a685b; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.825rem; padding: 10px 16px;">
+                                <i class="material-symbols-rounded" style="font-size: 18px;">save</i> Update Member Profile
+                            </button>
                             <?php if ($is_edit && $m['status'] !== 'active'): ?>
-                                <button type="submit" class="btn bg-gradient-success mb-1" formaction="<?php echo site_url('members/verify_member'); ?>">Verify & Approve</button>
+                                <button type="submit" class="btn mb-1 d-flex align-items-center justify-content-center gap-2 shadow-sm" formaction="<?php echo site_url('members/verify_member'); ?>" style="background-color: #0f766e; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.825rem; padding: 10px 16px;">
+                                    <i class="material-symbols-rounded" style="font-size: 18px;">check_circle</i> Verify & Approve
+                                </button>
                             <?php endif; ?>
-                            <a href="<?php echo site_url('members'); ?>" class="btn btn-secondary mb-0">Back to Database</a>
+                            <a href="<?php echo site_url('members'); ?>" class="btn btn-outline-secondary mb-0 d-flex align-items-center justify-content-center gap-2" style="border-radius: 8px; font-weight: 500; font-size: 0.825rem; padding: 8px 16px; border: 1px solid #cbd5e1; color: #475569;">
+                                <i class="material-symbols-rounded" style="font-size: 18px;">arrow_back</i> Back to Members
+                            </a>
                         </div>
                     </div>
                 </div>

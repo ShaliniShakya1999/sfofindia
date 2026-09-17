@@ -31,7 +31,7 @@ $can = function_exists('ngom_can_manage_ngom_content') ? ngom_can_manage_ngom_co
                 <div class="col-md-3">
                     <label class="form-label form-control-label">Goal Amount (₹)</label>
                     <div class="input-group input-group-outline">
-                        <input type="number" step="0.01" name="goal_amount" class="form-control" value="0">
+                        <input type="number" step="0.01" name="goal_amount" class="form-control" placeholder="e.g. 50000">
                     </div>
                 </div>
                 <div class="col-md-3">

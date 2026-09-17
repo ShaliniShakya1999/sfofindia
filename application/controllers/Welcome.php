@@ -60,8 +60,20 @@ class Welcome extends My_Controller {
 			}
 		} elseif ($method === 'team') {
 			$this->db->where('status', 'active');
+			$this->db->where('verified_at IS NOT NULL', null, false);
+			$this->db->where("verified_at >", '1970-01-01 00:00:00');
 			$this->db->order_by('id', 'ASC');
-			$data['active_members'] = $this->db->get('members')->result_array();
+			$raw_members = $this->db->get('members')->result_array();
+
+			$seen = array();
+			$data['active_members'] = array();
+			foreach ($raw_members as $m) {
+				$key = !empty($m['email']) ? strtolower(trim($m['email'])) : (!empty($m['mobile']) ? trim($m['mobile']) : strtolower(trim($m['name'])));
+				if (!isset($seen[$key])) {
+					$seen[$key] = true;
+					$data['active_members'][] = $m;
+				}
+			}
 		} elseif ($method === 'blog') {
 			$this->db->where('status', 'active');
 			$this->db->order_by('id', 'DESC');

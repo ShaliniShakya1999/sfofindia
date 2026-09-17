@@ -229,6 +229,48 @@ class Member_model extends CI_Model {
 		return $this->db->count_all_results('members') > 0;
 	}
 
+	public function mobile_exists($mobile, $exclude_id = null)
+	{
+		if (!$this->table_exists()) {
+			return false;
+		}
+		$clean = trim((string) $mobile);
+		$digits = preg_replace('/\D+/', '', $clean);
+		$last10 = strlen($digits) >= 10 ? substr($digits, -10) : $digits;
+		if ($last10 === '') {
+			return false;
+		}
+		$this->db->group_start();
+		$this->db->where('mobile', $clean);
+		$this->db->or_like('mobile', $last10);
+		$this->db->group_end();
+		if ($exclude_id !== null) {
+			$this->db->where('id !=', (int) $exclude_id);
+		}
+		return $this->db->count_all_results('members') > 0;
+	}
+
+	public function aadhar_exists($aadhar_no, $exclude_id = null)
+	{
+		if (!$this->table_exists()) {
+			return false;
+		}
+		$clean = trim((string) $aadhar_no);
+		$digits = preg_replace('/\D+/', '', $clean);
+		if (strlen($digits) < 12) {
+			return false;
+		}
+		$this->db->group_start();
+		$this->db->where('aadhar_no', $clean);
+		$this->db->or_where('aadhar_no', $digits);
+		$this->db->or_where("REPLACE(REPLACE(REPLACE(aadhar_no, ' ', ''), '-', ''), '+', '') =", $digits);
+		$this->db->group_end();
+		if ($exclude_id !== null) {
+			$this->db->where('id !=', (int) $exclude_id);
+		}
+		return $this->db->count_all_results('members') > 0;
+	}
+
 	public function find_by_email($email)
 	{
 		if (!$this->table_exists() || trim((string) $email) === '') {
@@ -274,6 +316,18 @@ class Member_model extends CI_Model {
 				return false;
 			}
 		}
+		if (isset($data['mobile'])) {
+			$m = trim((string) $data['mobile']);
+			if ($m !== '' && $this->mobile_exists($m)) {
+				return false;
+			}
+		}
+		if (isset($data['aadhar_no'])) {
+			$a = trim((string) $data['aadhar_no']);
+			if ($a !== '' && $this->aadhar_exists($a)) {
+				return false;
+			}
+		}
 		$data['public_id'] = $this->generate_public_id();
 		if (empty($data['member_id_code'])) {
 			$data['member_id_code'] = $this->generate_member_id_code();
@@ -294,6 +348,18 @@ class Member_model extends CI_Model {
 		if (isset($data['email'])) {
 			$data['email'] = strtolower(trim((string) $data['email']));
 			if ($data['email'] !== '' && $this->email_exists($data['email'], $id)) {
+				return false;
+			}
+		}
+		if (isset($data['mobile'])) {
+			$m = trim((string) $data['mobile']);
+			if ($m !== '' && $this->mobile_exists($m, $id)) {
+				return false;
+			}
+		}
+		if (isset($data['aadhar_no'])) {
+			$a = trim((string) $data['aadhar_no']);
+			if ($a !== '' && $this->aadhar_exists($a, $id)) {
 				return false;
 			}
 		}

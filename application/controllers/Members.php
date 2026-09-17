@@ -241,7 +241,7 @@ class Members extends My_Controller {
 			'payment_mode' => '',
 			'payment_receipt' => '',
 			'member_user_id' => '',
-			'role' => 'member',
+			'role' => '',
 			'status' => 'pending',
 			'joining_date' => date('Y-m-d'),
 			'referral_code' => '',

@@ -439,12 +439,16 @@ $config['cookie_samesite'] 	= 'Lax';
 
 /*
 |--------------------------------------------------------------------------
-| PaySprint Aadhaar API Credentials (disabled)
+| PaySprint Aadhaar API Credentials
 |--------------------------------------------------------------------------
 */
-// $config['pay_sprint_token'] = '';
-// $config['pay_sprint_key']   = '';
-// $config['pay_sprint_ua']    = '';
+$config['pay_sprint_base_url']   = 'https://sit.paysprint.in/sprintverify-uat/api/v1/';
+$config['pay_sprint_token']      = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lc3RhbXAiOjE3Njg4MDY5NzAsInBhcnRuZXJJZCI6IkNPUlAwMDAwMSIsInJlcWlkIjoiMTIyNTQzMDIxMzMzIn0.p1xujTDP14r5aa94RtLdfN17Mq3hnl77T7CODB0tvX8';
+$config['pay_sprint_key']        = 'TVRJek5EVTJOelUwTnpKRFQxSlFNREF3TURFPQ==';
+$config['pay_sprint_ua']         = 'CORP00001';
+$config['pay_sprint_partner_id'] = 'CORP00001';
+$config['pay_sprint_secret']     = ''; // If provided, generates fresh HS256 JWT tokens per request
+$config['pay_sprint_mock_mode']  = true; // Enabled so you can test the OTP input screen and form auto-fill immediately!
 
 /*
 |--------------------------------------------------------------------------
@@ -505,7 +509,15 @@ $config['csrf_exclude_uris'] = array(
 	'admin/send_profile_otp',
 	'join-us/check-email',
 	'member_apply/check_email',
+	'join-us/check-mobile',
+	'member_apply/check_mobile',
+	'join-us/check-aadhar',
+	'member_apply/check_aadhar',
 	'members/check_email',
+	'join-us/send_aadhaar_otp',
+	'join-us/verify_aadhaar_otp',
+	'member_apply/send_aadhaar_otp',
+	'member_apply/verify_aadhaar_otp',
 );
 
 /*
@@ -575,8 +587,3 @@ $config['rewrite_short_tags'] = FALSE;
 */
 $config['proxy_ips'] = '';
 
-/* PaySprint Aadhaar API Credentials (UAT) disabled
-$config['pay_sprint_token'] = '';
-$config['pay_sprint_key'] = '';
-$config['pay_sprint_ua'] = '';
-*/
